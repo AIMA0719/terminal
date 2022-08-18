@@ -46,32 +46,70 @@
                 android:layout_weight="1">
 
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_weight="3">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <EditText
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"
-                    android:layout_height="50dp"
-                    android:hint="입력하세요..">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_weight="3">
 
-                </EditText>
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="10dp"
+                        android:layout_height="50dp"
+                        android:hint="입력하세요..">
 
-                <Button
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
+                    </EditText>
+
+                    <Button
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:text="send"
+                        >
+                    </Button>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="3"
-                    android:text="send"
-                    >
-                </Button>
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="블루투스 연결"
+                        android:layout_weight="1"
+                        android:layout_margin="5dp">
+
+                    </Button>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="블루투스 해제"
+                        android:layout_weight="2"
+                        android:layout_margin="5dp">
+
+                    </Button>
+
+
+
+                </LinearLayout>
 
             </LinearLayout>
+
+
+
 
         </LinearLayout>
 
