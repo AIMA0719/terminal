@@ -22,7 +22,7 @@
             android:gravity="start"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/Theme.AppCompat.Light"
-            android:background="@color/purple_200">
+            android:background="@color/white">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -74,6 +74,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
                         android:text="send"
+
                         >
                     </Button>
 
@@ -87,22 +88,22 @@
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="블루투스 연결"
+                        android:text="AT 목록"
                         android:layout_weight="1"
-                        android:layout_margin="5dp">
+                        android:layout_margin="5dp"
+                        android:background="#000000">
 
                     </Button>
 
                     <Button
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="블루투스 해제"
+                        android:text="OBD-2 PIDS"
                         android:layout_weight="2"
-                        android:layout_margin="5dp">
+                        android:layout_margin="5dp"
+                        android:background="#000000">
 
                     </Button>
-
-
 
                 </LinearLayout>
 

@@ -8,11 +8,14 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +25,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int BLUETOOTH_CODE = 100;
+    private BluetoothAdapter bluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +33,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정?
 
+        bluetoothAdapter  = BluetoothAdapter.getDefaultAdapter();
 
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
         setSupportActionBar(toolbar); //툴바 소환
         getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
-//      getSupportActionBar().setTitle("Mini Terminal program"); // toolbar.setTitle("이거아니라네유");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 타이틀 왼쪽에 버튼 일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-
-//------------------------------------------------------------------------------------------------------------------------------권한 요청 좀 뻘짓 한거같다. 일단 냅둠
+//      getSupportActionBar().setTitle("Mini Terminal program"); // toolbar.setTitle("이거아니라네유");
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION);
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
             for ( int result : grandResults){ // 모든 퍼미션을 허용했는지 체크
                 if (result != PackageManager.PERMISSION_GRANTED) {
-                    check_result = false;
+                    check_result = false; // check_result 왜 안쓰는지 모르겠다..
                     break;
                 }
             }
@@ -73,39 +75,7 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grandResults); // 이건 왜있는지 모르겠음
     }
-    //---------------------------------------------------------------------------------------------------------------
 
-//    public void checkPermission(String permission,int requestCode){
-//        if(ContextCompat.checkSelfPermission(MainActivity.this,permission)==PackageManager.PERMISSION_DENIED){
-//            ActivityCompat.requestPermissions(MainActivity.this,new String[]{permission},requestCode);
-//        }
-//        else{
-//            Toast.makeText(this, "Permission already Granted", Toast.LENGTH_SHORT).show();
-//        }
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grandResults);
-//
-//        if(requestCode == 100){
-//            if(grandResults.length>0 && grandResults[0] == PackageManager.PERMISSION_GRANTED){
-//                Toast.makeText(this, "bluetooth permission ok bro", Toast.LENGTH_SHORT).show();
-//            }
-//            else{
-//                Toast.makeText(this, "nope bro", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//        if(requestCode == 101){
-//            if(grandResults.length>0 && grandResults[0] == PackageManager.PERMISSION_GRANTED){
-//                Toast.makeText(this, "bluetooth permission ok bro", Toast.LENGTH_SHORT).show();
-//            }
-//            else{
-//                Toast.makeText(this, "nope bro", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
-//------------------------------------------------------------------------------------------------------------------------------권한 요청 좀 뻘짓 한거같다. 일단 냅둠
     @Override // Toolbar 에 menu.xml을 inflate 함
     public boolean onCreateOptionsMenu(Menu menu) {
         //return super.onCreateOptionsMenu(menu);
@@ -118,13 +88,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item){
         switch (item.getItemId()){
             case R.id.action_settings:
-                Toast.makeText(getApplicationContext(), "환경설정 클릭됨", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "환경설정 클릭됨", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
                 return true;
-            case R.id.bluetooth_connection:
-                Toast.makeText(getApplicationContext(), "블루투스 연결", Toast.LENGTH_SHORT).show();
-                return true;
+//            case R.id.bluetooth_connection:
+////                Toast.makeText(getApplicationContext(), "블루투스 연결", Toast.LENGTH_SHORT).show(); 8/19일 작업...
+//                if(bluetoothAdapter != null && !bluetoothAdapter.isEnabled()){
+//                    Intent connection = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//                    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) { // 아마 블루투스 권한 체크해주는 코드 같다..
+//
+//                        Log.d("done?","done?");
+//                    }
+//                    else {
+//                        Toast.makeText(this, "잘 된거 맞냐..?", Toast.LENGTH_SHORT).show();
+//                    }
+//                }else{
+//                    Toast.makeText(this, "ASDASDASDASD", Toast.LENGTH_SHORT).show();
+//                }
+//                return true;
             case R.id.bluetooth_disconnection:
-                Toast.makeText(getApplicationContext(), "블루투스 해제", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "블루투스 해제", Toast.LENGTH_SHORT).show(); 8/19일 작업...
                 return true;
             default:
                 return onOptionsItemSelected(item);
