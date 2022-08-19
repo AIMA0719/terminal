@@ -117,12 +117,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "환경설정 클릭됨", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
                 return true;
             case R.id.bluetooth_connection:  // 블루투스 연결 클릭 listen
-                if (bluetoothAdapter != null) { // 블루투스가 사용 가능 유무 체크... 근데 안된다 ㅠ
-
-                    if (!bluetoothAdapter.isEnabled()) {
+                if (bluetoothAdapter != null) { // 블루투스 기능이 있으면
+                    if (!bluetoothAdapter.isEnabled()) { // 블루투스가 켜져있지 않으면
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
                             bluetooth_status.setText("연결됨");
                         }
                     }
@@ -140,18 +138,4 @@ public class MainActivity extends AppCompatActivity {
                 return onOptionsItemSelected(item);
         }
     }
-
-//    void bluetoothOn() {
-//        if (bluetoothAdapter == null) { //장치가 블루투스 지원x
-//            Toast.makeText(this, "블루투스 지원기기가 아닙니다.", Toast.LENGTH_SHORT).show();
-//        } else {
-//            if (bluetoothAdapter.isEnabled()) { //불루투스 지원하지만 비활성화면 활성으로 바꾸기위해 동의 요청
-//                Toast.makeText(this, "블루투스 활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
-//                bluetooth_status.setText("connected");
-//            } else { // 지원하고 활성 상태이면 기기 목록 보여주기기                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) { // 아마 블루투스 권한 체크해주는 코드 같다..
-//                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//                }
-//            }
-//        }
-//
 }
