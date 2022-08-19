@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
+
     TextView bluetooth_status;
 
     @Override
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정?
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
 
@@ -115,21 +116,21 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 Toast.makeText(this, "환경설정 클릭됨", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
                 return true;
-//            case R.id.bluetooth_connection:  // 블루투스 연결 클릭 listen
-//                if (bluetoothAdapter != null) { // 블루투스가 사용 가능 유무 체크... 근데 안된다 ㅠ
-//
-//                    if (!bluetoothAdapter.isEnabled()) {
-//                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//                            Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//
-//                            bluetooth_status.setText("연결됨");
-//                        }
-//                    }
-//                }
-//                else {
-//                    Log.d(TAG,"null?");
-//                }
-//                return true;
+            case R.id.bluetooth_connection:  // 블루투스 연결 클릭 listen
+                if (bluetoothAdapter != null) { // 블루투스가 사용 가능 유무 체크... 근데 안된다 ㅠ
+
+                    if (!bluetoothAdapter.isEnabled()) {
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+                            bluetooth_status.setText("연결됨");
+                        }
+                    }
+                }
+                else {
+                    Log.d(TAG,"null?");
+                }
+                return true;
 
             case R.id.bluetooth_disconnection: //블루투스 해제 클릭  listen
                 Toast.makeText(getApplicationContext(), "블루투스 해제", Toast.LENGTH_SHORT).show();
