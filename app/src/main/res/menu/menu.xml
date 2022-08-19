@@ -14,9 +14,15 @@
             android:icon="@drawable/connection"/>
 
         <item
-            android:title="블루투스 연결 해제"
+            android:title="블루투스 해제"
             android:id="@+id/bluetooth_disconnection"
             android:icon="@drawable/disconnection"/>
+
+        <item
+            android:title="블루투스 장치 목록 보기"
+            android:id="@+id/bluetooth_list">
+        </item>
+
     </group>
 
 </menu>
