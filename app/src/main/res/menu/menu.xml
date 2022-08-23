@@ -3,26 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_settings"
-        android:title="환경설정"
-        android:icon="@drawable/setting"
+        android:id="@+id/blutooth_connect"
+        android:title="블루투스 연결"
+        android:icon="@drawable/ic_baseline_bluetooth_25"
         app:showAsAction="ifRoom"/>
     <group>
         <item
-            android:title="블루투스 연결"
-            android:id="@+id/bluetooth_connection"
+            android:title="Log 저장하기"
+            android:id="@+id/log_load"
             android:icon="@drawable/connection"/>
 
         <item
-            android:title="블루투스 해제"
-            android:id="@+id/bluetooth_disconnection"
+            android:title="대시보드 보기"
+            android:id="@+id/dashboard"
             android:icon="@drawable/disconnection"/>
-
-        <item
-            android:title="블루투스 장치 목록 보기"
-            android:id="@+id/bluetooth_list">
-        </item>
-
     </group>
 
 </menu>

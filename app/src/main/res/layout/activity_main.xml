@@ -30,6 +30,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:textColor="@color/black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="20dp"
@@ -38,6 +39,7 @@
                 </TextView>
 
                 <TextView
+                    android:textColor="@color/black"
                     android:id="@+id/mbluetooth_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,7 +82,7 @@
                         android:layout_width="match_parent"
                         android:layout_weight="1"
                         android:layout_marginLeft="10dp"
-                        android:layout_height="50dp"
+                        android:layout_height="60dp"
                         android:hint="입력하세요..">
 
                     </EditText>
@@ -89,8 +91,8 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
+                        android:layout_height="60dp"
+                        android:layout_weight="2"
                         android:text="보내기"
 
                         >
@@ -101,10 +103,11 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_weight="3">
 
                     <Button
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:text="AT 목록"
                         android:layout_weight="1"
@@ -114,10 +117,20 @@
                     </Button>
 
                     <Button
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:text="OBD-2 PIDS"
-                        android:layout_weight="2"
+                        android:layout_weight="1"
+                        android:layout_margin="5dp"
+                        android:background="#000000">
+
+                    </Button>
+
+                    <Button
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:text="Window Clear"
+                        android:layout_weight="1"
                         android:layout_margin="5dp"
                         android:background="#000000">
 
@@ -126,9 +139,6 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-
-
 
         </LinearLayout>
 

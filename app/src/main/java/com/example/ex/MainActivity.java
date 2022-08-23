@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.BLUETOOTH_SCAN}, 2);
                 }
             } catch (Exception e) {
-                Log.d(TAG, "모르겠다~" + e);
+                Log.d(TAG, "모르겠다~" , e);
                 return;
             }
 
@@ -113,29 +113,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) { // 메뉴가 선택되면 동작하는 로직들
         switch (item.getItemId()) {
-            case R.id.action_settings:
-                Toast.makeText(this, "환경설정 클릭됨", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
+            case R.id.blutooth_connect:
+                Toast.makeText(this, "블루투스 페이지 선택", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
                 return true;
-            case R.id.bluetooth_connection:  // 블루투스 연결 클릭 listen
-                if (bluetoothAdapter != null) { // 블루투스 기능이 있으면
-                    if (!bluetoothAdapter.isEnabled()) { // 블루투스가 켜져있지 않으면
+
+            case R.id.log_load:  // 블루투스 연결 클릭 listen
+                if (bluetoothAdapter != null) {
+
+                    if (!bluetoothAdapter.isEnabled()) {
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
                             bluetooth_status.setText("연결됨");
                         }
                     }
                 }
                 else {
-                    Log.d(TAG,"null?");
+                    Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG,"Bluetoothadapter is null");
                 }
                 return true;
 
-            case R.id.bluetooth_disconnection: //블루투스 해제 클릭  listen
-                Toast.makeText(getApplicationContext(), "블루투스 해제", Toast.LENGTH_SHORT).show();
+            case R.id.dashboard: //블루투스 해제 클릭  listen
+                Toast.makeText(getApplicationContext(), "대쉬보드", Toast.LENGTH_SHORT).show();
                 return true;
 
             default:
                 return onOptionsItemSelected(item);
         }
     }
+
+
 }
