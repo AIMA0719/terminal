@@ -24,6 +24,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     // 선언 Area
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,15 +72,15 @@ public class MainActivity extends AppCompatActivity {
         bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
         // 아디 묶어주는 Area
 
-
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
         recyclerView.setLayoutManager(new LinearLayoutManager(this)); //?
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정?
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// 블루투스 어댑터
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// get머시기는 장치가 블루투스 기능을 지원하는지 알아오는 메소드
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.addAll(database.mainDao().getAll());
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
+            Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         });
         // --------
 
@@ -222,8 +225,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // --------
-
-
-
 
 }
