@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -28,9 +30,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +44,13 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
+    EditText editText;
+    Button btAdd, btReset;
+    RecyclerView recyclerView;
+
+    List<MainData> dataList = new ArrayList<>();
+    RoomDB database;
+    MainAdapter adapter;
 
     TextView bluetooth_status;
 
@@ -45,23 +58,68 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        editText = findViewById(R.id.command_write);
+        btAdd = findViewById(R.id.send_message);
+        btReset = findViewById(R.id.clear_message);
+        recyclerView = findViewById(R.id.recycler_view);
+
+        database = RoomDB.getInstance(this); // 룸디비 가져옴
+        dataList = database.mainDao().getAll();
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new MainAdapter(MainActivity.this, dataList);
+        recyclerView.setAdapter(adapter);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정?
-
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
         bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
 
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
         setSupportActionBar(toolbar); //툴바 소환
         getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 타이틀 왼쪽에 버튼 일단 false 로
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-//      getSupportActionBar().setTitle("Mini Terminal program"); // toolbar.setTitle("이거아니라네유");
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
         int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+
+        final int[] count = {0}; // 뷰에 저장된 명령어 개수
+
+        //-----리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
+        database.mainDao().reset(dataList); //리스트 DB 삭제
+        dataList.clear(); // 리스트 클리어
+        adapter.notifyDataSetChanged(); //갱신
+        //-----
+
+        btAdd.setOnClickListener(v -> { //보내기 버튼 눌렀을때 동작 Cardview로 리사이클러뷰에 추가한다.
+            String sText = editText.getText().toString().trim();
+            if (!sText.equals(""))
+            {
+                MainData data = new MainData();
+                data.setText(sText);
+                database.mainDao().insert(data);
+
+                editText.setText("");
+
+                dataList.clear(); //리스트 초기화
+                dataList.addAll(database.mainDao().getAll()); //add
+                adapter.notifyDataSetChanged(); //갱신
+                count[0] = count[0] + 1;
+            }
+            Log.d(TAG,"명령어를 입력한 횟수" + count[0]);
+        });
+
+        btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
+            database.mainDao().reset(dataList);
+
+            dataList.clear();
+            dataList.addAll(database.mainDao().getAll());
+            adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
+            //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
+        });
 
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
                 permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
