@@ -35,6 +35,8 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.slider.Slider;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     List<MainData> dataList = new ArrayList<>();
     RoomDB database;
     MainAdapter adapter;
-    TextView bluetooth_status;
+    TextView bluetooth_status, list_item;
     // 선언 Area
 
     @Override
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // 아디 묶어주는 Area
+        list_item =findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
@@ -92,13 +95,13 @@ public class MainActivity extends AppCompatActivity {
         int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
         // --------
 
-        final int[] count = {0}; // 뷰에 저장된 명령어 개수
-
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
         database.mainDao().reset(dataList); //리스트 DB 삭제
         dataList.clear(); // 리스트 클리어
         adapter.notifyDataSetChanged(); //갱신
         // --------
+
+
 
         // -------- 보내기 버튼 클릭 이벤트
         btAdd.setOnClickListener(v -> {
@@ -114,9 +117,11 @@ public class MainActivity extends AppCompatActivity {
                 dataList.clear(); //리스트 초기화
                 dataList.addAll(database.mainDao().getAll()); //add
                 adapter.notifyDataSetChanged(); //갱신
-                count[0] = count[0] + 1;
+
+                recyclerView.getLayoutManager().scrollToPosition(dataList.size()-1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
             }
-            Log.d(TAG,"명령어를 입력한 횟수" + count[0]);
+            //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
+            Log.d(TAG,"명령어를 입력한 횟수" + dataList.size());
         });
         // --------
 
