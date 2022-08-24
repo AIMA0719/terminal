@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
 
-
         // -------- 보내기 버튼 클릭 이벤트
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         });
         // --------
 
-        // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
+        // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
                 permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
             try {
@@ -196,7 +195,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.blutooth_connect:
-                Toast.makeText(this, "블루투스 페이지 선택", Toast.LENGTH_SHORT).show(); // 환경설정 일단 만들어놓음
+                Intent intent = new Intent(this,bluetooth.class);
+                startActivity(intent);
                 return true;
 
             case R.id.log_load:  // 블루투스 연결 클릭 listen
