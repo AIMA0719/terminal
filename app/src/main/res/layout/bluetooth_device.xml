@@ -8,12 +8,6 @@
         android:id="@+id/txtName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Name"
+        android:textColor="@color/purple_500"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
-    <TextView
-        android:id="@+id/txtAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Address"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 </LinearLayout>

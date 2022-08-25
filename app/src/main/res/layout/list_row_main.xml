@@ -8,14 +8,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/white">
 
         <TextView
             android:id="@+id/text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:background="@drawable/round_button" />
 
     </LinearLayout>
 

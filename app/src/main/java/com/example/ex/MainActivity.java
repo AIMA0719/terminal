@@ -22,6 +22,8 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,11 +59,32 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     // 선언 Area
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_ADVERTISE,
+                            Manifest.permission.BLUETOOTH_CONNECT
+
+                    },
+                    1);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH
+
+                    },
+                    1);
+        }
+        //--------------------------------------
+
 
         // 아디 묶어주는 Area
         list_item =findViewById(R.id.text_view);
@@ -88,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
+        toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
         // -------- 권한 설정
@@ -193,15 +217,17 @@ public class MainActivity extends AppCompatActivity {
     // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
         switch (item.getItemId()) {
-            case R.id.blutooth_connect:
-                Intent intent = new Intent(this,bluetooth.class);
-                startActivity(intent);
-                return true;
-
-            case R.id.log_load:  // 블루투스 연결 클릭 listen
+                case R.id.blutooth_connect:
+                    try {
+                        Intent intent = new Intent(this, bluetooth.class);
+                        startActivity(intent);
+                    }catch (Exception e){
+                        Log.d(TAG, "Error :"+e);
+                    }
+            case R.id.log_load:  //
                 if (bluetoothAdapter != null) {
-
                     if (!bluetoothAdapter.isEnabled()) {
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -209,10 +235,9 @@ public class MainActivity extends AppCompatActivity {
                             bluetooth_status.setText("연결됨");
                         }
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG,"Bluetoothadapter is null");
+                    Log.d(TAG, "Bluetoothadapter is null");
                 }
                 return true;
 
@@ -225,5 +250,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     // --------
-
 }

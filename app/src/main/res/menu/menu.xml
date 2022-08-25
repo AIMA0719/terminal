@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
 
     <item
         android:id="@+id/blutooth_connect"
@@ -8,6 +9,7 @@
         android:icon="@drawable/ic_baseline_bluetooth_25"
         app:showAsAction="ifRoom"/>
     <group>
+
         <item
             android:title="Log 저장하기"
             android:id="@+id/log_load"
