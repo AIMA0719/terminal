@@ -77,25 +77,30 @@ public class bluetooth extends AppCompatActivity {
 
         //-------------------------
 
+
         //------------------------- 등록된 디바이스 보여주는 Area
 
         LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan 사용하기 위한 부분
         listView_pairing.setLayoutManager(linearLayoutManager2);
 
+        CustomAdapter adapter = new CustomAdapter(getApplicationContext()); //어댑터 선언 해서
         CustomAdapter adapter2 = new CustomAdapter(getApplicationContext());
-        try {
+        
 
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
+                Log.d(TAG,"in??");
                 pairedDevice = mBluetoothAdapter.getBondedDevices();
                 if (pairedDevice.size() > 0) { // 디바이스가 있으면
                     for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                        adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                        listView_pairing.setAdapter(adapter2);
+                        adapter.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                        listView_pairing.setAdapter(adapter);
                     }
-
+                }
+                else {
+                    Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
-        }catch (Exception e ) { Log.d(TAG,"error" + e);}
+            Log.d(TAG,"sdlkfjsldkfjsfd");
         //-------------------------
 
 
@@ -155,15 +160,12 @@ public class bluetooth extends AppCompatActivity {
 
         //-----------------------
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan 사용하기 위한 부분
-        listView_scan.setLayoutManager(linearLayoutManager);
-
-
-        CustomAdapter adapter = new CustomAdapter(getApplicationContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan부분 레이아웃 선언
+        listView_scan.setLayoutManager(linearLayoutManager); // list_scan에 레이아웃 세팅해주고..
 
         bluetooth_scan.setOnClickListener(v ->{
-            adapter.addItem(new Customer("getName","getAddress"));
-            listView_scan.setAdapter(adapter);
+            adapter2.addItem(new Customer("getName","getAddress")); //  아이템 넣고
+            listView_scan.setAdapter(adapter2);  // list_scan에 어댑터에 들어간 데이터 넣어줌~
         });
 
         //-----------------------

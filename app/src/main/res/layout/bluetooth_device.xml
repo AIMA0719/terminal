@@ -10,11 +10,13 @@
         android:id="@+id/txtName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="32sp"/>
+        android:textSize="15sp"
+        android:textColor="@color/black"/>
 
     <TextView
         android:id="@+id/txtAddress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="32sp"/>
+        android:textSize="15sp"
+        android:textColor="@color/black"/>
 </LinearLayout>
