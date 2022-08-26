@@ -99,14 +99,14 @@
 
         </TextView>
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pairing_list"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginTop="10dp"
             tools:listitem="@layout/bluetooth_device">
 
-        </ListView>
+        </androidx.recyclerview.widget.RecyclerView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -122,14 +122,14 @@
 
             </TextView>
 
-            <ListView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/scan_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 tools:listitem="@layout/bluetooth_device"
-                >
+                android:layout_marginTop="5dp">
 
-            </ListView>
+            </androidx.recyclerview.widget.RecyclerView>>
 
         </LinearLayout>
 

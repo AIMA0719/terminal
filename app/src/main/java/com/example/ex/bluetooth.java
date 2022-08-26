@@ -22,6 +22,9 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -36,14 +39,10 @@ public class bluetooth extends AppCompatActivity {
     protected static UUID MY_UUID; // 블루투스 뭐 아이디?
     int REQUEST_ENABLE_BT = 1; // 요청 코드
 
-    ListView listView_pairing, listView_scan; //
+    RecyclerView listView_pairing, listView_scan; //
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
     private Set<BluetoothDevice> pairedDevice;
     //-----
-
-    private final ArrayList list = new ArrayList<String>();
-    private final ArrayList list2 = new ArrayList<String>();
-    private ArrayAdapter<String> listAdapter;
 
 
     @Override
@@ -80,28 +79,29 @@ public class bluetooth extends AppCompatActivity {
 
         //------------------------- 등록된 디바이스 보여주는 Area
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    list.add(bt.getName() + "\n" + bt.getAddress()); // 이름이랑 주소 나타냄
+        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan 사용하기 위한 부분
+        listView_pairing.setLayoutManager(linearLayoutManager2);
+
+        CustomAdapter adapter2 = new CustomAdapter(getApplicationContext());
+        try {
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                pairedDevice = mBluetoothAdapter.getBondedDevices();
+                if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                    for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                        adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                        listView_pairing.setAdapter(adapter2);
+                    }
+
                 }
-                ArrayAdapter adapter = new ArrayAdapter(this,R.layout.memolist_type, list);
-                listView_pairing.setAdapter(adapter);
             }
-        }
+        }catch (Exception e ) { Log.d(TAG,"error" + e);}
         //-------------------------
 
-        //------------------------- 연결 가능한 디바이스 검색 Area
-
-        listAdapter = new ArrayAdapter(this,R.layout.memolist_type,list2);
-        listView_scan.setAdapter(listAdapter);
-
-        //-------------------------
 
         //------------------------- 버튼 클릭 이벤트
 
-        bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트 메소드
+        bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
             if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
                 if (!mBluetoothAdapter.isEnabled()) {
                     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
@@ -129,7 +129,7 @@ public class bluetooth extends AppCompatActivity {
 
         //-------------------------
 
-        bluetooth_off.setOnClickListener(v -> { //블루투스 off 클릭 이벤트 메소드
+        bluetooth_off.setOnClickListener(v -> { //블루투스 off 클릭 이벤트
             if (mBluetoothAdapter.isEnabled()) {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P){
                     mBluetoothAdapter.disable(); //블루투스 비활성화
@@ -153,15 +153,23 @@ public class bluetooth extends AppCompatActivity {
             }
         });
 
-        bluetooth_scan.setOnClickListener(v -> {
-            int count;
-            count = listAdapter.getCount();
+        //-----------------------
 
-            list2.add("List" + Integer.toString(count +1));
-            listAdapter.notifyDataSetChanged();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan 사용하기 위한 부분
+        listView_scan.setLayoutManager(linearLayoutManager);
+
+
+        CustomAdapter adapter = new CustomAdapter(getApplicationContext());
+
+        bluetooth_scan.setOnClickListener(v ->{
+            adapter.addItem(new Customer("getName","getAddress"));
+            listView_scan.setAdapter(adapter);
         });
 
+        //-----------------------
+
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
