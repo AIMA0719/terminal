@@ -77,32 +77,14 @@ public class bluetooth extends AppCompatActivity {
 
         //-------------------------
 
-
         //------------------------- 등록된 디바이스 보여주는 Area
 
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan부분 레이아웃 선언
         LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan 사용하기 위한 부분
-        listView_pairing.setLayoutManager(linearLayoutManager2);
+        listView_pairing.setLayoutManager(linearLayoutManager);
+        listView_scan.setLayoutManager(linearLayoutManager2);
 
-        CustomAdapter adapter = new CustomAdapter(getApplicationContext()); //어댑터 선언 해서
-        CustomAdapter adapter2 = new CustomAdapter(getApplicationContext());
-        
-
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
-                Log.d(TAG,"in??");
-                pairedDevice = mBluetoothAdapter.getBondedDevices();
-                if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                    for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                        adapter.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                        listView_pairing.setAdapter(adapter);
-                    }
-                }
-                else {
-                    Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-            Log.d(TAG,"sdlkfjsldkfjsfd");
-        //-------------------------
-
+        queryPairedDevice(); //list_paired 부분 등록된 디바이스 있는지 체크하고 뷰에 보여주는 함수
 
         //------------------------- 버튼 클릭 이벤트
 
@@ -143,7 +125,7 @@ public class bluetooth extends AppCompatActivity {
                 }
                 else {
                     if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) { //권한 체크해주고
-                        Toast.makeText(this, "오류났습니다", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "블루투스 권한이 없습니다.", Toast.LENGTH_SHORT).show();
 
                     } else {
                         mBluetoothAdapter.disable(); //블루투스 비활성화
@@ -153,25 +135,21 @@ public class bluetooth extends AppCompatActivity {
                 }
             }
             else {
-
                 Toast.makeText(this, "이미 비활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
             }
         });
 
         //-----------------------
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false); // list_scan부분 레이아웃 선언
-        listView_scan.setLayoutManager(linearLayoutManager); // list_scan에 레이아웃 세팅해주고..
-
+        CustomAdapter adapter = new CustomAdapter(getApplicationContext());
         bluetooth_scan.setOnClickListener(v ->{
-            adapter2.addItem(new Customer("getName","getAddress")); //  아이템 넣고
-            listView_scan.setAdapter(adapter2);  // list_scan에 어댑터에 들어간 데이터 넣어줌~
+            adapter.addItem(new Customer("getName","getAddress")); //  아이템 넣고
+            listView_scan.setAdapter(adapter);  // list_scan에 어댑터에 들어간 데이터 넣어줌~
         });
 
         //-----------------------
 
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
@@ -199,5 +177,38 @@ public class bluetooth extends AppCompatActivity {
         }
     }
 
+    public void queryPairedDevice(){
+        CustomAdapter adapter2 = new CustomAdapter(getApplicationContext()); //어댑터 선언
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) // SDK가 31이상
+        {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
+                Log.d(TAG, "in??");
+                pairedDevice = mBluetoothAdapter.getBondedDevices();
+                if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                    for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                        adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                        listView_pairing.setAdapter(adapter2);
+                    }
+                } else {
+                    Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) //SDK가 31이하 23보다 이상
+            {
+                pairedDevice = mBluetoothAdapter.getBondedDevices();
+                if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                    for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                        adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                        listView_pairing.setAdapter(adapter2);
+                    }
+                }
+                else{
+                    Toast.makeText(this, "등록된 디바이스 보여주기 오류남", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
 }
 

@@ -169,14 +169,14 @@ public class MainActivity extends AppCompatActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
                     requestPermissions(new String[]{ //위치권한요청
                             Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
+                            Manifest.permission.ACCESS_FINE_LOCATION}, 1); // 된거냐?
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S이상부터 물어본다...
                     requestPermissions(new String[]{ //블루투스 요청
                             Manifest.permission.BLUETOOTH_CONNECT,
                             Manifest.permission.BLUETOOTH_SCAN}, 2);
                 }
             } catch (Exception e) {
-                Log.d(TAG, "모르겠다~" , e);
+                Log.d(TAG, "앱 시작하면 권한 요청하기 실패" , e);
                 return;
             }
 
