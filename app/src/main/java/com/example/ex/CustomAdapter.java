@@ -43,26 +43,34 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.setItem(item);
     }
 
-    public void addItem(Customer item){
-        items.add(item);
+    public void addItem(Customer item){  //중복체크 하는법 ex)
+        boolean isExist = false;
+        for (Customer customer : items){
+            if (item.address.equals(customer.address)){
+                isExist = true;
+                return;
+            }
+        }
+        if (!isExist){
+            items.add(item);
+        }
+
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tv_name;
-        TextView tv_phone;
+        TextView tv_address;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tv_name = itemView.findViewById(R.id.txtName);
-            tv_phone = itemView.findViewById(R.id.txtAddress);
-
+            tv_address = itemView.findViewById(R.id.txtAddress);
 
         }
-
         public void setItem(Customer item){
             tv_name.setText(item.name);
-            tv_phone.setText(item.address);
+            tv_address.setText(item.address);
         }
     }
 
@@ -76,4 +84,5 @@ class Customer {
         this.name = name;
         this.address = address;
     }
+
 }
