@@ -15,32 +15,28 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
     Context context;
-    private static ArrayList<Customer> items = new ArrayList<>(); // items 라는 리스트 선언
+    private ArrayList<Customer> items = new ArrayList<>(); // items 라는 리스트 선언
 
-    public CustomAdapter(Context context){
+    public CustomAdapter(bluetooth context) {
         this.context = context;
-    } //생성자 선언
-
-//    public CustomAdapter(Context context, ArrayList<Customer> arrayList){
-//        this.context = context;
-//        this.
-//    }
+    }
 
     //-------------------------------------------------------- 리사이클러뷰 아이템 클릭동작 구현 위한 작업 -> 이건 뷰홀더안에 만드는게아니라 외부 엑티비티 혹은 프래그먼트에서 동학하기위해 인터페이스만든거
 
-    public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
-        void onItemClicked(int position,View view);
-    }
-
-    public static OnItemClickListener itemClickListener = null;  // 참조 변수 선언
-
-    public void setOnItemClickListener(OnItemClickListener listener){  // OnItemClickListener 전달 메소드
-        this.itemClickListener = listener;
-    }
+//    public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
+//        void onItemClicked(int position,View view);
+//    }
+//
+//    public static OnItemClickListener itemClickListener = null;  // 참조 변수 선언
+//
+//    public void setOnItemClickListener(OnItemClickListener listener){  // OnItemClickListener 전달 메소드
+//        this.itemClickListener = listener;
+//    }
 
     //--------------------------------------------------------
 
@@ -88,12 +84,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
             tv_name = itemView.findViewById(R.id.txtName);
             tv_address = itemView.findViewById(R.id.txtAddress);
 
-            itemView.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
-                if(pos != RecyclerView.NO_POSITION){
-                    itemClickListener.onItemClicked(pos,v);
-                }
-            });
         }
 
         public void setItem(Customer item){

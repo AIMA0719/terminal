@@ -14,14 +14,17 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,12 +51,13 @@ public class bluetooth extends AppCompatActivity {
 
     RecyclerView listView_pairing, listView_scan;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
-    private Set<BluetoothDevice> pairedDevice;
+    private Handler handler;
+    private ArrayAdapter<String> mBTArrayAdapter;
 
     //-----
 
-    public CustomAdapter adapter = new CustomAdapter(this); //어댑터 선언, pair_list
-    public CustomAdapter adapter2 = new CustomAdapter(this); //어댑터 선언, scan_list
+    private final CustomAdapter adapter2 = new CustomAdapter(this); //이게 등록된 디바이스
+    private final CustomAdapter adapter = new CustomAdapter(this); //이게 연결 가능한 디바이스
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -62,7 +67,7 @@ public class bluetooth extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar); // 묶어주자... 이거때매 자꾸 팅겼다..
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("블루투스 연결 페이지");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("블루투스 연결 페이지");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 개같은뒤로가기 이거 툴바 아이디 안묶어주면 계속 오류났었다
 
         bluetooth_on = findViewById(R.id.bluetooth_on);
@@ -95,9 +100,8 @@ public class bluetooth extends AppCompatActivity {
         listView_pairing.setLayoutManager(linearLayoutManager); //레이아웃 설정
         listView_scan.setLayoutManager(linearLayoutManager2); //레이아웃 설정
 
-        ArrayList<Customer> mArraylist = new ArrayList<>();
-
         //-------------------------
+
 
         //-------------------------
         final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
@@ -112,7 +116,6 @@ public class bluetooth extends AppCompatActivity {
 
                         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
-                            return;
                         } else {
                             if (device.getName() != null) {
                                 adapter.addItem(new Customer(device.getName(), device.getAddress())); // 리사이클러뷰에 이름이랑 맥주소 추가
@@ -122,9 +125,8 @@ public class bluetooth extends AppCompatActivity {
                         }
                     } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                         Log.v(TAG, "총 찾은 디바이스 개수 : " + cnt); // 블루투스가 꺼질때 동작한다.
-                    } else {
-                        //Log.d(TAG, "onReceive: "+action);
                     }
+
                 } else {
                     if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -139,8 +141,6 @@ public class bluetooth extends AppCompatActivity {
             }
         }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
 
-        Log.d(TAG, "onCreate: "+adapter.context);
-
         checkpairedDevice(); // 등록된 디바이스가 있는지 체크하고 보여주는 함수
 
         bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
@@ -152,6 +152,7 @@ public class bluetooth extends AppCompatActivity {
                         bluetooth_status.setText("블루투스 연결 상태입니다.");
                     } else {
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "권한이 없습니다.", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                             startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
@@ -194,7 +195,6 @@ public class bluetooth extends AppCompatActivity {
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
             startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
 
-
             try {
                 if (mBluetoothAdapter.isDiscovering()) { // 검색 중이냐?
                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
@@ -210,12 +210,6 @@ public class bluetooth extends AppCompatActivity {
             }
         }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분
 
-        adapter.setOnItemClickListener((position, view) -> {
-
-            Toast.makeText(this, "아오 ㅠ", Toast.LENGTH_SHORT).show();
-
-        }); // 리사이클러뷰 버튼 누르면 동작하는 부분
-
         //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
@@ -226,21 +220,13 @@ public class bluetooth extends AppCompatActivity {
 
     }
 
-    public void connectSelectedDevice(String selectedDeviceName) {
-        for (BluetoothDevice device : pairedDevice) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "권한이 허용되지 않았습니다.", Toast.LENGTH_SHORT).show();
-            }
-            if (selectedDeviceName.equals(device.getName())) {
-
-            }
-        }
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     public void checkpairedDevice(){
+
+        Set<BluetoothDevice> pairedDevice;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
+            if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
                     adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
                     listView_pairing.setAdapter(adapter2); //리사이클러뷰에 어댑터 설정
@@ -280,12 +266,10 @@ public class bluetooth extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                return true;
-            }
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
