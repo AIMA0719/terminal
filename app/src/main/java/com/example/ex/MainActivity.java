@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
+
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
         database.mainDao().reset(dataList); //리스트 DB 삭제
         dataList.clear(); // 리스트 클리어
@@ -188,18 +189,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
         if (requestCode == 1) {
-            boolean check_result = true;  //  location 권한 체크 결과를 불러온다.
+            boolean check_result = false;  //  권한 체크 했니?
 
             for (int result : grandResults) { // 모든 퍼미션을 허용했는지 체크
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    check_result = false; // check_result 왜 안쓰는지 모르겠다..
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    check_result = true; // 체크 됐으면 false
                     break;
                 }
             }
-            if (check_result == true) {
+
+            if (check_result) {
                 //Toast.makeText(this, "위치 권한 확인 되었습니다.", Toast.LENGTH_SHORT).show();
             } else
-                Toast.makeText(this, "설정에서 권한을 허용 해주세요 ㅠㅠ ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
+                Toast.makeText(this, "설정에서 권한을 허용 해주세요. ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
         }
         super.onRequestPermissionsResult(requestCode, permissions, grandResults);
     }// -------- 앱 시작하면 권한이 있는지 없는지 체크하는 메소드 ( 현재 위치권한 확인 체크된다)

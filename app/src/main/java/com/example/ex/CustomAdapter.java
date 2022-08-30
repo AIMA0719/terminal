@@ -1,6 +1,8 @@
 package com.example.ex;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.icu.text.Transliterator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +24,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public CustomAdapter(Context context){
         this.context = context;
     } //생성자 선언
+
+//    public CustomAdapter(Context context, ArrayList<Customer> arrayList){
+//        this.context = context;
+//        this.
+//    }
 
     //-------------------------------------------------------- 리사이클러뷰 아이템 클릭동작 구현 위한 작업 -> 이건 뷰홀더안에 만드는게아니라 외부 엑티비티 혹은 프래그먼트에서 동학하기위해 인터페이스만든거
 

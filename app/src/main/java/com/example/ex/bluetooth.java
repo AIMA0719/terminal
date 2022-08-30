@@ -96,6 +96,9 @@ public class bluetooth extends AppCompatActivity {
 
         listView_pairing.setLayoutManager(linearLayoutManager); //레이아웃 설정
         listView_scan.setLayoutManager(linearLayoutManager2); //레이아웃 설정
+
+        ArrayList<Customer> mArraylist = new ArrayList<>();
+
         //-------------------------
 
         //-------------------------
@@ -208,12 +211,8 @@ public class bluetooth extends AppCompatActivity {
         }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분
 
         adapter.setOnItemClickListener((position, view) -> {
-            if(position != 1){
-                Toast.makeText(this,"인덱스1이 아님",Toast.LENGTH_SHORT).show();
-            }
-            else{
-                Toast.makeText(this,"인덱스1",Toast.LENGTH_SHORT).show();
-            }
+
+                Toast.makeText(this,"아오 ㅠ",Toast.LENGTH_SHORT).show();
 
         }); // 리사이클러뷰 버튼 누르면 동작하는 부분
 
