@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
@@ -42,7 +44,9 @@ import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@RequiresApi(api = Build.VERSION_CODES.S)
 public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> resultLauncher; // 클래스내에 선언 해주래  startactivityForresult 대신 쓰는거..
@@ -65,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     public int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
     public int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
     // --------
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,17 +90,17 @@ public class MainActivity extends AppCompatActivity {
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// getDefaultAdapter 장치가 블루투스 기능을 지원하는지 알아오는 메소드
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
         setSupportActionBar(toolbar); //툴바 소환
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-        toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
+        Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
@@ -146,18 +151,12 @@ public class MainActivity extends AppCompatActivity {
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
                 permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
-                    requestPermissions(new String[]{ //위치권한요청
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S이상부터 물어본다...
-                    requestPermissions(new String[]{ //블루투스 요청
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_SCAN}, 2);
-                }
+                // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
+                requestPermissions(new String[]{ //위치권한요청
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
             } catch (Exception e) {
-                Log.d(TAG, "모르겠다~" , e);
-                return;
+                Log.d(TAG, "checkPermission 에서 오류" , e);
             }
 
         }
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
                     },
                     1);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else {
             requestPermissions(
                     new String[]{
                             Manifest.permission.BLUETOOTH
@@ -195,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
-            if (check_result = true) {
+            if (check_result) {
                 //Toast.makeText(this, "위치 권한 확인 되었습니다.", Toast.LENGTH_SHORT).show();
             } else
                 Toast.makeText(this, "설정에서 권한을 허용 해주세요 ㅠㅠ ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
@@ -211,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
