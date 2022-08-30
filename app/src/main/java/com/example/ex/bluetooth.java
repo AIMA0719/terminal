@@ -42,11 +42,10 @@ public class bluetooth extends AppCompatActivity {
     final String TAG = "bluetooth_activity";
 
     //----- 블루투스 위한
-    protected static UUID MY_UUID; // UUID는 Universally Unique IDentifier로 SDP에서 서비스의 종류를구분하기 위한 128비트 포맷의 표준화 된 문자열 ID입니다.
     int REQUEST_ENABLE_BT = 1; // 요청 코드
     int REQUEST_LOACTION = 2;
 
-    RecyclerView listView_pairing, listView_scan; //
+    RecyclerView listView_pairing, listView_scan;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
     private Set<BluetoothDevice> pairedDevice;
 
@@ -75,7 +74,6 @@ public class bluetooth extends AppCompatActivity {
         listtxt = findViewById(R.id.txtName);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //블루투스 어댑터
-        MY_UUID = UUID.randomUUID(); //????????????
 
         //------------------------- 블루투스 연결 상태 보여주는 Text 설정
         if (mBluetoothAdapter.isEnabled()) {
@@ -86,8 +84,8 @@ public class bluetooth extends AppCompatActivity {
         //-------------------------
 
         //-------------------------권한설정
-        ActivityCompat.requestPermissions(bluetooth.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION},REQUEST_LOACTION); // 위치권한 사용자에게 요청
+        ActivityCompat.requestPermissions(bluetooth.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOACTION); // 위치권한 사용자에게 요청
         //-------------------------
 
         //-------------------------
@@ -140,6 +138,8 @@ public class bluetooth extends AppCompatActivity {
                 }
             }
         }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
+
+        Log.d(TAG, "onCreate: "+adapter.context);
 
         checkpairedDevice(); // 등록된 디바이스가 있는지 체크하고 보여주는 함수
 
@@ -212,7 +212,7 @@ public class bluetooth extends AppCompatActivity {
 
         adapter.setOnItemClickListener((position, view) -> {
 
-                Toast.makeText(this,"아오 ㅠ",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "아오 ㅠ", Toast.LENGTH_SHORT).show();
 
         }); // 리사이클러뷰 버튼 누르면 동작하는 부분
 
@@ -224,6 +224,17 @@ public class bluetooth extends AppCompatActivity {
         registerReceiver(mDeviceDiscoverReceiver, filter);
         //------------------------
 
+    }
+
+    public void connectSelectedDevice(String selectedDeviceName) {
+        for (BluetoothDevice device : pairedDevice) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "권한이 허용되지 않았습니다.", Toast.LENGTH_SHORT).show();
+            }
+            if (selectedDeviceName.equals(device.getName())) {
+
+            }
+        }
     }
 
     public void checkpairedDevice(){

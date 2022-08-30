@@ -169,11 +169,10 @@ public class MainActivity extends AppCompatActivity {
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
                 permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
                     requestPermissions(new String[]{ //위치권한요청
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S이상부터 물어본다...
+                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S(sdk = 31)이상부터 물어본다...
                     requestPermissions(new String[]{ //블루투스 요청
                             Manifest.permission.BLUETOOTH_CONNECT,
                             Manifest.permission.BLUETOOTH_SCAN}, 2);
@@ -191,16 +190,24 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             boolean check_result = false;  //  권한 체크 했니?
 
-            for (int result : grandResults) { // 모든 퍼미션을 허용했는지 체크
-                if (result == PackageManager.PERMISSION_GRANTED) {
-                    check_result = true; // 체크 됐으면 false
-                    break;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S){ //SDK 31 미만이면 블루투스 스캔 권한 없어도 됨.
+                if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED){
+                    check_result = true;
+                }
+            }else{ //31 이상이면
+                for (int result : grandResults) { // 모든 퍼미션을 허용했는지 체크
+                    if (result == PackageManager.PERMISSION_GRANTED) {
+                        check_result = true; // 체크 됐으면 false
+                        break;
+                    }
                 }
             }
 
-            if (check_result) {
+            if (check_result) { // 권한 체크 됐을때
                 //Toast.makeText(this, "위치 권한 확인 되었습니다.", Toast.LENGTH_SHORT).show();
-            } else
+            } else //권한 체크 안 됐을때
                 Toast.makeText(this, "설정에서 권한을 허용 해주세요. ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
         }
         super.onRequestPermissionsResult(requestCode, permissions, grandResults);
