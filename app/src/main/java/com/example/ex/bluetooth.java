@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,8 @@ public class bluetooth extends AppCompatActivity {
 
     //-----
 
+    public CustomAdapter adapter = new CustomAdapter(this); //어댑터 선언, pair_list
+    public CustomAdapter adapter2 = new CustomAdapter(this); //어댑터 선언, scan_list
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -71,114 +74,31 @@ public class bluetooth extends AppCompatActivity {
         listView_scan = findViewById(R.id.scan_list);
         listtxt = findViewById(R.id.txtName);
 
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //블루투스 어댑터
         MY_UUID = UUID.randomUUID(); //????????????
 
         //------------------------- 블루투스 연결 상태 보여주는 Text 설정
-
         if (mBluetoothAdapter.isEnabled()) {
             bluetooth_status.setText("블루투스 연결 상태입니다.");
         } else {
             bluetooth_status.setText("블루투스 비연결 상태입니다.");
         }
-
         //-------------------------
 
+        //-------------------------권한설정
         ActivityCompat.requestPermissions(bluetooth.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION},REQUEST_LOACTION); // 위치권한 사용자에게 요청
-
-        //------------------------- 등록된 디바이스 보여주는 Area
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false); // list_scan부분 레이아웃 선언
-        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false); // list_scan 사용하기 위한 부분
-        listView_pairing.setLayoutManager(linearLayoutManager);
-        listView_scan.setLayoutManager(linearLayoutManager2);
-
-        CustomAdapter adapter = new CustomAdapter(getApplicationContext()); //어댑터 만듦 , 얘가 스캔
-        CustomAdapter adapter2 = new CustomAdapter(getApplicationContext()); //얘가 등록된 디바이스
-
-
-        //list_paired 부분 등록된 디바이스 있는지 체크하고 뷰에 보여주는 함수
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                    listView_pairing.setAdapter(adapter2);
-                    adapter2.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
-                }
-            } else {
-                Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                    listView_pairing.setAdapter(adapter2);
-                    adapter2.notifyDataSetChanged();
-                }
-            } else {
-                Toast.makeText(this, "등록된 디바이스 보여주기 오류남", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
-        //------------------------- 버튼 클릭 이벤트
-
-        bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
-            if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
-                if (!mBluetoothAdapter.isEnabled()) {
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
-                        Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
-                        startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
-                        bluetooth_status.setText("블루투스 연결 상태입니다.");
-                    } else {
-                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                        } else {
-                            Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                            startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
-                            bluetooth_status.setText("블루투스 연결 상태입니다.");
-                        }
-                    }
-                } else {
-                    Toast.makeText(this, "이미 활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "Bluetoothadapter is null");
-            }
-        });
-
         //-------------------------
 
-        bluetooth_off.setOnClickListener(v -> { //블루투스 off 클릭 이벤트
-            if (mBluetoothAdapter.isEnabled()) {
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    mBluetoothAdapter.disable(); //블루투스 비활성화
-                    Toast.makeText(this, "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
-                    bluetooth_status.setText("블루투스 비연결 상태입니다.");
-                } else {
-                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) { //권한 체크해주고
-                        Toast.makeText(this, "블루투스 권한이 없습니다.", Toast.LENGTH_SHORT).show();
+        //-------------------------
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false); // list_scan부분 레이아웃 선언
+        LinearLayoutManager linearLayoutManager2 = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false); // list_scan 사용하기 위한 부분
 
-                    } else {
-                        mBluetoothAdapter.disable(); //블루투스 비활성화
-                        Toast.makeText(this, "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
-                        bluetooth_status.setText("블루투스 비연결 상태입니다.");
-                    }
-                }
-            } else {
-                Toast.makeText(this, "이미 비활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
-            }
-        });
+        listView_pairing.setLayoutManager(linearLayoutManager); //레이아웃 설정
+        listView_scan.setLayoutManager(linearLayoutManager2); //레이아웃 설정
+        //-------------------------
 
-        //-----------------------
-
-        //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
-
+        //-------------------------
         final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
             int cnt = 0;
 
@@ -216,17 +136,54 @@ public class bluetooth extends AppCompatActivity {
                     }
                 }
             }
-        };
+        }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
 
-        //---------------------- 앱에서 받는다..
+        checkpairedDevice(); // 등록된 디바이스가 있는지 체크하고 보여주는 함수
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND); // 블루투스 장치 발견시 앱에서 받음
-        registerReceiver(mDeviceDiscoverReceiver, filter);
+        bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
+            if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
+                if (!mBluetoothAdapter.isEnabled()) {
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
+                        Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
+                        startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                        bluetooth_status.setText("블루투스 연결 상태입니다.");
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        } else {
+                            Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                            startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                            bluetooth_status.setText("블루투스 연결 상태입니다.");
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "이미 활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Bluetoothadapter is null");
+            }
+        }); // 블루투스 on 클릭 이벤트 처리 부분
 
-        //------------------------
+        bluetooth_off.setOnClickListener(v -> { //블루투스 off 클릭 이벤트
+            if (mBluetoothAdapter.isEnabled()) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                    mBluetoothAdapter.disable(); //블루투스 비활성화
+                    Toast.makeText(this, "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
+                    bluetooth_status.setText("블루투스 비연결 상태입니다.");
+                } else {
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) { //권한 체크해주고
+                        Toast.makeText(this, "블루투스 권한이 없습니다.", Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        mBluetoothAdapter.disable(); //블루투스 비활성화
+                        Toast.makeText(this, "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
+                        bluetooth_status.setText("블루투스 비연결 상태입니다.");
+                    }
+                }
+            } else {
+                Toast.makeText(this, "이미 비활성화 되어있습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }); // 블루투스 off 버튼 클릭 이벤트 처리 부분
 
         bluetooth_scan.setOnClickListener(v -> { // 연결 가능한 디바이스 검색 버튼 클릭 이벤트 처리 부분
 
@@ -236,9 +193,9 @@ public class bluetooth extends AppCompatActivity {
 
 
             try {
-                if (mBluetoothAdapter.isDiscovering()) // 검색 중이냐?
-                {
+                if (mBluetoothAdapter.isDiscovering()) { // 검색 중이냐?
                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+                    unregisterReceiver(mDeviceDiscoverReceiver);
                 } else {
                     mBluetoothAdapter.startDiscovery(); //검색 시작
                     //Log.d(TAG, "디바이스 검색 했습니다.");
@@ -248,8 +205,54 @@ public class bluetooth extends AppCompatActivity {
             } catch (Exception e) {
                 Log.d(TAG, "오류남 ㅠ.." + e);
             }
-        });
+        }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분
+
+        adapter.setOnItemClickListener((position, view) -> {
+            if(position != 1){
+                Toast.makeText(this,"인덱스1이 아님",Toast.LENGTH_SHORT).show();
+            }
+            else{
+                Toast.makeText(this,"인덱스1",Toast.LENGTH_SHORT).show();
+            }
+
+        }); // 리사이클러뷰 버튼 누르면 동작하는 부분
+        //-------------------------
+
+        //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mDeviceDiscoverReceiver, filter);
+        //------------------------
+
     }
+
+    public void checkpairedDevice(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
+            pairedDevice = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                    listView_pairing.setAdapter(adapter2); //리사이클러뷰에 어댑터 설정
+                    adapter2.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
+                }
+            } else {
+                Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            pairedDevice = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
+                    listView_pairing.setAdapter(adapter2);
+                    adapter2.notifyDataSetChanged();
+                }
+            } else {
+                Toast.makeText(this, "등록된 디바이스 보여주기 오류남", Toast.LENGTH_SHORT).show();
+            }
+        }
+    } // 등록된 디바이스가 있는지 체크하고 보여주는 함수
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) { //권한 요청 하는 부분
@@ -264,7 +267,7 @@ public class bluetooth extends AppCompatActivity {
                 }
             }
         }
-    }
+    } // 권한 요청하는 함수
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
@@ -276,10 +279,10 @@ public class bluetooth extends AppCompatActivity {
             }
         }
         return super.onOptionsItemSelected(item);
-    }
+    } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {  //startActivityForResult 실행 후 결과를 처리하는 부분
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_ENABLE_BT) {
             if (resultCode == RESULT_OK) {
@@ -290,7 +293,7 @@ public class bluetooth extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "블루투스가 활성화 되지 않았습니다.", Toast.LENGTH_SHORT).show();
             }
         }
-    }
+    } //startActivityForResult 실행 후 결과를 처리하는 함수
 
 }
 
