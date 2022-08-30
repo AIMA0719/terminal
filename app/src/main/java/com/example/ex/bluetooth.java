@@ -216,7 +216,6 @@ public class bluetooth extends AppCompatActivity {
             }
 
         }); // 리사이클러뷰 버튼 누르면 동작하는 부분
-        //-------------------------
 
         //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
         IntentFilter filter = new IntentFilter();

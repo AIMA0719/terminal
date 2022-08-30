@@ -6,7 +6,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -44,9 +43,7 @@ import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-@RequiresApi(api = Build.VERSION_CODES.S)
 public class MainActivity extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> resultLauncher; // 클래스내에 선언 해주래  startactivityForresult 대신 쓰는거..
@@ -63,11 +60,7 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     // 선언 Area
 
-    // --------  권한 ID?
-    public int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
-    public int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-    public int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
-    public int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+
     // --------
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -75,14 +68,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //--------------------
+        // findViewByID 부분
         list_item =findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
         bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
-        //--------------------
+        // findViewByID 부분
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
@@ -90,17 +83,17 @@ public class MainActivity extends AppCompatActivity {
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// getDefaultAdapter 장치가 블루투스 기능을 지원하는지 알아오는 메소드
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// get머시기는 장치가 블루투스 기능을 지원하는지 알아오는 메소드
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
         setSupportActionBar(toolbar); //툴바 소환
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-        Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
+        toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
@@ -109,10 +102,9 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
-        // --------
-        bluetoothPermission(); //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
+        checkPermission(); // 권한 설정 체크
 
-        checkPermission(); // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
+        checkBluetoothPermission(); // 사용자에게 권한 요청
 
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
@@ -143,26 +135,10 @@ public class MainActivity extends AppCompatActivity {
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
-        // --------
+
     }
 
-
-    public void checkPermission(){
-        if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
-                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
-            try {
-                // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
-                requestPermissions(new String[]{ //위치권한요청
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
-            } catch (Exception e) {
-                Log.d(TAG, "checkPermission 에서 오류" , e);
-            }
-
-        }
-    } // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
-
-    public void bluetoothPermission(){
+    public void checkBluetoothPermission(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestPermissions(
                     new String[]{
@@ -181,7 +157,33 @@ public class MainActivity extends AppCompatActivity {
                     },
                     1);
         }
-    }  //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
+    } // 블루투스 권한 체크
+
+    public void checkPermission(){
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
+        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
+        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+
+        if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
+                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // 빌드 버젼이 마쉬멜로우 이상부터 권한 물어본다.
+                    requestPermissions(new String[]{ //위치권한요청
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S이상부터 물어본다...
+                    requestPermissions(new String[]{ //블루투스 요청
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_SCAN}, 2);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "모르겠다~" , e);
+                return;
+            }
+
+        }
+    } // 사용자에게 권한 요청
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
@@ -194,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
-            if (check_result) {
+            if (check_result == true) {
                 //Toast.makeText(this, "위치 권한 확인 되었습니다.", Toast.LENGTH_SHORT).show();
             } else
                 Toast.makeText(this, "설정에서 권한을 허용 해주세요 ㅠㅠ ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
@@ -210,7 +212,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
