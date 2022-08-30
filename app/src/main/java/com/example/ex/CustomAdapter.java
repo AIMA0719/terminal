@@ -52,7 +52,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) { // 뷰홀더안에 내용으로 position에 해당하는 데이터로 교체
         Customer item = items.get(position);
@@ -70,7 +69,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         if (!isExist){
             items.add(item);
         }
-
     }
 
      static class ViewHolder extends RecyclerView.ViewHolder { //뷰홀더 클래스
@@ -89,16 +87,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     itemClickListener.onItemClicked(pos,v);
                 }
             });
-
-
-
         }
+
         public void setItem(Customer item){
             tv_name.setText(item.name);
             tv_address.setText(item.address);
         }
     }
-
 }
 
 class Customer {
@@ -109,5 +104,4 @@ class Customer {
         this.name = name;
         this.address = address;
     }
-
 }

@@ -59,41 +59,25 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     // 선언 Area
 
+    // --------  권한 ID?
+    public int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
+    public int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+    public int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
+    public int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+    // --------
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH,
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT
-
-                    },
-                    1);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH
-
-                    },
-                    1);
-        }
-        //--------------------------------------
-
-
-        // 아디 묶어주는 Area
+        //--------------------
         list_item =findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
         bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
-        // 아디 묶어주는 Area
+        //--------------------
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
@@ -103,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// get머시기는 장치가 블루투스 기능을 지원하는지 알아오는 메소드
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// getDefaultAdapter 장치가 블루투스 기능을 지원하는지 알아오는 메소드
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
@@ -114,22 +98,17 @@ public class MainActivity extends AppCompatActivity {
         toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
-        // -------- 권한 설정
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
-        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
-        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
-
-        // --------
-
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
         database.mainDao().reset(dataList); //리스트 DB 삭제
         dataList.clear(); // 리스트 클리어
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
+        // --------
+        bluetoothPermission(); //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
 
-        // -------- 보내기 버튼 클릭 이벤트
+        checkPermission(); // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
+
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals(""))
@@ -148,10 +127,8 @@ public class MainActivity extends AppCompatActivity {
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
             Log.d(TAG,"명령어를 입력한 횟수" + dataList.size());
-        });
-        // --------
+        }); // -------- 보내기 버튼 클릭 이벤트
 
-        // -------- Window clear 버튼 클릭이벤트
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(dataList);
 
@@ -160,10 +137,12 @@ public class MainActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
-        });
+        }); // -------- Window clear 버튼 클릭이벤트
         // --------
+    }
 
-        // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
+
+    public void checkPermission(){
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
                 permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
             try {
@@ -182,9 +161,29 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-    }
+    } // 앱 시작하면 권한 요청하는거. 어느 version 인지도 체크한다.
 
-    // -------- 앱 시작하면 권한이 있는지 없는지 체크하는 메소드 ( 현재 위치권한 확인 체크된다)
+    public void bluetoothPermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_ADVERTISE,
+                            Manifest.permission.BLUETOOTH_CONNECT
+
+                    },
+                    1);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH
+
+                    },
+                    1);
+        }
+    }  //블루투스에 대한 사용자 승인 부분이다.. 샤오미는 OS 9였는데 z플립 3는 12여서 그 차이때문에 z플립에서는 bluetooth페이지로 이동 못했다..
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
         if (requestCode == 1) {
@@ -202,20 +201,16 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "설정에서 권한을 허용 해주세요 ㅠㅠ ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
         }
         super.onRequestPermissionsResult(requestCode, permissions, grandResults);
-    }
-    // --------
+    }// -------- 앱 시작하면 권한이 있는지 없는지 체크하는 메소드 ( 현재 위치권한 확인 체크된다)
 
-    // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         //return super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
         return true;
-    }
-    // --------
+    } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
-    // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -249,6 +244,6 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return onOptionsItemSelected(item);
         }
-    }
-    // --------
+    } // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
+
 }
