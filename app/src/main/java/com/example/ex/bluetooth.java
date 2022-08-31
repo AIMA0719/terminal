@@ -56,9 +56,6 @@ public class bluetooth extends AppCompatActivity {
 
     //-----
 
-    private final CustomAdapter adapter2 = new CustomAdapter(this); //이게 등록된 디바이스
-    private final CustomAdapter adapter = new CustomAdapter(this); //이게 연결 가능한 디바이스
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +73,7 @@ public class bluetooth extends AppCompatActivity {
         bluetooth_status = findViewById(R.id.bluetooth_status2);
         listView_pairing = findViewById(R.id.pairing_list);
         listView_scan = findViewById(R.id.scan_list);
-        listtxt = findViewById(R.id.txtName);
+        listtxt = findViewById(R.id.device);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //블루투스 어댑터
 
@@ -100,8 +97,15 @@ public class bluetooth extends AppCompatActivity {
         listView_pairing.setLayoutManager(linearLayoutManager); //레이아웃 설정
         listView_scan.setLayoutManager(linearLayoutManager2); //레이아웃 설정
 
-        //-------------------------
+        List<Customer> paired_list = new ArrayList<>();
+        List<Customer> scan_list = new ArrayList<>();
 
+        CustomAdapter adapter = new CustomAdapter(this,paired_list);
+        CustomAdapter adapter1 = new CustomAdapter(this,scan_list);
+
+        listView_scan.setAdapter(adapter1);
+
+        //-------------------------
 
         //-------------------------
         final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
@@ -118,8 +122,8 @@ public class bluetooth extends AppCompatActivity {
                             Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
                         } else {
                             if (device.getName() != null) {
-                                adapter.addItem(new Customer(device.getName(), device.getAddress())); // 리사이클러뷰에 이름이랑 맥주소 추가
-                                adapter.notifyDataSetChanged(); //갱신
+                                scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
+                                adapter1.notifyDataSetChanged(); //갱신
                                 cnt += 1;
                             }
                         }
@@ -132,8 +136,8 @@ public class bluetooth extends AppCompatActivity {
                         BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                         if (device.getName() != null) {
-                            adapter.addItem(new Customer(device.getName(), device.getAddress())); // 기기찾고... 블루투스 권한까지 허용했다.. 근데 왜 안되냐?
-                            adapter.notifyDataSetChanged(); //갱신
+                            scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
+                            adapter1.notifyDataSetChanged(); //갱신
                             cnt += 1;
                         }
                     }
@@ -141,7 +145,30 @@ public class bluetooth extends AppCompatActivity {
             }
         }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
 
-        checkpairedDevice(); // 등록된 디바이스가 있는지 체크하고 보여주는 함수
+        Set<BluetoothDevice> pairedDevice;
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
+            pairedDevice = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
+                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                    paired_list.add(new Customer(bt.getName() + "\n" + bt.getAddress()));
+                    adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
+                }
+            } else {
+                Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
+            }
+        } else { //샤오미에선 여기 돔
+            pairedDevice = mBluetoothAdapter.getBondedDevices();
+            if (pairedDevice.size() > 0) { // 디바이스가 있으면
+                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                    paired_list.add(new Customer(bt.getName() + "\n" + bt.getAddress()));
+                    adapter.notifyDataSetChanged();
+                }
+            } else {
+                Toast.makeText(this, "등록된 디바이스 보여주기 오류남", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        listView_pairing.setAdapter(adapter); //리사이클러뷰에 어댑터 설정
 
         bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
             if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
@@ -202,13 +229,12 @@ public class bluetooth extends AppCompatActivity {
                 } else {
                     mBluetoothAdapter.startDiscovery(); //검색 시작
                     //Log.d(TAG, "디바이스 검색 했습니다.");
-                    listView_scan.setAdapter(adapter);  // list_scan에 어댑터에 들어간 데이터 넣어줌
-                    adapter.notifyDataSetChanged();
+                    adapter1.notifyDataSetChanged();
                 }
             } catch (Exception e) {
                 Log.d(TAG, "오류남 ㅠ.." + e);
             }
-        }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분
+        }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다 왜그러지././.
 
         //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
         IntentFilter filter = new IntentFilter();
@@ -219,35 +245,6 @@ public class bluetooth extends AppCompatActivity {
         //------------------------
 
     }
-
-    @SuppressLint("NotifyDataSetChanged")
-    public void checkpairedDevice(){
-
-        Set<BluetoothDevice> pairedDevice;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
-                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                    listView_pairing.setAdapter(adapter2); //리사이클러뷰에 어댑터 설정
-                    adapter2.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
-                }
-            } else {
-                Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    adapter2.addItem(new Customer(bt.getName(), bt.getAddress())); // 이름이랑 주소 나타냄
-                    listView_pairing.setAdapter(adapter2);
-                    adapter2.notifyDataSetChanged();
-                }
-            } else {
-                Toast.makeText(this, "등록된 디바이스 보여주기 오류남", Toast.LENGTH_SHORT).show();
-            }
-        }
-    } // 등록된 디바이스가 있는지 체크하고 보여주는 함수
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) { //권한 요청 하는 부분

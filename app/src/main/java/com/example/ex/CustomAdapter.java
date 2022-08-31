@@ -1,14 +1,10 @@
 package com.example.ex;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.icu.text.Transliterator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,10 +16,11 @@ import java.util.List;
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
 
     Context context;
-    private ArrayList<Customer> items = new ArrayList<>(); // items 라는 리스트 선언
+    private final List<Customer> items; // items 라는 리스트 선언
 
-    public CustomAdapter(bluetooth context) {
+    public CustomAdapter(bluetooth context, List<Customer> items) {
         this.context = context;
+        this.items = items;
     }
 
     //-------------------------------------------------------- 리사이클러뷰 아이템 클릭동작 구현 위한 작업 -> 이건 뷰홀더안에 만드는게아니라 외부 엑티비티 혹은 프래그먼트에서 동학하기위해 인터페이스만든거
@@ -39,6 +36,18 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 //    }
 
     //--------------------------------------------------------
+
+    class ViewHolder extends RecyclerView.ViewHolder { //뷰홀더 클래스
+        TextView textView;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+
+            textView = itemView.findViewById(R.id.device);
+
+            // 요기다가 온클릭
+        }
+    }
 
     @Override
     public int getItemCount() { // 리스트에 있는거 개수센다
@@ -58,47 +67,31 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) { // 뷰홀더안에 내용으로 position에 해당하는 데이터로 교체
         Customer item = items.get(position);
-        holder.setItem(item);
+
+        holder.textView.setText(item.getName());
     }
 
-    public void addItem(Customer item){  //데이터 삽입 함수 + 중복체크 하는법 comparetor ? 도 있다
-        boolean isExist = false;
-        for (Customer customer : items){
-            if (item.address.equals(customer.address)){
-                isExist = true;
-                return;
-            }
-        }
-        if (!isExist){
-            items.add(item);
-        }
-    }
-
-     static class ViewHolder extends RecyclerView.ViewHolder { //뷰홀더 클래스
-        TextView tv_name;
-        TextView tv_address;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            tv_name = itemView.findViewById(R.id.txtName);
-            tv_address = itemView.findViewById(R.id.txtAddress);
-
-        }
-
-        public void setItem(Customer item){
-            tv_name.setText(item.name);
-            tv_address.setText(item.address);
-        }
-    }
+    public void removeItemView(int position) {
+        items.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position,items.size());
+    } //삭제하는 메소드드
 }
 
 class Customer {
-    public String name;
-    public String address;
+    public String device;
 
-    public Customer(String name,String address){
-        this.name = name;
-        this.address = address;
+    public Customer(String name){
+        this.device = name;
     }
+
+    public String getName(){
+        return device;
+    }
+
+    public void setName(){
+        this.device = device;
+    }
+
+
 }
