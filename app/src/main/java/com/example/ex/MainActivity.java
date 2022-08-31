@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // --------
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "모르겠다~" , e);
                 return;
             }
-
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 dataList.addAll(database.mainDao().getAll()); //add
                 adapter.notifyDataSetChanged(); //갱신
 
-                recyclerView.getLayoutManager().scrollToPosition(dataList.size()-1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size()-1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
             Log.d(TAG,"명령어를 입력한 횟수" + dataList.size());
@@ -212,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 

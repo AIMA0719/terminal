@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class bluetooth extends AppCompatActivity {
 
@@ -56,6 +58,7 @@ public class bluetooth extends AppCompatActivity {
 
     //-----
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,13 +149,16 @@ public class bluetooth extends AppCompatActivity {
         }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
 
         Set<BluetoothDevice> pairedDevice;
+        boolean isExist = true;
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
                     paired_list.add(new Customer(bt.getName() + "\n" + bt.getAddress()));
-                    adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
                 }
+                adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
+                List<Customer> no_paired_list = paired_list.stream().distinct().collect(Collectors.toList());
             } else {
                 Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -235,6 +241,14 @@ public class bluetooth extends AppCompatActivity {
                 Log.d(TAG, "오류남 ㅠ.." + e);
             }
         }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다 왜그러지././.
+        
+        adapter.setOnItemClickListener((position, view) -> {
+            Toast.makeText(this, "등록된 디바이스 만짐", Toast.LENGTH_SHORT).show();
+        }); // 등록된 디바이스 터치 리스너
+
+        adapter1.setOnItemClickListener((position, view) -> {
+            Toast.makeText(this, "연결 가능한 디바이스 만짐", Toast.LENGTH_SHORT).show();
+        }); // 연결 가능한 디바이스 터치 리스너
 
         //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
         IntentFilter filter = new IntentFilter();
@@ -255,7 +269,6 @@ public class bluetooth extends AppCompatActivity {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "권한이 없어 해당 기능을 실행할 수 없습니다.", Toast.LENGTH_SHORT).show();    // 권한요청이 거절된 경우
-                    return;
                 }
             }
         }

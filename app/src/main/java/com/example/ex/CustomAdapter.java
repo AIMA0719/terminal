@@ -9,8 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder> {
@@ -25,15 +23,15 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     //-------------------------------------------------------- 리사이클러뷰 아이템 클릭동작 구현 위한 작업 -> 이건 뷰홀더안에 만드는게아니라 외부 엑티비티 혹은 프래그먼트에서 동학하기위해 인터페이스만든거
 
-//    public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
-//        void onItemClicked(int position,View view);
-//    }
-//
-//    public static OnItemClickListener itemClickListener = null;  // 참조 변수 선언
-//
-//    public void setOnItemClickListener(OnItemClickListener listener){  // OnItemClickListener 전달 메소드
-//        this.itemClickListener = listener;
-//    }
+    public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
+        void onItemClicked(int position,View view);
+    }
+
+    public static OnItemClickListener itemClickListener = null;  // 참조 변수 선언
+
+    public void setOnItemClickListener(OnItemClickListener listener){  // OnItemClickListener 전달 메소드
+        this.itemClickListener = listener;
+    }
 
     //--------------------------------------------------------
 
@@ -45,7 +43,13 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
             textView = itemView.findViewById(R.id.device);
 
-            // 요기다가 온클릭
+            itemView.setOnClickListener(v -> {
+                int pos = getAdapterPosition();
+                if(pos != RecyclerView.NO_POSITION){
+                    itemClickListener.onItemClicked(pos,v);
+                }
+            });
+
         }
     }
 
@@ -64,6 +68,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     }
 
+
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) { // 뷰홀더안에 내용으로 position에 해당하는 데이터로 교체
         Customer item = items.get(position);
@@ -71,11 +77,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         holder.textView.setText(item.getName());
     }
 
-    public void removeItemView(int position) {
-        items.remove(position);
-        notifyItemRemoved(position);
-        notifyItemRangeChanged(position,items.size());
-    } //삭제하는 메소드드
+//    public void removeItemView(int position) {
+//        items.remove(position);
+//        notifyItemRemoved(position);
+//        notifyItemRangeChanged(position,items.size());
+//    } //삭제하는 메소드드
 }
 
 class Customer {
