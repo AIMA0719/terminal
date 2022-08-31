@@ -43,6 +43,7 @@ import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -83,17 +84,17 @@ public class MainActivity extends AppCompatActivity {
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //  화면 특정방향 고정
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// get머시기는 장치가 블루투스 기능을 지원하는지 알아오는 메소드
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
         setSupportActionBar(toolbar); //툴바 소환
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // title 가시 여부
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-        toolbar.getOverflowIcon().setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
+        Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
 
@@ -103,9 +104,45 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
-        checkPermission(); // 권한 설정 체크
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
+        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
+        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
 
-        checkBluetoothPermission(); // 사용자에게 권한 요청
+        if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
+                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
+            try {
+                requestPermissions(new String[]{ //위치권한요청
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BLUETOOTH_CONNECT,
+                        Manifest.permission.BLUETOOTH_SCAN}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
+
+            } catch (Exception e) {
+                Log.d(TAG, "모르겠다~" , e);
+                return;
+            }
+
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH,
+                            Manifest.permission.BLUETOOTH_SCAN,
+                            Manifest.permission.BLUETOOTH_ADVERTISE,
+                            Manifest.permission.BLUETOOTH_CONNECT
+
+                    },
+                    1);
+        } else {
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.BLUETOOTH
+
+                    },
+                    1);
+        }
 
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
@@ -138,52 +175,6 @@ public class MainActivity extends AppCompatActivity {
         }); // -------- Window clear 버튼 클릭이벤트
 
     }
-
-    public void checkBluetoothPermission(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH,
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT
-
-                    },
-                    1);
-        } else {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH
-
-                    },
-                    1);
-        }
-    } // 블루투스 권한 체크
-
-    public void checkPermission(){
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
-        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
-        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
-
-        if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
-                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
-            try {
-                    requestPermissions(new String[]{ //위치권한요청
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // 블루투스 권한 S(sdk = 31)이상부터 물어본다...
-                    requestPermissions(new String[]{ //블루투스 요청
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.BLUETOOTH_SCAN}, 2);
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "모르겠다~" , e);
-                return;
-            }
-
-        }
-    } // 사용자에게 권한 요청
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
