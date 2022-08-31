@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.lang.reflect.Method;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +42,26 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
+import android.os.SystemClock;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class bluetooth extends AppCompatActivity {
 
     TextView bluetooth_status, listtxt;
     Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
+    UUID BT_MODULE_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // "random" unique identifier
 
     //----- 블루투스 위한
     int REQUEST_ENABLE_BT = 1; // 요청 코드
     int REQUEST_LOACTION = 2;
+    BluetoothSocket btSocket;
+    ConnectedThread connectedThread;
 
     RecyclerView listView_pairing, listView_scan;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
@@ -57,6 +69,12 @@ public class bluetooth extends AppCompatActivity {
     private ArrayAdapter<String> mBTArrayAdapter;
 
     //-----
+
+    private List<Customer> paired_list = new ArrayList<>();
+    private List<Customer> scan_list = new ArrayList<>();
+
+    private CustomAdapter adapter = new CustomAdapter(this, paired_list);
+    private CustomAdapter adapter1 = new CustomAdapter(this, scan_list);
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("NotifyDataSetChanged")
@@ -100,65 +118,37 @@ public class bluetooth extends AppCompatActivity {
         listView_pairing.setLayoutManager(linearLayoutManager); //레이아웃 설정
         listView_scan.setLayoutManager(linearLayoutManager2); //레이아웃 설정
 
-        List<Customer> paired_list = new ArrayList<>();
-        List<Customer> scan_list = new ArrayList<>();
-
-        CustomAdapter adapter = new CustomAdapter(this,paired_list);
-        CustomAdapter adapter1 = new CustomAdapter(this,scan_list);
+//        List<Customer> paired_list = new ArrayList<>();
+//        List<Customer> scan_list = new ArrayList<>();
+//
+//        CustomAdapter adapter = new CustomAdapter(this,paired_list);
+//        CustomAdapter adapter1 = new CustomAdapter(this,scan_list);
 
         listView_scan.setAdapter(adapter1);
 
         //-------------------------
 
         //-------------------------
-        final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
-            int cnt = 0;
 
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // SDK가 31 이상일때
-                    if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                            Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
-                        } else {
-                            if (device.getName() != null) {
-                                scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
-                                adapter1.notifyDataSetChanged(); //갱신
-                                cnt += 1;
-                            }
-                        }
-                    } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-                        Log.v(TAG, "총 찾은 디바이스 개수 : " + cnt); // 블루투스가 꺼질때 동작한다.
-                    }
-
-                } else {
-                    if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                        if (device.getName() != null) {
-                            scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
-                            adapter1.notifyDataSetChanged(); //갱신
-                            cnt += 1;
-                        }
-                    }
-                }
-            }
-        }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
+        //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        registerReceiver(mDeviceDiscoverReceiver, filter);
+        //------------------------
 
         Set<BluetoothDevice> pairedDevice;
-        boolean isExist = true;
+
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
                     paired_list.add(new Customer(bt.getName() + "\n" + bt.getAddress()));
+                    adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
                 }
-                adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
-                List<Customer> no_paired_list = paired_list.stream().distinct().collect(Collectors.toList());
             } else {
                 Toast.makeText(this, "등록된 디바이스가 없습니다.", Toast.LENGTH_SHORT).show();
             }
@@ -231,7 +221,6 @@ public class bluetooth extends AppCompatActivity {
             try {
                 if (mBluetoothAdapter.isDiscovering()) { // 검색 중이냐?
                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                    unregisterReceiver(mDeviceDiscoverReceiver);
                 } else {
                     mBluetoothAdapter.startDiscovery(); //검색 시작
                     //Log.d(TAG, "디바이스 검색 했습니다.");
@@ -240,24 +229,93 @@ public class bluetooth extends AppCompatActivity {
             } catch (Exception e) {
                 Log.d(TAG, "오류남 ㅠ.." + e);
             }
-        }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다 왜그러지././.
-        
+        }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다..후
+
         adapter.setOnItemClickListener((position, view) -> {
             Toast.makeText(this, "등록된 디바이스 만짐", Toast.LENGTH_SHORT).show();
+
+            boolean flag = true;
+            final String address = paired_list.get(position).getName();
+            String[] straddress = address.split("\n");
+
+            Log.d(TAG, "리스트에 터치된 기기는 : "+ straddress[0]);
+            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(straddress[1]);
+
+            try {
+                btSocket = createBluetoothSocket(device);
+                btSocket.connect();
+            } catch (Exception e) {
+                e.printStackTrace();
+                flag = false;
+            }
+
+            if (flag) {
+                connectedThread = new ConnectedThread(btSocket);
+                connectedThread.start();
+                bluetooth_status.setText("Connected to "+straddress[0]);
+            }
         }); // 등록된 디바이스 터치 리스너
 
-        adapter1.setOnItemClickListener((position, view) -> {
-            Toast.makeText(this, "연결 가능한 디바이스 만짐", Toast.LENGTH_SHORT).show();
-        }); // 연결 가능한 디바이스 터치 리스너
 
-        //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        registerReceiver(mDeviceDiscoverReceiver, filter);
-        //------------------------
+    }
 
+    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+        try {
+            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
+            return (BluetoothSocket) m.invoke(device, BT_MODULE_UUID);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "권한 없음", Toast.LENGTH_SHORT).show();
+        } 
+        return device.createRfcommSocketToServiceRecord(BT_MODULE_UUID);
+    }
+
+
+
+
+    private final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
+        int cnt = 0;
+
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // SDK가 31 이상일때
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                    if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (device.getName() != null) {
+                            scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
+                            adapter1.notifyDataSetChanged(); //갱신
+                            cnt += 1;
+                        }
+                    }
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                    Log.v(TAG, "총 찾은 디바이스 개수 : " + cnt); // 블루투스가 꺼질때 동작한다.
+                }
+
+            } else {
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                    if (device.getName() != null) {
+                        scan_list.add(new Customer(device.getName() + "\n" + device.getAddress()));
+                        adapter1.notifyDataSetChanged(); //갱신
+                        cnt += 1;
+                    }
+                }
+            }
+        }
+    }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(mDeviceDiscoverReceiver);
     }
 
     @Override
