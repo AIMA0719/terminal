@@ -35,7 +35,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     //--------------------------------------------------------
 
-    class ViewHolder extends RecyclerView.ViewHolder { //뷰홀더 클래스
+    public class ViewHolder extends RecyclerView.ViewHolder { //뷰홀더 클래스
         TextView textView;
 
         public ViewHolder(@NonNull View itemView) {
@@ -68,8 +68,6 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     }
 
-
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) { // 뷰홀더안에 내용으로 position에 해당하는 데이터로 교체
         Customer item = items.get(position);
@@ -94,10 +92,4 @@ class Customer {
     public String getName(){
         return device;
     }
-
-    public void setName(){
-        this.device = device;
-    }
-
-
 }

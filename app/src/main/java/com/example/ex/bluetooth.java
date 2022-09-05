@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +13,11 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +30,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,13 +50,16 @@ public class bluetooth extends AppCompatActivity {
     TextView bluetooth_status, listtxt;
     Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
-    UUID BT_MODULE_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // "random" unique identifier
+    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805F9B34FB");
 
     //----- 블루투스 위한
+    private static final String NAME = "하하";
+
     private static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     private static final int REQUEST_LOACTION = 2;
     private static final int BT_MESSAGE_READ = 3;
     private static final int BT_CONNECTING_STATUS = 4;
+
 
     Handler mBluetoothHandler;
     BluetoothSocket mBluetoothSocket;
@@ -60,8 +68,7 @@ public class bluetooth extends AppCompatActivity {
     RecyclerView listView_pairing, listView_scan;
     private BluetoothDevice mBluetoothDevice;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
-
-    //-----
+    BluetoothSocket btSocket = null;
 
     private final List<Customer> paired_list = new ArrayList<>();
     private final List<Customer> scan_list = new ArrayList<>();
@@ -70,7 +77,7 @@ public class bluetooth extends AppCompatActivity {
     private final CustomAdapter adapter1 = new CustomAdapter(this, scan_list);
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +129,6 @@ public class bluetooth extends AppCompatActivity {
         //------------------------
 
         Set<BluetoothDevice> pairedDevice;
-
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
@@ -196,9 +202,9 @@ public class bluetooth extends AppCompatActivity {
 
         bluetooth_scan.setOnClickListener(v -> { // 연결 가능한 디바이스 검색 버튼 클릭 이벤트 처리 부분
 
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            /*Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
             discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
+            startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?*/
 
             try {
                 if (mBluetoothAdapter.isDiscovering()) { // 검색 중이냐?
@@ -209,91 +215,151 @@ public class bluetooth extends AppCompatActivity {
                     adapter1.notifyDataSetChanged();
                 }
             } catch (Exception e) {
-                Log.d(TAG, "오류남 ㅠ.." + e);
+                Log.d(TAG, "Discover error" + e);
             }
         }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다..후
 
+        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == BT_MESSAGE_READ) {
+                    String readMessage = null;
+                    try {
+                        readMessage = new String((byte[]) msg.obj, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    bluetooth_status.setText(readMessage);
+                }
+
+                if (msg.what == BT_CONNECTING_STATUS) {
+                    if (msg.arg1 == 1) {
+                        String[] name = msg.obj.toString().split("\n");
+                        bluetooth_status.setText("Connected to Device: " + name[0]);
+                    } else {
+                        bluetooth_status.setText("Connection Failed");
+                    }
+                }
+            }
+        }; // 핸들러... 잘 이해 못했다
+
         adapter.setOnItemClickListener((position, view) -> {
-            Toast.makeText(this, "dfsfdsfs", Toast.LENGTH_SHORT).show();
-        });
+
+            String name = paired_list.get(position).getName();
+            String[] address = name.split("\n");
+
+            Log.d(TAG, "onCreate: " + address[1]);
+
+            new Thread() {
+                @Override
+                public void run() {
+                    boolean fail = false;
+
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address[1]);
+
+                    try {
+                        mBluetoothSocket = createBluetoothSocket(device);
+                        Log.d(TAG, "run: 소켓 생성 완료!");
+                    } catch (IOException e) {
+                        fail = true;
+                        Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                    }
+                    // Establish the Bluetooth socket connection.
+                    try {
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        mBluetoothSocket.connect();
+                        Log.d(TAG, "run: 소켓 연결 완료!");
+                    } catch (IOException e) {
+                        try {
+                            fail = true;
+                            mBluetoothSocket.close();
+                            mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, -1, -1)
+                                    .sendToTarget();
+                        } catch (IOException e2) {
+                            //insert code to deal with this
+                            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if (!fail) {
+                        mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
+                        mConnectedThread.start();
+
+                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
+                                .sendToTarget();
+                    }
+                }
+            }.start();
+
+        }); // 등록된 디바이스  클릭
 
         adapter1.setOnItemClickListener((position, view) -> {
 
-            String address = scan_list.get(position).toString();
-            String[] straddress = address.split("\n");
+            String name = scan_list.get(position).getName();
+            String[] address = name.split("\n");
 
-            BluetoothDevice bt = adapter1.
+            Log.d(TAG, "onCreate: " + address[1]);
 
-            for (BluetoothDevice bt : pairedDevice){
-                if (straddress[1].equals(bt.getAddress())){
-                    mBluetoothDevice = bt;
-                    Log.d(TAG, "onCreate: "+bt.getAddress()+ straddress[1]);
-                    break;
+            new Thread() {
+                @Override
+                public void run() {
+                    boolean fail = false;
+
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address[1]);
+
+                    try {
+                        mBluetoothSocket = createBluetoothSocket(device);
+                        Log.d(TAG, "run: 소켓 생성 완료!");
+                    } catch (IOException e) {
+                        fail = true;
+                        Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                    }
+                    // Establish the Bluetooth socket connection.
+                    try {
+                        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        mBluetoothSocket.connect();
+                        Log.d(TAG, "run: 소켓 연결 완료!");
+                    } catch (IOException e) {
+                        try {
+                            fail = true;
+                            mBluetoothSocket.close();
+                            mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, -1, -1)
+                                    .sendToTarget();
+                        } catch (IOException e2) {
+                            //insert code to deal with this
+                            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if (!fail) {
+                        mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
+                        mConnectedThread.start();
+
+                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
+                                .sendToTarget();
+                    }
                 }
-            }
-            try {
-                mBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(BT_MODULE_UUID);
-                mBluetoothSocket.connect();
-                mConnectedThread = new ConnectedThread(mBluetoothSocket);
-                mConnectedThread.start();
-                mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1).sendToTarget();
-                Log.d(TAG, "블루투스 연결 됐나요?");
-            }catch (Exception e){
-                Log.d(TAG, "Bluetooth_connection error : " );
-//                e.printStackTrace();
-                }
+            }.start();
 
-
-//            Toast.makeText(this, "등록된 디바이스 만짐", Toast.LENGTH_SHORT).show();
-//
-//            boolean flag = true;
-//            final String address = paired_list.get(position).getName();
-//            String[] straddress = address.split("\n");
-//
-//            Log.d(TAG, "리스트에 터치된 기기는 : "+ straddress[0]);
-//            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(straddress[1]);
-//
-//            try {
-//                btSocket = createBluetoothSocket(device);
-//                btSocket.connect();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                flag = false;
-//            }
-//
-//            if (flag) {
-//                connectedThread = new ConnectedThread(btSocket);
-//                connectedThread.start();
-//                bluetooth_status.setText("Connected to "+straddress[0]);
-//            }
-        }); // 등록된 디바이스 터치 리스너
-
+        }); // 연결 가능한 디바이스 클릭 이벤트
 
     }
-//
-//    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
-//        try {
-//            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
-//            return (BluetoothSocket) m.invoke(device, BT_MODULE_UUID);
-//        } catch (Exception e) {
-//            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
-//        }
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//            Toast.makeText(this, "권한 없음", Toast.LENGTH_SHORT).show();
-//        }
-//        return device.createRfcommSocketToServiceRecord(BT_MODULE_UUID);
-//    }//일단 존버
 
-    public class ConnectedThread extends Thread{
+
+
+    public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        private final Handler mHandler;
 
-        Handler mBluetoothHandler;
-
-        public ConnectedThread(BluetoothSocket socket)
-        {
+        public ConnectedThread(BluetoothSocket socket, Handler handler) {
             mmSocket = socket;
+            mHandler = handler;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
@@ -302,13 +368,12 @@ public class bluetooth extends AppCompatActivity {
             try {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
-            } catch (IOException e) {
-                Log.d(TAG, "ConnectedThread: "+e);
-            }
+            } catch (IOException e) { }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
+
         @Override
         public void run() {
             byte[] buffer = new byte[1024];  // buffer store for the stream
@@ -318,12 +383,13 @@ public class bluetooth extends AppCompatActivity {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.available();
-                    if (bytes != 0) {
+                    if(bytes != 0) {
                         buffer = new byte[1024];
                         SystemClock.sleep(100); //pause and wait for rest of data. Adjust this depending on your sending speed.
                         bytes = mmInStream.available(); // how many bytes are ready to be read?
                         bytes = mmInStream.read(buffer, 0, bytes); // record how many bytes we actually read
-                        mBluetoothHandler.obtainMessage(BT_MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        mHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, buffer)
+                                .sendToTarget(); // Send the obtained bytes to the UI activity
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -338,21 +404,28 @@ public class bluetooth extends AppCompatActivity {
             byte[] bytes = input.getBytes();           //converts entered String into bytes
             try {
                 mmOutStream.write(bytes);
-            } catch (IOException e) {
-                Log.d(TAG, "write: "+e);
-            }
+            } catch (IOException e) { }
         }
 
         /* Call this from the main activity to shutdown the connection */
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) {
-                Log.d(TAG, "cancel: "+e);
-            }
+            } catch (IOException e) { }
         }
-    } // 블루투스 연결스레드 클래스
+    } // 연결하기 위한 스레드
 
+    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+        try {
+            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
+            return (BluetoothSocket) m.invoke(device, MY_UUID);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        }
+        return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+    } // 소켓 만들기 위한 메소드
 
     private final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
         int cnt = 0;

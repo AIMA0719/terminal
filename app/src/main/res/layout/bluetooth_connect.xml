@@ -34,11 +34,13 @@
 
         <TextView
             android:id="@+id/bluetooth_status2"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:paddingTop="5dp"
+            android:layout_marginLeft="5dp"
             android:hint="블루투스 연결 상태"
-            android:textColor="@color/black">
+            android:textColor="@color/black"
+            android:textSize="20dp">
 
         </TextView>
 
@@ -95,7 +97,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="등록된 디바이스"
-            android:textColor="@color/black">
+            android:textColor="@color/black"
+            android:layout_marginLeft="5dp">
 
         </TextView>
 
@@ -103,7 +106,7 @@
             android:id="@+id/pairing_list"
             android:layout_width="match_parent"
             android:layout_height="180dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             tools:listitem="@layout/bluetooth_device">
 
         </androidx.recyclerview.widget.RecyclerView>
@@ -118,7 +121,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="연결 가능한 디바이스"
-                android:textColor="@color/black">
+                android:textColor="@color/black"
+                android:layout_marginLeft="5dp">
 
             </TextView>
 
