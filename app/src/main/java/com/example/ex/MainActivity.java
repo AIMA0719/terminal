@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     // 선언 Area
 
+    bluetooth.ConnectedThread mconnectedThread;
 
     // --------
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -70,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Intent intent = getIntent();
+        if(intent != null){
+            mconnectedThread = (bluetooth.ConnectedThread) intent.getSerializableExtra("BT");
+        }
 
         // findViewByID 부분
         list_item =findViewById(R.id.text_view);
@@ -152,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                 MainData data = new MainData();
                 data.setText(sText);
                 database.mainDao().insert(data);
+
+                mconnectedThread.write(sText);
 
                 editText.setText("");
 

@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -62,13 +63,12 @@ public class bluetooth extends AppCompatActivity {
 
 
     Handler mBluetoothHandler;
-    BluetoothSocket mBluetoothSocket;
-    ConnectedThread mConnectedThread;
+    public BluetoothSocket mBluetoothSocket;
+    public ConnectedThread mConnectedThread;
 
-    RecyclerView listView_pairing, listView_scan;
+    public RecyclerView listView_pairing, listView_scan;
     private BluetoothDevice mBluetoothDevice;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
-    BluetoothSocket btSocket = null;
 
     private final List<Customer> paired_list = new ArrayList<>();
     private final List<Customer> scan_list = new ArrayList<>();
@@ -339,6 +339,11 @@ public class bluetooth extends AppCompatActivity {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start();
 
+                        Intent intent = new Intent(bluetooth.this,MainActivity.class);
+                        intent.putExtra("BT",mConnectedThread);
+
+                        startActivity(intent);
+
                         mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
                                 .sendToTarget();
                     }
@@ -350,8 +355,7 @@ public class bluetooth extends AppCompatActivity {
     }
 
 
-
-    public class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread implements Serializable {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
