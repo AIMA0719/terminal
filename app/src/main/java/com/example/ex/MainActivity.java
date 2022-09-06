@@ -1,26 +1,20 @@
 package com.example.ex;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothHeadset;
-import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -28,19 +22,14 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.material.slider.Slider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,10 +50,11 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
     // 선언 Area
-
-    bluetooth.ConnectedThread mconnectedThread;
+    bluetooth.ConnectedThread mconnectedThread; // ㅠㅠ
+    BluetoothFragment bluetoothFragment;
 
     // --------
+
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -72,10 +62,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = getIntent();
-        if(intent != null){
-            mconnectedThread = (bluetooth.ConnectedThread) intent.getSerializableExtra("BT");
-        }
+//        Intent intent = getIntent();
+//        if(intent != null){
+//            mconnectedThread = (bluetooth.ConnectedThread) intent.getSerializableExtra("BT");
+//            Log.d(TAG, "mconnecteThread : "+ mconnectedThread);
+//        }
 
         // findViewByID 부분
         list_item =findViewById(R.id.text_view);
@@ -159,8 +150,6 @@ public class MainActivity extends AppCompatActivity {
                 data.setText(sText);
                 database.mainDao().insert(data);
 
-                mconnectedThread.write(sText);
-
                 editText.setText("");
 
                 dataList.clear(); //리스트 초기화
@@ -228,8 +217,14 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
                 case R.id.blutooth_connect:
                     try {
-                        Intent intent = new Intent(this, bluetooth.class);
-                        startActivity(intent);
+//                        Intent intent = new Intent(this, bluetooth.class);
+//                        startActivity(intent);
+                        FragmentView();
+
+                        FragmentManager fm1 = getSupportFragmentManager();
+                        FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
+                        ft1.replace(R.id.FirstFragment,bluetoothFragment);
+                        ft1.commit();
                     }catch (Exception e){
                         Log.d(TAG, "Error :"+e);
                     }
@@ -256,5 +251,15 @@ public class MainActivity extends AppCompatActivity {
                 return onOptionsItemSelected(item);
         }
     } // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
+
+    private void FragmentView() {
+
+        bluetoothFragment = new BluetoothFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.FirstFragment,bluetoothFragment);
+        fragmentTransaction.commit();
+    }
 
 }

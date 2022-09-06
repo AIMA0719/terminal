@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.ParcelUuid;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -48,33 +46,29 @@ import java.io.OutputStream;
 
 public class bluetooth extends AppCompatActivity {
 
+    public static final int BT_MESSAGE_READ = 3;
     TextView bluetooth_status, listtxt;
     Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805F9B34FB");
 
-    //----- 블루투스 위한
-    private static final String NAME = "하하";
-
     private static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     private static final int REQUEST_LOACTION = 2;
-    private static final int BT_MESSAGE_READ = 3;
     private static final int BT_CONNECTING_STATUS = 4;
 
 
     Handler mBluetoothHandler;
     public BluetoothSocket mBluetoothSocket;
-    public ConnectedThread mConnectedThread;
+    public static ConnectedThread mConnectedThread;
 
     public RecyclerView listView_pairing, listView_scan;
-    private BluetoothDevice mBluetoothDevice;
     private BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
 
     private final List<Customer> paired_list = new ArrayList<>();
     private final List<Customer> scan_list = new ArrayList<>();
 
-    private final CustomAdapter adapter = new CustomAdapter(this, paired_list);
-    private final CustomAdapter adapter1 = new CustomAdapter(this, scan_list);
+    private final CustomAdapter adapter = new CustomAdapter((bluetooth) getApplicationContext(),paired_list);
+    private final CustomAdapter adapter1 = new CustomAdapter((bluetooth) getApplicationContext(),scan_list);
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
@@ -339,10 +333,11 @@ public class bluetooth extends AppCompatActivity {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start();
 
-                        Intent intent = new Intent(bluetooth.this,MainActivity.class);
-                        intent.putExtra("BT",mConnectedThread);
-
-                        startActivity(intent);
+//                        Intent intent = new Intent(bluetooth.this,MainActivity.class);
+//                        intent.putExtra("BT",mConnectedThread);
+//
+//                        startActivity(intent);
+//                        Log.d(TAG, "run: "+intent);
 
                         mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
                                 .sendToTarget();
@@ -354,8 +349,7 @@ public class bluetooth extends AppCompatActivity {
 
     }
 
-
-    public class ConnectedThread extends Thread implements Serializable {
+    public static class ConnectedThread extends Thread implements Serializable {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
@@ -376,6 +370,10 @@ public class bluetooth extends AppCompatActivity {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+        }
+
+        public static ConnectedThread getInstance() {
+            return mConnectedThread;
         }
 
         @Override
@@ -415,8 +413,9 @@ public class bluetooth extends AppCompatActivity {
         public void cancel() {
             try {
                 mmSocket.close();
-            } catch (IOException e) { }
+            } catch (IOException ignored) { }
         }
+
     } // 연결하기 위한 스레드
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {

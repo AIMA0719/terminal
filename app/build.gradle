@@ -41,7 +41,10 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.5'
 
     implementation 'com.google.android.material:material:1.1.0' //리사이클러뷰 사용하기위해 넣음
-    implementation "androidx.room:room-runtime:2.2.6" // 룸 ㅠ...
+    implementation "androidx.room:room-runtime:2.2.6"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.databinding:compiler:3.2.0-alpha11'// 룸 ㅠ...
     annotationProcessor "androidx.room:room-compiler:2.2.6" // 룸 ㅜ..
 
     testImplementation 'junit:junit:4.13.2'
