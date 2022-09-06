@@ -24,6 +24,16 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     private final List<Customer2> items;
     private static final String TAG = "adapter";
 
+    public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
+        void onItemClicked(int position,View view);
+    }
+
+    public static CustomAdapter.OnItemClickListener itemClickListener = null;  // 참조 변수 선언
+
+    public void setOnItemClickListener(CustomAdapter.OnItemClickListener listener){  // OnItemClickListener 전달 메소드
+        this.itemClickListener = listener;
+    }
+
     public MyItemRecyclerViewAdapter(List<Customer2> items,Context context) {
         this.items = items;
         this.context = context;
@@ -55,6 +65,13 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             super(view);
 
             textView = view.findViewById(R.id.device);
+
+            itemView.setOnClickListener(v -> {
+                int pos = getAbsoluteAdapterPosition();
+                if(pos != RecyclerView.NO_POSITION){
+                    itemClickListener.onItemClicked(pos,v);
+                }
+            });
 
         }
 

@@ -21,33 +21,18 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="뒤로가기"
-                android:id="@+id/back">
-
-            </Button>
 
             <TextView
                 android:id="@+id/bluetooth_status2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:paddingTop="5dp"
                 android:layout_marginLeft="5dp"
                 android:gravity="center"
-                android:hint="블루투스 연결 상태"
+                android:paddingTop="5dp"
                 android:textColor="@color/black"
-                android:textSize="20dp">
+                android:textSize="13dp">
 
             </TextView>
-
-        </LinearLayout>
 
 
 
@@ -62,7 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/bluetooth_on"
-                android:text="블루투스 켜기">
+                android:text="블루투스 on">
 
             </Button>
 
@@ -70,7 +55,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="블루투스 끄기"
+                android:text="블루투스 off"
                 android:id="@+id/bluetooth_off">
 
             </Button>
@@ -86,7 +71,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="연결 가능한 디바이스 검색"
+                android:text="연결 가능한 디바이스 scan"
                 android:id="@+id/bluetooth_scan">
 
             </Button>
