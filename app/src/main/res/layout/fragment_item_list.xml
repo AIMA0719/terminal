@@ -26,11 +26,12 @@
                 android:id="@+id/bluetooth_status2"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:layout_marginLeft="5dp"
                 android:gravity="center"
                 android:paddingTop="5dp"
                 android:textColor="@color/black"
-                android:textSize="13dp">
+                android:background="@color/purple_500"
+                android:textSize="20dp"
+                android:text="블루투스 연결">
 
             </TextView>
 
@@ -100,7 +101,8 @@
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:layout_marginTop="5dp"
-            tools:listitem="@layout/bluetooth_device">
+            tools:listitem="@layout/bluetooth_device"
+            android:splitMotionEvents="false">
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -124,7 +126,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@layout/bluetooth_device"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="5dp"
+                android:splitMotionEvents="false">
 
             </androidx.recyclerview.widget.RecyclerView>>
 

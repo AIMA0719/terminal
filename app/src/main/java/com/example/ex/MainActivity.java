@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -31,6 +32,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     // 선언 Area
     bluetooth.ConnectedThread mconnectedThread; // ㅠㅠ
     BluetoothFragment bluetoothFragment;
+    BluetoothDevice device;
 
     // --------
 
@@ -62,11 +65,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Intent intent = getIntent();
-//        if(intent != null){
-//            mconnectedThread = (bluetooth.ConnectedThread) intent.getSerializableExtra("BT");
-//            Log.d(TAG, "mconnecteThread : "+ mconnectedThread);
-//        }
 
         // findViewByID 부분
         list_item =findViewById(R.id.text_view);
@@ -102,6 +100,13 @@ public class MainActivity extends AppCompatActivity {
         dataList.clear(); // 리스트 클리어
         adapter.notifyDataSetChanged(); //갱신
         // --------
+
+        Intent intent = getIntent();
+        if(intent != null){
+            String data = intent.getStringExtra("데이터");
+            Log.d(TAG, "onCreate: "+data);
+            bluetooth_status.setText(data);
+        }
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -261,5 +266,4 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.FirstFragment,bluetoothFragment);
         fragmentTransaction.commit();
     }
-
 }

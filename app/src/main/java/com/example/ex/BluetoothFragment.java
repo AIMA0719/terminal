@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothFragment extends Fragment {
+public class BluetoothFragment extends Fragment implements Serializable {
 
     private static final int RESULT_OK = 1111;
     private static final int RESULT_CANCELED = 1112;
@@ -65,7 +66,7 @@ public class BluetoothFragment extends Fragment {
     Handler mBluetoothHandler;
     public BluetoothSocket mBluetoothSocket;
     public ConnectedThread mConnectedThread;
-    public ConnectThread mconnectThread;
+    public BluetoothDevice mBluetoothDevice;
 
     public RecyclerView listView_pairing, listView_scan;
 
@@ -83,7 +84,7 @@ public class BluetoothFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
         View view = inflater.inflate(R.layout.fragment_item_list, container, false);
         Context context = view.getContext();
 
@@ -182,6 +183,7 @@ public class BluetoothFragment extends Fragment {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         getContext().registerReceiver(mDeviceDiscoverReceiver, filter);
+
         //------------------------
 
         bluetooth_scan.setOnClickListener(v -> { // 연결 가능한 디바이스 검색 버튼 클릭 이벤트 처리 부분
@@ -228,9 +230,9 @@ public class BluetoothFragment extends Fragment {
         }; // 핸들러... 잘 이해 못했다
 
 
-        adapter.setOnItemClickListener((position1, view1) -> {
+        adapter.setOnItemClickListener((position, view2) -> {
 
-            String name1 = paired_list.get(position1).getName();
+            String name1 = paired_list.get(position).getName();
             String[] address2 = name1.split("\n");
 
             Log.d(TAG, "onCreateView: " + address2[1]);
@@ -270,7 +272,13 @@ public class BluetoothFragment extends Fragment {
                     }
                     if (!fail) {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
-                        mConnectedThread.start();
+                        mConnectedThread.start(); // 시작
+
+                        if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
+                            Intent intent = new Intent(getContext(),MainActivity.class);
+                            intent.putExtra("데이터",device.getName());
+                            startActivity(intent);
+                        }
 
                         mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name1)
                                 .sendToTarget();
@@ -329,12 +337,9 @@ public class BluetoothFragment extends Fragment {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start();
 
-                        boolean enable = false;
-                        if (isConnected(device)){
-                            enable = true;
-                        }
-                        if(enable){
+                        if(isConnected(device)){
                             Intent intent = new Intent(getContext(),MainActivity.class);
+                            intent.putExtra("데이터",device.getName());
                             startActivity(intent);
                         }
 
@@ -487,6 +492,15 @@ public class BluetoothFragment extends Fragment {
         }
 
     } // 연결하기 위한 스레드
+
+    public void SendToSimulator(){
+        Intent intent = new Intent();
+        String Data = intent.getStringExtra("TX");
+        Log.d(TAG, "SendToSimulator: "+Data);
+        if(mConnectedThread!= null){
+            mConnectedThread.write(Data);
+        }
+    }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
         try {
