@@ -81,16 +81,17 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         }
 
     }
+
+    static class Customer2 {
+        public String device;
+
+        public Customer2(String name){
+            this.device = name;
+        }
+
+        public String getName(){
+            return device;
+        }
+    }
 }
 
-class Customer2 {
-    public String device;
-
-    public Customer2(String name){
-        this.device = name;
-    }
-
-    public String getName(){
-        return device;
-    }
-}

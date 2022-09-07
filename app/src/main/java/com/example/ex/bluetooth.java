@@ -46,6 +46,7 @@ import java.io.OutputStream;
 
 public class bluetooth extends AppCompatActivity {
 
+
     public static final int BT_MESSAGE_READ = 3;
     TextView bluetooth_status, listtxt;
     Button bluetooth_on, bluetooth_off, bluetooth_scan;
@@ -213,29 +214,29 @@ public class bluetooth extends AppCompatActivity {
             }
         }); // 블루투스 scan 버튼 클릭 이벤트 처리 부분 z플립3는 되는데 샤오미에선 안된다..후
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == BT_MESSAGE_READ) {
-                    String readMessage = null;
-                    try {
-                        readMessage = new String((byte[]) msg.obj, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    bluetooth_status.setText(readMessage);
-                }
-
-                if (msg.what == BT_CONNECTING_STATUS) {
-                    if (msg.arg1 == 1) {
-                        String[] name = msg.obj.toString().split("\n");
-                        bluetooth_status.setText("Connected to Device: " + name[0]);
-                    } else {
-                        bluetooth_status.setText("Connection Failed");
-                    }
-                }
-            }
-        }; // 핸들러... 잘 이해 못했다
+//        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+//            @Override
+//            public void handleMessage(Message msg) {
+//                if (msg.what == BT_MESSAGE_READ) {
+//                    String readMessage = null;
+//                    try {
+//                        readMessage = new String((byte[]) msg.obj, "UTF-8");
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                    bluetooth_status.setText(readMessage);
+//                }
+//
+//                if (msg.what == BT_CONNECTING_STATUS) {
+//                    if (msg.arg1 == 1) {
+//                        String[] name = msg.obj.toString().split("\n");
+//                        bluetooth_status.setText("Connected to Device: " + name[0]);
+//                    } else {
+//                        bluetooth_status.setText("Connection Failed");
+//                    }
+//                }
+//            }
+//        }; // 핸들러...
 
         adapter.setOnItemClickListener((position, view) -> {
 

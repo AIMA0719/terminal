@@ -1,13 +1,21 @@
 package com.example.ex;
 
+import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
+
+import static com.example.ex.BluetoothFragment.BT_MESSAGE_READ;
+
 import android.bluetooth.BluetoothSocket;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 
 
 public class ConnectedThread extends Thread implements Serializable {
@@ -16,6 +24,7 @@ public class ConnectedThread extends Thread implements Serializable {
     Handler mBluetoothHandler;
     InputStream mmInStream;
     OutputStream mmOutStream;
+    private byte[] mmBuffer;
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mBluetoothSocket = socket;
@@ -36,26 +45,47 @@ public class ConnectedThread extends Thread implements Serializable {
 
     @Override
     public void run() {
-        byte[] buffer = new byte[1024];  // buffer store for the stream
-        int bytes; // bytes returned from read()
-        // Keep listening to the InputStream until an exception occurs
+        mmBuffer = new byte[1024];
+        int bytes;
+
         while (true) {
             try {
-                // Read from the InputStream
-                bytes = mmInStream.available();
+                bytes = mmInStream.read(mmBuffer,0,mmBuffer.length);
+                Log.d(TAG, "처음 read한 bytes : "+ bytes);
+
                 if(bytes != 0) {
-                    buffer = new byte[1024];
-                    SystemClock.sleep(100); //pause and wait for rest of data. Adjust this depending on your sending speed.
-                    bytes = mmInStream.available(); // how many bytes are ready to be read?
-                    bytes = mmInStream.read(buffer, 0, bytes); // record how many bytes we actually read
-                    mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget(); // Send the obtained bytes to the UI activity
+                    SystemClock.sleep(100); // term 주기
+//                    bytes = mmInStream.available(); // how many bytes are ready to be read?
+//                    bytes = mmInStream.read(buffer, 0, buffer.length);// record how many bytes we actually read
+                    byte temp = (byte)bytes;
+                    Log.d(TAG, "처음 read한 bytes를 형변환 : "+temp);
+                    try {
+                        String b = new String(mmBuffer,0,temp, StandardCharsets.UTF_8);
+                        Log.d(TAG, "bytes 를 String으로 : "+b);
+//
+                        Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
+                        Log.d(TAG, "메세지는 : "+message);
+                        message.sendToTarget();
+                    }catch (Exception e){
+
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
 
                 break;
             }
+
+            //                s = new String(buffer);
+//                for(int i = 0; i < s.length(); i++){
+//                    char x = s.charAt(i);
+//                    msg = msg + x;
+//                    if (x == 0x3e) {
+//                        mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, buffer.length, -1, msg).sendToTarget();
+//                        msg="";
+//                    }
+//                }
+//                Log.d(TAG, "run: "+msg);
         }
     }
 
@@ -64,7 +94,27 @@ public class ConnectedThread extends Thread implements Serializable {
         byte[] bytes = input.getBytes();           //converts entered String into bytes
         try {
             mmOutStream.write(bytes);
+            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_READ,-1,-1,mmBuffer);
+            writeMessage.sendToTarget();
         } catch (IOException e) { }
+//
+//        try {
+//            mmOutStream.write(bytes);
+//            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_READ,-1,-1,mmBuffer);
+//            writeMessage.sendToTarget();
+//
+//        } catch (IOException e) {
+//            Log.e(TAG, "Error occurred when sending data", e);
+//
+//            // Send a failure message back to the activity.
+//            Message writeErrorMsg =
+//                    mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
+//            Bundle bundle = new Bundle();
+//            bundle.putString("toast",
+//                    "Couldn't send data to the other device");
+//            writeErrorMsg.setData(bundle);
+//            mBluetoothHandler.sendMessage(writeErrorMsg);
+//        }
     }
 
     /* Call this from the main activity to shutdown the connection */

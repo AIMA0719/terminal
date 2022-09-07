@@ -15,18 +15,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.databinding.tool.util.L;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,8 +33,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.ex.DB.*;
 
-import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "activity_main";
 
     // 선언 Area
-    EditText editText;
+    public static EditText editText;
     Button btAdd, btReset;
     RecyclerView recyclerView;
     List<MainData> dataList = new ArrayList<>();
@@ -56,11 +55,8 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
     // 선언 Area
-    bluetooth.ConnectedThread mconnectedThread; // ㅠㅠ
+    ConnectedThread mconnectedThread;
     BluetoothFragment bluetoothFragment;
-    BluetoothDevice device;
-
-    boolean DeviceConnectCheck = false;
 
     // --------
 
@@ -78,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
-        bluetooth_status = (TextView) findViewById(R.id.mbluetooth_status);
+        bluetooth_status = findViewById(R.id.mbluetooth_status);
         // findViewByID 부분
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
@@ -110,9 +106,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent(); // device.getName 가져옴
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
+            String message = intent.getStringExtra("message");
+            Log.d(TAG, "onCreate: "+message);
             Log.d(TAG, "onCreate: " + data);
             bluetooth_status.setText(data);
+
         }
+
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -153,6 +153,28 @@ public class MainActivity extends AppCompatActivity {
                     1);
         }
 
+        BluetoothFragment.mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
+                    String readMessage = null;
+                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
+//                    bluetooth_status.setText(readMessage);
+                    Log.d(TAG, "handleMessage: "+readMessage);
+                }
+
+                if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
+                    if (msg.arg1 == 1) {
+                        String[] name = msg.obj.toString().split("\n");
+                        Toast.makeText(getApplicationContext(), name[0]+" 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        bluetooth_status.setText("연결 실패!");
+                    }
+                }
+            }
+        }; // 핸들러 ( What 인지에 따라 동작 , request_ID 같은 느낌..)
+
+
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
@@ -165,11 +187,13 @@ public class MainActivity extends AppCompatActivity {
                     editText.setText("");
 
                     BluetoothFragment.mConnectedThread.write(sText);
-                    Log.d(TAG, "onCreate: " + sText);
+                    Log.d(TAG, "TX : " + sText);
+
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
                     adapter.notifyDataSetChanged(); //갱신
+
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 } else { //기기랑 연결 안 되어있는 상태
@@ -178,15 +202,15 @@ public class MainActivity extends AppCompatActivity {
                     database.mainDao().insert(data);
 
                     editText.setText("");
-                    
-                    Log.d(TAG, "onCreate: " + sText);
+
+                    Log.d(TAG, "TX : " + sText);
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
                     adapter.notifyDataSetChanged(); //갱신
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
-                    Log.d(TAG, "onCreate: 블루투스 기기랑 연결 안 돼있는 상태입니다.");
+                    Log.d(TAG, "onCreate: 블루투스 기기랑 연결이 안 되어있는 상태입니다.");
                 }
 
             }
@@ -270,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Bluetoothadapter is null");
+                    Log.d(TAG, "Bluetooth's is null");
                 }
                 return true;
 

@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,7 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment implements Serializable {
 
+    public static final int BT_MESSAGE_READ = 3;
     private static final int RESULT_OK = 1111;
     private static final int RESULT_CANCELED = 1112;
     public TextView bluetooth_status;
@@ -48,21 +51,21 @@ public class BluetoothFragment extends Fragment implements Serializable {
     final String TAG = "bluetooth_activity";
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805F9B34FB");
 
-    private static final int REQUEST_ENABLE_BT = 1; // 요청 코드
-    private static final int REQUEST_LOACTION = 2;
-    private static final int BT_MESSAGE_READ = 3;
-    private static final int BT_CONNECTING_STATUS = 4;
+    public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
+    public static final int REQUEST_LOACTION = 2;
+    public static final int BT_CONNECTING_STATUS = 4;
 
     public BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
     public static Handler mBluetoothHandler;
     public static BluetoothSocket mBluetoothSocket;
     public static ConnectedThread mConnectedThread;
     public static BluetoothDevice device;
+    public EditText editText;
 
     public RecyclerView listView_pairing, listView_scan;
 
-    private final List<Customer2> paired_list = new ArrayList<>(); //리사이클러뷰 리스트 생성
-    private final List<Customer2> scan_list = new ArrayList<>();
+    private final List<MyItemRecyclerViewAdapter.Customer2> paired_list = new ArrayList<>(); //리사이클러뷰 리스트 생성
+    private final List<MyItemRecyclerViewAdapter.Customer2> scan_list = new ArrayList<>();
 
     private final MyItemRecyclerViewAdapter adapter = new MyItemRecyclerViewAdapter(paired_list, getContext()); //어댑터 생성
     private final MyItemRecyclerViewAdapter adapter2 = new MyItemRecyclerViewAdapter(scan_list, getContext());
@@ -85,6 +88,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         bluetooth_on = view.findViewById(R.id.bluetooth_on);
         bluetooth_off = view.findViewById(R.id.bluetooth_off);
         bluetooth_scan = view.findViewById(R.id.bluetooth_scan);
+        editText = view.findViewById(R.id.command_write);
 
         //------------------------------------------------------- 리사이클러뷰 세팅
 
@@ -117,29 +121,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         CheckPairedDevice(); // 등록된 디바이스 출력
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.what == BT_MESSAGE_READ) {
-                    String readMessage = null;
-                    try {
-                        readMessage = new String((byte[]) msg.obj, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    bluetooth_status.setText(readMessage);
-                }
-
-                if (msg.what == BT_CONNECTING_STATUS) {
-                    if (msg.arg1 == 1) {
-                        String[] name = msg.obj.toString().split("\n");
-                        bluetooth_status.setText("Connected to Device: " + name[0]);
-                    } else {
-                        bluetooth_status.setText("Connection Failed");
-                    }
-                }
-            }
-        }; // 핸들러... 잘 이해 못했다
 
         bluetooth_on.setOnClickListener(v -> {
             if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
@@ -277,7 +258,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     boolean fail = false;
 
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                        Log.d(TAG, "run: 권한업승ㅁ");
+                        Log.d(TAG, "run: 권한업음");
                     }
                     mBluetoothAdapter.cancelDiscovery();
                     device = mBluetoothAdapter.getRemoteDevice(address[1]);
@@ -336,7 +317,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    paired_list.add(new Customer2(bt.getName() + "\n" + bt.getAddress()));
+                    paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress()));
                     adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
                 }
             } else {
@@ -345,7 +326,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    paired_list.add(new Customer2(bt.getName() + "\n" + bt.getAddress())); // 저 new Customer을 그냥 Device로 바꿔야함.
+                    paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress())); // 저 new Customer을 그냥 Device로 바꿔야함.
                     adapter.notifyDataSetChanged();
                 }
             } else {
@@ -369,7 +350,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
                     } else {
                         if (device.getName() != null) {
-                            scan_list.add(new Customer2(device.getName()+"\n"+device.getAddress()));
+                            scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName()+"\n"+device.getAddress()));
                             adapter2.notifyDataSetChanged(); //갱신
                             cnt += 1;
                         }
@@ -383,7 +364,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                     if (device.getName() != null) {
-                        scan_list.add(new Customer2(device.getName()+"\n"+device.getAddress()));
+                        scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName()+"\n"+device.getAddress()));
                         adapter2.notifyDataSetChanged(); //갱신
                         cnt += 1;
                     }
@@ -411,6 +392,11 @@ public class BluetoothFragment extends Fragment implements Serializable {
         super.onDestroy();
 //        requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
 //        mConnectedThread.interrupt();
+        try {
+            mBluetoothSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     } // 생명주기
 
     @Override

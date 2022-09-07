@@ -1,7 +1,6 @@
-package com.example.ex;
+package com.example.ex.DB;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.ex.R;
 
 import java.util.List;
 
@@ -28,14 +29,14 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
 
     @NonNull
     @Override
-    public MainAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_row_main, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MainAdapter.ViewHolder holder, int position)
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position)
     {
         final MainData data = dataList.get(position);
         database = RoomDB.getInstance(context);
