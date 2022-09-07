@@ -4,7 +4,9 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +25,6 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     private Context context;
     private final List<Customer2> items;
     private static final String TAG = "adapter";
-    private int selectedPosition = -1;
 
     public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
         void onItemClicked(int position,View view);
@@ -48,11 +49,11 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         return  holder;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Customer2 item = items.get(position);
         holder.textView.setText(item.getName());
-
 
     }
 

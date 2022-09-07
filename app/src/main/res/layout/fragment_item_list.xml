@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,7 +29,7 @@
                 android:paddingTop="5dp"
                 android:textColor="@color/black"
                 android:background="@color/purple_500"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="블루투스 연결">
 
             </TextView>
@@ -53,7 +52,7 @@
             </Button>
 
             <Button
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="블루투스 off"
@@ -92,7 +91,7 @@
             android:layout_marginTop="8dp"
             android:text="등록된 디바이스"
             android:textColor="@color/black"
-            android:layout_marginLeft="5dp">
+            android:layout_marginStart="5dp">
 
         </TextView>
 
@@ -102,7 +101,11 @@
             android:layout_height="180dp"
             android:layout_marginTop="5dp"
             tools:listitem="@layout/bluetooth_device"
-            android:splitMotionEvents="false">
+            android:splitMotionEvents="false"
+            android:clickable="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            >
 
         </androidx.recyclerview.widget.RecyclerView>
 
@@ -117,7 +120,7 @@
                 android:layout_marginTop="8dp"
                 android:text="연결 가능한 디바이스"
                 android:textColor="@color/black"
-                android:layout_marginLeft="5dp">
+                android:layout_marginStart="5dp">
 
             </TextView>
 
@@ -127,7 +130,11 @@
                 android:layout_height="match_parent"
                 tools:listitem="@layout/bluetooth_device"
                 android:layout_marginTop="5dp"
-                android:splitMotionEvents="false">
+                android:splitMotionEvents="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                >
 
             </androidx.recyclerview.widget.RecyclerView>>
 

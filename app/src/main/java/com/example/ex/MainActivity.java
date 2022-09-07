@@ -16,9 +16,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.databinding.tool.util.L;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Build;
@@ -56,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     BluetoothFragment bluetoothFragment;
     BluetoothDevice device;
 
+    boolean DeviceConnectCheck = false;
+
     // --------
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // findViewByID 부분
-        list_item =findViewById(R.id.text_view);
+        list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
-        Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK , PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
+        Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
 
@@ -101,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
-        Intent intent = getIntent();
-        if(intent != null){
+        Intent intent = getIntent(); // device.getName 가져옴
+        if (intent != null) {
             String data = intent.getStringExtra("데이터");
-            Log.d(TAG, "onCreate: "+data);
+            Log.d(TAG, "onCreate: " + data);
             bluetooth_status.setText(data);
         }
 
@@ -123,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.BLUETOOTH_SCAN}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
 
             } catch (Exception e) {
-                Log.d(TAG, "모르겠다~" , e);
+                Log.d(TAG, "모르겠다~", e);
                 return;
             }
         }
@@ -149,22 +155,43 @@ public class MainActivity extends AppCompatActivity {
 
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
-            if (!sText.equals(""))
-            {
-                MainData data = new MainData();
-                data.setText(sText);
-                database.mainDao().insert(data);
+            if (!sText.equals("")) {
 
-                editText.setText("");
+                if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
+                    MainData data = new MainData();
+                    data.setText(sText);
+                    database.mainDao().insert(data);
 
-                dataList.clear(); //리스트 초기화
-                dataList.addAll(database.mainDao().getAll()); //add
-                adapter.notifyDataSetChanged(); //갱신
+                    editText.setText("");
 
-                Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size()-1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                    BluetoothFragment.mConnectedThread.write(sText);
+                    Log.d(TAG, "onCreate: " + sText);
+
+                    dataList.clear(); //리스트 초기화
+                    dataList.addAll(database.mainDao().getAll()); //add
+                    adapter.notifyDataSetChanged(); //갱신
+
+                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                } else { //기기랑 연결 안 되어있는 상태
+                    MainData data = new MainData();
+                    data.setText(sText);
+                    database.mainDao().insert(data);
+
+                    editText.setText("");
+                    
+                    Log.d(TAG, "onCreate: " + sText);
+
+                    dataList.clear(); //리스트 초기화
+                    dataList.addAll(database.mainDao().getAll()); //add
+                    adapter.notifyDataSetChanged(); //갱신
+
+                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                    Log.d(TAG, "onCreate: 블루투스 기기랑 연결 안 돼있는 상태입니다.");
+                }
+
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
-            Log.d(TAG,"명령어를 입력한 횟수" + dataList.size());
+            Log.d(TAG, "명령어를 입력한 횟수" + dataList.size());
         }); // -------- 보내기 버튼 클릭 이벤트
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
@@ -185,12 +212,12 @@ public class MainActivity extends AppCompatActivity {
             boolean check_result = false;  //  권한 체크 했니?
 
 
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S){ //SDK 31 미만이면 블루투스 스캔 권한 없어도 됨.
-                if(ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-                        ContextCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { //SDK 31 미만이면 블루투스 스캔 권한 없어도 됨.
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                     check_result = true;
                 }
-            }else{ //31 이상이면
+            } else { //31 이상이면
                 for (int result : grandResults) { // 모든 퍼미션을 허용했는지 체크
                     if (result == PackageManager.PERMISSION_GRANTED) {
                         check_result = true; // 체크 됐으면 false
@@ -220,26 +247,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
         switch (item.getItemId()) {
-                case R.id.blutooth_connect:
-                    try {
+            case R.id.blutooth_connect:
+                try {
 //                        Intent intent = new Intent(this, bluetooth.class);
 //                        startActivity(intent);
-                        FragmentView();
+                    FragmentView(); // 프래그먼트로 이동하는 코드
 
-                        FragmentManager fm1 = getSupportFragmentManager();
-                        FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
-                        ft1.replace(R.id.FirstFragment,bluetoothFragment);
-                        ft1.commit();
-                    }catch (Exception e){
-                        Log.d(TAG, "Error :"+e);
-                    }
+                    FragmentManager fm1 = getSupportFragmentManager();
+                    FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
+                    ft1.replace(R.id.FirstFragment, bluetoothFragment);
+                    ft1.commit();
+                } catch (Exception e) {
+                    Log.d(TAG, "Error :" + e);
+                }
             case R.id.log_load:  //
                 if (bluetoothAdapter != null) {
                     if (!bluetoothAdapter.isEnabled()) {
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
-                            bluetooth_status.setText("연결됨");
+                            // 로그버튼 클릭
                         }
                     }
                 } else {
@@ -248,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
 
-            case R.id.dashboard: //블루투스 해제 클릭  listen
+            case R.id.dashboard: //대쉬보드 클리
                 Toast.makeText(getApplicationContext(), "대쉬보드", Toast.LENGTH_SHORT).show();
                 return true;
 
@@ -263,7 +289,17 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.FirstFragment,bluetoothFragment);
+        fragmentTransaction.add(R.id.FirstFragment, bluetoothFragment);
         fragmentTransaction.commit();
     }
+
+//
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        mconnectedThread.cancel();
+    }
+
 }

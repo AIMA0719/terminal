@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.LOCAL_MAC_ADDRESS"
         tools:ignore="ProtectedPermissions" />
 
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -27,6 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Ex"
         tools:targetApi="31" >
+
+
 
         <activity
             android:name=".MainActivity"
