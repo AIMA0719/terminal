@@ -308,8 +308,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
                             startActivity(intent);
                         }
 
-//                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
-//                                .sendToTarget();
+                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, name)
+                                .sendToTarget();
                     }
                 }
             }.start();

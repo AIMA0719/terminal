@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     // 선언 Area
     ConnectedThread mconnectedThread;
     BluetoothFragment bluetoothFragment;
-    public static String readMessage = null;
+
     // --------
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         database.mainDao().reset(dataList); //리스트 DB 삭제
         dataList.clear(); // 리스트 클리어
         adapter.notifyDataSetChanged(); //갱신
+
         // --------
 
         Intent intent = getIntent(); // device.getName 가져옴
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -158,11 +160,17 @@ public class MainActivity extends AppCompatActivity {
 
         BluetoothFragment.mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
 
-                    readMessage = new String((byte[]) msg.obj).trim();
+//                    readMessage = new String((byte[]) msg.obj).trim();
 //                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
+                    Log.d(TAG, "핸들러 메세지 왜 처음엔 널인것인가? : "+readMessage);
+
+//                    readMessage = readMessage.replace("null","");
+//                    readMessage = readMessage.substring(0,readMessage.length()-2);
+//                    readMessage = readMessage.replaceAll("\n","");
+//                    readMessage = readMessage.replaceAll("\r","");
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -195,22 +203,17 @@ public class MainActivity extends AppCompatActivity {
                     BluetoothFragment.mConnectedThread.write(sText+"\r");
                     Log.d(TAG, "TX : " + sText);
 
-                    if(readMessage != null){
-                        readMessage = readMessage.replace("null","");
-                        readMessage = readMessage.substring(0,readMessage.length()-2);
-                        readMessage = readMessage.replaceAll("\n","");
-                        readMessage = readMessage.replaceAll("\r","");
+                    //-------------------------------
+                    MainData data2 = new MainData();
+                    data2.setText(readMessage);
+                    database.mainDao().insert(data2);
 
-                        MainData data2 = new MainData();
-                        data2.setText(readMessage);
-                        database.mainDao().insert(data2);
+                    editText.setText("");
 
-                        editText.setText("");
-
-                        dataList.clear(); //리스트 초기화
-                        dataList.addAll(database.mainDao().getAll()); //add
-                        adapter.notifyDataSetChanged(); //갱신
-                    }
+                    dataList.clear(); //리스트 초기화
+                    dataList.addAll(database.mainDao().getAll()); //add
+                    adapter.notifyDataSetChanged(); //갱신
+                    //-------------------------------
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
@@ -237,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
-            Log.d(TAG, "명령어를 입력한 횟수" + dataList.size());
+            Log.d(TAG, "명령어를 입력한 횟수 " + dataList.size());
         }); // -------- 보내기 버튼 클릭 이벤트
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작

@@ -26,6 +26,7 @@ public class ConnectedThread extends Thread implements Serializable {
     InputStream mmInStream;
     OutputStream mmOutStream;
     private byte[] mmBuffer;
+    public static String readMessage;
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mBluetoothSocket = socket;
@@ -51,25 +52,29 @@ public class ConnectedThread extends Thread implements Serializable {
             try {
                 bytes = mmInStream.read(mmBuffer,0,mmBuffer.length);
 
-//                if(bytes != 0) {
+                if(bytes != 0) {
 //                    SystemClock.sleep(100); // term 주기 -> 실시간 통신에는 부적합하다.. 보통 1초에 5~6번 하는데 슬립들어가면 x
-                    byte temp = (byte)bytes; // length
+                    byte temp = (byte) bytes; // length
 
                     try {
-                        String readMessage = new String(mmBuffer,0,temp, StandardCharsets.UTF_8).trim();
+                        readMessage = new String(mmBuffer, 0, temp, StandardCharsets.UTF_8).trim();
 //                        Log.d(TAG, "bytes 를 String으로 : "+readMessage);
+                        //readMessage를 바꿔서 메세지로 보내면 이득일거같음
                         Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
                         message.sendToTarget();
 
-                    }catch (Exception e){
+
+                    } catch (Exception e) {
                         Log.d(TAG, "run: 오류남");
                     }
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
 
                 break;
             }
+
 
             //                s = new String(buffer);
 //                for(int i = 0; i < s.length(); i++){
