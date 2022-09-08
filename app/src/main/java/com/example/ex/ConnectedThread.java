@@ -32,8 +32,6 @@ public class ConnectedThread extends Thread implements Serializable {
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
-        // Get the input and output streams, using temp objects because
-        // member streams are final
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
@@ -51,25 +49,22 @@ public class ConnectedThread extends Thread implements Serializable {
         while (true) {
             try {
                 bytes = mmInStream.read(mmBuffer,0,mmBuffer.length);
-                Log.d(TAG, "처음 read한 bytes : "+ bytes);
 
-                if(bytes != 0) {
-                    SystemClock.sleep(100); // term 주기
-//                    bytes = mmInStream.available(); // how many bytes are ready to be read?
-//                    bytes = mmInStream.read(buffer, 0, buffer.length);// record how many bytes we actually read
-                    byte temp = (byte)bytes;
-                    Log.d(TAG, "처음 read한 bytes를 형변환 : "+temp);
+//                if(bytes != 0) {
+//                    SystemClock.sleep(100); // term 주기 -> 실시간 통신에는 부적합하다.. 보통 1초에 5~6번 하는데 슬립들어가면 x
+                    byte temp = (byte)bytes; // length
+
                     try {
-                        String b = new String(mmBuffer,0,temp, StandardCharsets.UTF_8);
-                        Log.d(TAG, "bytes 를 String으로 : "+b);
-//
-                        Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
-                        Log.d(TAG, "메세지는 : "+message);
-                        message.sendToTarget();
-                    }catch (Exception e){
+                        String readMessage = new String(mmBuffer,0,temp, StandardCharsets.UTF_8).trim();
 
+                            Log.d(TAG, "bytes 를 String으로 : "+readMessage);
+                            Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
+                            message.sendToTarget();
+
+                    }catch (Exception e){
+                        Log.d(TAG, "run: 오류남");
                     }
-                }
+
             } catch (IOException e) {
                 e.printStackTrace();
 
@@ -89,12 +84,11 @@ public class ConnectedThread extends Thread implements Serializable {
         }
     }
 
-    /* Call this from the main activity to send data to the remote device */
     public void write(String input) {
-        byte[] bytes = input.getBytes();           //converts entered String into bytes
+        byte[] bytes = input.getBytes();
         try {
             mmOutStream.write(bytes);
-            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_READ,-1,-1,mmBuffer);
+            Message writeMessage = mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_WRITE,-1,-1,mmBuffer);
             writeMessage.sendToTarget();
         } catch (IOException e) { }
 //
@@ -117,7 +111,6 @@ public class ConnectedThread extends Thread implements Serializable {
 //        }
     }
 
-    /* Call this from the main activity to shutdown the connection */
     public void cancel() {
         try {
             mBluetoothSocket.close();

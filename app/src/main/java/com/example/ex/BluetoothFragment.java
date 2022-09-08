@@ -44,12 +44,13 @@ import java.util.UUID;
 public class BluetoothFragment extends Fragment implements Serializable {
 
     public static final int BT_MESSAGE_READ = 3;
+    public static final int BT_MESSAGE_WRITE = 3;
     private static final int RESULT_OK = 1111;
     private static final int RESULT_CANCELED = 1112;
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
-    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     public static final int REQUEST_LOACTION = 2;

@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             String message = intent.getStringExtra("message");
             Log.d(TAG, "onCreate: "+message);
             Log.d(TAG, "onCreate: " + data);
-            bluetooth_status.setText(data);
+//            bluetooth_status.setText(data);
 
         }
 
@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
                     String readMessage = null;
-                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8);
-//                    bluetooth_status.setText(readMessage);
+                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
                     Log.d(TAG, "handleMessage: "+readMessage);
                 }
 
@@ -168,8 +167,12 @@ public class MainActivity extends AppCompatActivity {
                         String[] name = msg.obj.toString().split("\n");
                         Toast.makeText(getApplicationContext(), name[0]+" 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
                     } else {
-                        bluetooth_status.setText("연결 실패!");
+                        Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                     }
+                }
+
+                if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
+//                    Log.d(TAG, "write"+msg.obj);
                 }
             }
         }; // 핸들러 ( What 인지에 따라 동작 , request_ID 같은 느낌..)
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
                     editText.setText("");
 
-                    BluetoothFragment.mConnectedThread.write(sText);
+                    BluetoothFragment.mConnectedThread.write(sText+"\r");
                     Log.d(TAG, "TX : " + sText);
 
 
