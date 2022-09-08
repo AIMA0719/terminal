@@ -6,7 +6,7 @@
     <item
         android:id="@+id/blutooth_connect"
         android:title="블루투스 연결"
-        android:icon="@drawable/ic_baseline_bluetooth_25"
+        android:icon="@drawable/connection"
         app:showAsAction="ifRoom"/>
     <group>
 

@@ -57,11 +57,11 @@ public class MainActivity extends AppCompatActivity {
     // 선언 Area
     ConnectedThread mconnectedThread;
     BluetoothFragment bluetoothFragment;
-
+    public static String readMessage = null;
     // --------
 
     @RequiresApi(api = Build.VERSION_CODES.S)
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();// get머시기는 장치가 블루투스 기능을 지원하는지 알아오는 메소드
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//장치가 블루투스 기능을 지원하는지 알아옴
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
@@ -107,12 +107,15 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
             String message = intent.getStringExtra("message");
-            Log.d(TAG, "onCreate: "+message);
             Log.d(TAG, "onCreate: " + data);
-//            bluetooth_status.setText(data);
+            if ( data != null){
+                bluetooth_status.setText(data+" 기기랑 연결 상태입니다.");
+            }
+            else{
+                bluetooth_status.setText("기기랑 연결되어 있지 않습니다.");
+            }
 
         }
-
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -157,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-                    String readMessage = null;
-                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
-                    Log.d(TAG, "handleMessage: "+readMessage);
+
+                    readMessage = new String((byte[]) msg.obj).trim();
+//                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -192,6 +195,22 @@ public class MainActivity extends AppCompatActivity {
                     BluetoothFragment.mConnectedThread.write(sText+"\r");
                     Log.d(TAG, "TX : " + sText);
 
+                    if(readMessage != null){
+                        readMessage = readMessage.replace("null","");
+                        readMessage = readMessage.substring(0,readMessage.length()-2);
+                        readMessage = readMessage.replaceAll("\n","");
+                        readMessage = readMessage.replaceAll("\r","");
+
+                        MainData data2 = new MainData();
+                        data2.setText(readMessage);
+                        database.mainDao().insert(data2);
+
+                        editText.setText("");
+
+                        dataList.clear(); //리스트 초기화
+                        dataList.addAll(database.mainDao().getAll()); //add
+                        adapter.notifyDataSetChanged(); //갱신
+                    }
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
@@ -230,6 +249,8 @@ public class MainActivity extends AppCompatActivity {
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
+
+
 
     }
 

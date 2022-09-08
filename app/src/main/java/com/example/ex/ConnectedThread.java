@@ -5,6 +5,7 @@ import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 import static com.example.ex.BluetoothFragment.BT_MESSAGE_READ;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -56,10 +57,9 @@ public class ConnectedThread extends Thread implements Serializable {
 
                     try {
                         String readMessage = new String(mmBuffer,0,temp, StandardCharsets.UTF_8).trim();
-
-                            Log.d(TAG, "bytes 를 String으로 : "+readMessage);
-                            Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
-                            message.sendToTarget();
+//                        Log.d(TAG, "bytes 를 String으로 : "+readMessage);
+                        Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, bytes, -1, mmBuffer);
+                        message.sendToTarget();
 
                     }catch (Exception e){
                         Log.d(TAG, "run: 오류남");
@@ -88,7 +88,7 @@ public class ConnectedThread extends Thread implements Serializable {
         byte[] bytes = input.getBytes();
         try {
             mmOutStream.write(bytes);
-            Message writeMessage = mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_WRITE,-1,-1,mmBuffer);
+            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_READ,-1,-1,mmBuffer);
             writeMessage.sendToTarget();
         } catch (IOException e) { }
 //

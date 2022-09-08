@@ -14,6 +14,8 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +26,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -77,7 +82,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -90,19 +98,18 @@ public class BluetoothFragment extends Fragment implements Serializable {
         bluetooth_off = view.findViewById(R.id.bluetooth_off);
         bluetooth_scan = view.findViewById(R.id.bluetooth_scan);
         editText = view.findViewById(R.id.command_write);
+        listView_scan = view.findViewById(R.id.scan_list);
+        listView_pairing = view.findViewById(R.id.pairing_list);
 
         //------------------------------------------------------- 리사이클러뷰 세팅
-
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
-        listView_pairing = view.findViewById(R.id.pairing_list);
         listView_pairing.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         listView_pairing.setLayoutManager(layoutManager);
 
-        listView_scan = view.findViewById(R.id.scan_list);
         listView_scan.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager1 = new LinearLayoutManager(getContext());
         listView_scan.setLayoutManager(layoutManager1);
@@ -110,6 +117,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         listView_scan.setAdapter(adapter2);
 
         //-------------------------------------------------------
+
 
         //------------------------ 인플레이터 정의 ( ex)액션 파운드 같은경우 기기 찾으면 앱에서 받는다 )
         IntentFilter filter = new IntentFilter();
@@ -126,17 +134,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
         bluetooth_on.setOnClickListener(v -> {
             if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
                 if (!mBluetoothAdapter.isEnabled()) {
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {// 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
                         Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
                         startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
-                        bluetooth_status.setText("블루투스 연결 상태입니다.");
+
                     } else {
                         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Toast.makeText(getContext(), "권한이 없습니다.", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                             startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
-                            bluetooth_status.setText("블루투스 연결 상태입니다.");
+
                         }
                     }
                 } else {
@@ -154,7 +162,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                     mBluetoothAdapter.disable(); //블루투스 비활성화
                     Toast.makeText(getContext(), "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
-                    bluetooth_status.setText("블루투스 비연결 상태입니다.");
                 } else {
                     if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) { //권한 체크해주고
                         Toast.makeText(getContext(), "블루투스 권한이 없습니다.", Toast.LENGTH_SHORT).show();
@@ -162,7 +169,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     } else {
                         mBluetoothAdapter.disable(); //블루투스 비활성화
                         Toast.makeText(getContext(), "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
-                        bluetooth_status.setText("블루투스 비연결 상태입니다.");
                     }
                 }
             } else {
@@ -375,6 +381,38 @@ public class BluetoothFragment extends Fragment implements Serializable {
     }; //----------------------- 브로드캐스트 리시버 정의 // device 스캔 작동 부분
 
     @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { //툴바랑 연결된 메뉴
+        inflater.inflate(R.menu.fragment_menu, menu);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) { // 툴바 소환
+
+        Toolbar toolbar = view.findViewById(R.id.bluetooth_toolbar);
+        toolbar.inflateMenu(R.menu.fragment_menu);
+        toolbar.setTitle("블루투스 연결 설정");
+
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_keyboard_backspace_24);
+        toolbar.setNavigationOnClickListener(v -> {
+            Intent intent = new Intent(getContext(),MainActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.bluetooth_reset:  {
+                Log.d(TAG, "onOptionsItemSelected: 아직 기능 구현 안함 새로고침");
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_ENABLE_BT) {
@@ -391,8 +429,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
     @Override
     public void onDestroy(){
         super.onDestroy();
-//        requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
-//        mConnectedThread.interrupt();
+        requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
+        mConnectedThread.interrupt();
         try {
             mBluetoothSocket.close();
         } catch (IOException e) {
