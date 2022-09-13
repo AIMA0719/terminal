@@ -56,6 +56,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
+    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     public static final int REQUEST_LOACTION = 2;
@@ -239,6 +240,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start(); // 시작
 
+                        //for (int i=0;i< DefaultATCommandArray.length;i++){
+                        //    mConnectedThread.write(DefaultATCommandArray[i]);
+                        //}
+
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
                             Intent intent = new Intent(getContext(),MainActivity.class);
                             intent.putExtra("데이터",device.getName());
@@ -301,6 +306,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     if (!fail) {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start();
+
+
 
                         if(isConnected(device)){
                             Intent intent = new Intent(getContext(),MainActivity.class);

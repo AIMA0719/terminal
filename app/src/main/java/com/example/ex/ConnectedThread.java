@@ -142,4 +142,6 @@ public class ConnectedThread extends Thread implements Serializable {
         } catch (IOException ignored) { }
     }
 
+
+
 } // 연결하기 위한 스레드

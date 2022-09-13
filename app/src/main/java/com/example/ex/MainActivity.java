@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public static EditText editText;
     Button btAdd, btReset;
     RecyclerView recyclerView;
-    List<MainData> dataList = new ArrayList<>();
+    ArrayList<MainData> dataList = new ArrayList<>();
     RoomDB database;
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
     BluetoothFragment bluetoothFragment;
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
-    String done = ""; // 저장된 Response의 마지막 값만 저장
 
     // --------
 
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         // findViewByID 부분
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
-        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
+        //dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
@@ -100,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-        database.mainDao().reset(dataList); //리스트 DB 삭제
-        dataList.clear(); // 리스트 클리어
-        adapter.notifyDataSetChanged(); //갱신
+        //database.mainDao().reset(dataList); //리스트 DB 삭제
+        //dataList.clear(); // 리스트 클리어
+        //adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
@@ -133,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.BLUETOOTH_SCAN}, 1);
 
             } catch (Exception e) {
-                Log.d(TAG, "모르겠다~", e);
+                Log.d(TAG, "권한 오류", e);
                 return;
             }
         }
@@ -168,6 +167,19 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "메인에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
 
+                    MainData data2 = new MainData();
+                    data2.setText(readmessage);
+                    database.mainDao().insert(data2);
+
+                    editText.setText("");
+
+                    //dataList.clear(); //리스트 초기화
+                    //dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
+                    dataList.add(data2);
+                    adapter.notifyDataSetChanged(); //갱신
+
+                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -186,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }; // 핸들러 ( What에 따라 동작 )
 
+
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
@@ -202,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "TX : " + sText);
 
                     dataList.clear(); //리스트 초기화
+                    //dataList.add(data);
                     dataList.addAll(database.mainDao().getAll()); //add
                     adapter.notifyDataSetChanged(); //갱신
 
@@ -231,15 +245,17 @@ public class MainActivity extends AppCompatActivity {
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(dataList);
-
+            database.mainDao().delete(dataList);
+            dataList.removeAll(dataList);
             dataList.clear();
-            dataList.addAll(database.mainDao().getAll());
+
+            readmessage= "";
+
+            //dataList.addAll(database.mainDao().getAll());
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
-
-
 
     }
 
@@ -330,13 +346,9 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-//
-
     @Override
     public void onDestroy(){
         super.onDestroy();
-
-        mConnectedThread.cancel();
     }
 
 }
