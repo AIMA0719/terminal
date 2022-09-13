@@ -1,5 +1,8 @@
 package com.example.ex;
 
+import static com.example.ex.BluetoothFragment.mBluetoothHandler;
+import static com.example.ex.BluetoothFragment.mBluetoothSocket;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -35,17 +38,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.ex.DB.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityResultLauncher<Intent> resultLauncher; // 클래스내에 선언 해주래  startactivityForresult 대신 쓰는거..
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
-    // 선언 Area
     public static EditText editText;
     Button btAdd, btReset;
     RecyclerView recyclerView;
@@ -53,11 +55,11 @@ public class MainActivity extends AppCompatActivity {
     RoomDB database;
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
-    // 선언 Area
     ConnectedThread mConnectedThread;
     BluetoothFragment bluetoothFragment;
 
-    String readMessage="1";
+    String readmessage = ""; // 핸들러로 받은 메세지 저장
+    String done = ""; // 저장된 Response의 마지막 값만 저장
 
     // --------
 
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
-        recyclerView.setLayoutManager(new LinearLayoutManager(this)); //?
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter); // 어댑터 설정
 
@@ -116,8 +118,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION); // Manifest 에서 권한ID 가져오기
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
         int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_SCAN}, 1);// 이거 권한요청 뜨긴했는데 coarse랑 fine 다 된건지 모르겠습니다..
+                        Manifest.permission.BLUETOOTH_SCAN}, 1);
 
             } catch (Exception e) {
                 Log.d(TAG, "모르겠다~", e);
@@ -151,23 +152,22 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(
                     new String[]{
                             Manifest.permission.BLUETOOTH
-
                     },
                     1);
         }
 
-        BluetoothFragment.mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-//                  readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
 
-                    readMessage += ConnectedThread.readMessage;
-                    Log.d(TAG, "handleMessage: "+readMessage);
-//                  readMessage = readMessage.replace("null","");
-//                  readMessage = readMessage.substring(0,readMessage.length()-2);
-//                  readMessage = readMessage.replaceAll("\n","");
-//                  readMessage = readMessage.replaceAll("\r","");
+                    //String a = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
+                    //a = a.replace("null","");
+                    //a = a.replaceAll("\n","");
+
+                    Log.d(TAG, "메인에서 받은 데이터 : "+msg.obj);
+                    readmessage += msg.obj;
+
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -180,39 +180,33 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
-//                    Log.d(TAG, "write"+msg.obj);
+                    Log.d(TAG, "write 함");
+
                 }
             }
-        }; // 핸들러 ( What 인지에 따라 동작 , request_ID 같은 느낌..)
+        }; // 핸들러 ( What에 따라 동작 )
 
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
-
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
+                    sText = sText+"\r";
+                    BluetoothFragment.mConnectedThread.write(sText);
+
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data);
 
                     editText.setText("");
 
-                    BluetoothFragment.mConnectedThread.write(sText+"\r");
                     Log.d(TAG, "TX : " + sText);
-
-                    //-------------------------------
-                    MainData data2 = new MainData();
-                    data2.setText(ConnectedThread.readMessage);
-                    database.mainDao().insert(data2);
-
-                    data2.setText("");
-
-                    //-------------------------------
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
                     adapter.notifyDataSetChanged(); //갱신
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+
                 } else { //기기랑 연결 안 되어있는 상태
                     MainData data = new MainData();
                     data.setText(sText);
