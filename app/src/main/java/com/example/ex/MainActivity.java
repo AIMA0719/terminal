@@ -35,7 +35,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.ex.DB.*;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -55,8 +54,10 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
     // 선언 Area
-    ConnectedThread mconnectedThread;
+    ConnectedThread mConnectedThread;
     BluetoothFragment bluetoothFragment;
+
+    String readMessage="1";
 
     // --------
 
@@ -96,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
-
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
         database.mainDao().reset(dataList); //리스트 DB 삭제
         dataList.clear(); // 리스트 클리어
@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent(); // device.getName 가져옴
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
-            String message = intent.getStringExtra("message");
             Log.d(TAG, "onCreate: " + data);
             if ( data != null){
                 bluetooth_status.setText(data+" 기기랑 연결 상태입니다.");
@@ -115,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
             else{
                 bluetooth_status.setText("기기랑 연결되어 있지 않습니다.");
             }
-
         }
 
 
@@ -162,15 +160,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
+//                  readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
 
-//                    readMessage = new String((byte[]) msg.obj).trim();
-//                    readMessage = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
-                    Log.d(TAG, "핸들러 메세지 왜 처음엔 널인것인가? : "+readMessage);
-
-//                    readMessage = readMessage.replace("null","");
-//                    readMessage = readMessage.substring(0,readMessage.length()-2);
-//                    readMessage = readMessage.replaceAll("\n","");
-//                    readMessage = readMessage.replaceAll("\r","");
+                    readMessage += ConnectedThread.readMessage;
+                    Log.d(TAG, "handleMessage: "+readMessage);
+//                  readMessage = readMessage.replace("null","");
+//                  readMessage = readMessage.substring(0,readMessage.length()-2);
+//                  readMessage = readMessage.replaceAll("\n","");
+//                  readMessage = readMessage.replaceAll("\r","");
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -188,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }; // 핸들러 ( What 인지에 따라 동작 , request_ID 같은 느낌..)
 
-
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
@@ -205,20 +201,16 @@ public class MainActivity extends AppCompatActivity {
 
                     //-------------------------------
                     MainData data2 = new MainData();
-                    data2.setText(readMessage);
+                    data2.setText(ConnectedThread.readMessage);
                     database.mainDao().insert(data2);
 
-                    editText.setText("");
+                    data2.setText("");
 
-                    dataList.clear(); //리스트 초기화
-                    dataList.addAll(database.mainDao().getAll()); //add
-                    adapter.notifyDataSetChanged(); //갱신
                     //-------------------------------
 
                     dataList.clear(); //리스트 초기화
                     dataList.addAll(database.mainDao().getAll()); //add
                     adapter.notifyDataSetChanged(); //갱신
-
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 } else { //기기랑 연결 안 되어있는 상태
@@ -350,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
 
-        mconnectedThread.cancel();
+        mConnectedThread.cancel();
     }
 
 }
