@@ -164,16 +164,26 @@ public class MainActivity extends AppCompatActivity {
                     //a = a.replace("null","");
                     //a = a.replaceAll("\n","");
 
-                    Log.d(TAG, "메인에서 받은 데이터 : "+msg.obj);
+                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
                     editText.setText("");
 
-                    //dataList.clear(); //리스트 초기화
-                    //dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
-                    adapter.notifyDataSetChanged(); //갱신
+                    Log.d(TAG, "받은 메세지 : " + readmessage);
 
+                    if(readmessage.contains(">")){
+                        MainData data1 = new MainData();
+                        data1.setText(readmessage); // readmessage = 010d41 0D 5E 41 0D5E 41 0D 5E> 이여서 > 일때 여기로 들어오긴 함
+                        Log.d(TAG, "요기로 들어왔나요?");
+                        dataList.add(data1); //근데 리스트뷰에 안 나옴
+                        adapter.notifyDataSetChanged();
+                    }else {
+                        Log.d(TAG, "안 들어왔나요?");
+                    }
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
+                    //dataList.clear(); //리스트 초기화
+                    //dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
+                    readmessage = ""; // 초기화 시켜줌
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -206,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
                     editText.setText("");
 
-                    Log.d(TAG, "TX : " + sText);
+                    Log.d(TAG, "Request 메세지 : " + sText);
 
 //                    dataList.clear(); //리스트 초기화
                     dataList.add(data);
@@ -230,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll()); //add
                     dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
-
 
                     Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList);
                     Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
