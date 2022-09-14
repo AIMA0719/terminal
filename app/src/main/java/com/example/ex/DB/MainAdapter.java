@@ -24,7 +24,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
     {
         this.context = context;
         this.dataList = dataList;
-        notifyDataSetChanged();
     }
 
     @NonNull
@@ -53,7 +52,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         TextView textView;
-        ImageView btEdit, btDelete;
 
         public ViewHolder(@NonNull View view)
         {

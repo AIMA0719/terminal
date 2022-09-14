@@ -48,14 +48,13 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
-    public static EditText editText;
+    public EditText editText;
     Button btAdd, btReset;
     RecyclerView recyclerView;
     List<MainData> dataList = new ArrayList<>();
     RoomDB database;
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
-    ConnectedThread mConnectedThread;
     BluetoothFragment bluetoothFragment;
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
@@ -70,14 +69,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        // findViewByID 부분
+
         list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
         bluetooth_status = findViewById(R.id.mbluetooth_status);
-        // findViewByID 부분
+
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         //dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
@@ -99,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-        //database.mainDao().reset(dataList); //리스트 DB 삭제
-        //dataList.clear(); // 리스트 클리어
-        //adapter.notifyDataSetChanged(); //갱신
+        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
+        dataList.clear(); // 리스트 클리어
+        adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
@@ -160,9 +159,7 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
 
-                    //String a = new String((byte[]) msg.obj, StandardCharsets.UTF_8).trim();
-                    //a = a.replace("null","");
-                    //a = a.replaceAll("\n","");
+                    MainData data1 = new MainData();
 
                     Log.d(TAG, "메인엑티비티 에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
@@ -171,11 +168,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "받은 메세지 : " + readmessage);
 
                     if(readmessage.contains(">")){
-                        MainData data1 = new MainData();
                         data1.setText(readmessage); // readmessage = 010d41 0D 5E 41 0D5E 41 0D 5E> 이여서 > 일때 여기로 들어오긴 함
                         Log.d(TAG, "요기로 들어왔나요?");
                         dataList.add(data1); //근데 리스트뷰에 안 나옴
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged(); // 갱신도 했는데
                     }else {
                         Log.d(TAG, "안 들어왔나요?");
                     }
@@ -212,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 //
                     MainData data = new MainData();
                     data.setText(sText);
-//                    database.mainDao().insert(data);
+                    database.mainDao().insert(data);
 
                     editText.setText("");
 
@@ -230,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 } else { //기기랑 연결 안 되어있는 상태
                     MainData data = new MainData();
                     data.setText(sText);
-//                    database.mainDao().insert(data);
+                    database.mainDao().insert(data);
 
                     editText.setText("");
 
@@ -254,15 +250,12 @@ public class MainActivity extends AppCompatActivity {
         }); // -------- 보내기 버튼 클릭 이벤트
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
-            database.mainDao().reset(dataList);
-            database.mainDao().delete((ArrayList<MainData>) dataList);
-            dataList.removeAll(dataList);
-            dataList.clear();
+            database.mainDao().reset(database.mainDao().getAll()); // DB 전부 삭제
+            dataList.clear(); // 클리어
 
             Log.d(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
             Log.d(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
-            //dataList.addAll(database.mainDao().getAll());
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
