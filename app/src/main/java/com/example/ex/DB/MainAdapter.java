@@ -1,6 +1,7 @@
 package com.example.ex.DB;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position)
     {
+        Log.e("", dataList.size() + " / " + dataList.toString());
         final MainData data = dataList.get(position);
         database = RoomDB.getInstance(context);
         holder.textView.setText(data.getText());

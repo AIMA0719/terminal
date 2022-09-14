@@ -78,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
         bluetooth_status = findViewById(R.id.mbluetooth_status);
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
-        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
         recyclerView.setAdapter(adapter);
 
@@ -164,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                     readmessage += msg.obj;
                     editText.setText("");
 
-                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
+                    Log.d(TAG, "Response Data : " + readmessage);
 
                     if(readmessage.contains(">")){
                         Log.d(TAG, "마지막 데이터 입니다.");
@@ -175,16 +174,23 @@ public class MainActivity extends AppCompatActivity {
                         MainData data1 = new MainData();
                         data1.setText(slicing_data[0]);
                         database.mainDao().insert(data1); // 디비에도 slicing_data 넣어줌
+                        Log.e(TAG, database.mainDao().getAll().toString());
+                        //dataList.addAll(database.mainDao().getAll());
                         dataList.add(data1); // 리스트에도 slicing_data 넣어줌 근데 왜 안 ㄴ나와!??????????????
-                        adapter.notifyDataSetChanged(); // 갱신도 했는데
-
+                        //Log.e(TAG, dataList.toString());
+                        Log.e(TAG, dataList.toString());
+                        adapter.notifyDataSetChanged();
+                        recyclerView.invalidate();
+                        runOnUiThread(() -> {
+                        });
+                        ; // 갱신도 했는데
+                        readmessage = ""; // 초기화 시켜줌
+                        Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }else {
                         Log.d(TAG, "마지막 데이터가 아닙니다.");
                     }
 
                     //dataList.clear(); //리스트 초기화
-                    readmessage = ""; // 초기화 시켜줌
-                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -198,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
+                    Log.d(TAG, "Write 했다..");
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
@@ -214,9 +221,10 @@ public class MainActivity extends AppCompatActivity {
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data); //DB에 add
-//                    dataList.add(data); //List에 add
-                    dataList.addAll(database.mainDao().getAll());
+                    dataList.add(data); //List에 add
+//                    dataList.addAll(database.mainDao().getAll());
                     editText.setText("");// editText 초기화
+                    Log.e(TAG, "1111");
                     adapter.notifyDataSetChanged(); //갱신
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
