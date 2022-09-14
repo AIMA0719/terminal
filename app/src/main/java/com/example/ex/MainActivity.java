@@ -78,10 +78,10 @@ public class MainActivity extends AppCompatActivity {
         bluetooth_status = findViewById(R.id.mbluetooth_status);
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
-//        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
+        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
-        recyclerView.setAdapter(adapter); // 어댑터 설정
+        recyclerView.setAdapter(adapter);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
-        dataList.clear(); // 리스트 클리어
-        adapter.notifyDataSetChanged(); //갱신
+//        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
+//        dataList.clear(); // 리스트 클리어
+//        adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
@@ -167,19 +167,19 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
 
                     if(readmessage.contains(">")){
-                        Log.d(TAG, "요기로 들어왔나요?");
+                        Log.d(TAG, "마지막 데이터 입니다.");
 
                         String [] slicing_data = readmessage.split(">"); // > 요거 짤라줌
                         Log.d(TAG, "readMessage : "+ slicing_data[0]); // slicing_data[0] = 7E803410D5F7E903410D5F7EA03410D5F , [1] = >
 
                         MainData data1 = new MainData();
                         data1.setText(slicing_data[0]);
-                        database.mainDao().insert(data1); // 디비에도 readmessage 넣어줌
-                        dataList.add(data1);
-//                        dataList.addAll(database.mainDao().getAll()); // 이거 있으면 DB에 2번 넣어줌
+                        database.mainDao().insert(data1); // 디비에도 slicing_data 넣어줌
+                        dataList.add(data1); // 리스트에도 slicing_data 넣어줌 근데 왜 안 ㄴ나와!??????????????
                         adapter.notifyDataSetChanged(); // 갱신도 했는데
+
                     }else {
-                        Log.d(TAG, "안 들어왔나요?");
+                        Log.d(TAG, "마지막 데이터가 아닙니다.");
                     }
 
                     //dataList.clear(); //리스트 초기화
@@ -209,27 +209,14 @@ public class MainActivity extends AppCompatActivity {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
                     sText = sText+"\r";
                     BluetoothFragment.mConnectedThread.write(sText);
+                    Log.d(TAG, "Request 메세지 : " + sText);
 //
                     MainData data = new MainData();
                     data.setText(sText);
-                    database.mainDao().insert(data);
+                    database.mainDao().insert(data); //DB에 add
+                    dataList.add(data); //List에 add
 
-                    editText.setText("");
-
-                    Log.d(TAG, "Request 메세지 : " + sText);
-
-//                    dataList.clear(); //리스트 초기화
-                    dataList.add(data);
-
-                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList.toString());
-                    Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
-
-//                    if(readmessage != ""){
-//                        data.setText(readmessage);
-//                        Log.d(TAG, "요기의 read :" + readmessage);
-//                        dataList.add(data);
-//                        adapter.notifyDataSetChanged();
-//                    }
+                    editText.setText("");//초기화
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
@@ -237,31 +224,25 @@ public class MainActivity extends AppCompatActivity {
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data);
-
-                    editText.setText("");
-
                     Log.d(TAG, "TX : " + sText);
-
-//                    dataList.clear(); //리스트 초기화
-//                    dataList.addAll(database.mainDao().getAll()); //add
                     dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
 
-                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList.toString());
-                    Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+                    editText.setText("");
+//                    dataList.clear(); //리스트 초기화
+//                    dataList.addAll(database.mainDao().getAll()); // DB에 add
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     Log.d(TAG, "onCreate: 블루투스 기기랑 연결이 안 되어있는 상태입니다.");
                 }
-
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
             Log.d(TAG, "명령어를 입력한 횟수 " + dataList.size());
         }); // -------- 보내기 버튼 클릭 이벤트
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
-            database.mainDao().reset(database.mainDao().getAll()); // DB 전부 삭제
-            dataList.clear(); // 클리어
+            database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
+            dataList.clear(); // List 삭제
 
             Log.d(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
             Log.d(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());

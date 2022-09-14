@@ -87,7 +87,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     }
 
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
@@ -437,7 +436,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void onDestroy(){
         super.onDestroy();
         requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
-        mConnectedThread.interrupt();
+//        mConnectedThread.interrupt();
         try {
             mBluetoothSocket.close();
         } catch (IOException e) {

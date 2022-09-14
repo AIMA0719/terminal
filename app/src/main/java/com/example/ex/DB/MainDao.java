@@ -6,6 +6,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,9 @@ public interface MainDao // Direct access object의 약자 = 데이터베이스�
 
     @Delete
     void reset(List<MainData> mainData); //삭제
+
+    @Update
+    void update(List<MainData> mainData);
 
     @Query("SELECT * FROM `table name`")
     List<MainData> getAll(); //조회
