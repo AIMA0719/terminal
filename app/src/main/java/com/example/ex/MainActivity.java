@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                     1);
         }
 
-        mBluetoothHandler = new Handler() {
+        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
@@ -210,13 +210,14 @@ public class MainActivity extends AppCompatActivity {
                     sText = sText+"\r";
                     BluetoothFragment.mConnectedThread.write(sText);
                     Log.d(TAG, "Request 메세지 : " + sText);
-//
+
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data); //DB에 add
-                    dataList.add(data); //List에 add
-
-                    editText.setText("");//초기화
+//                    dataList.add(data); //List에 add
+                    dataList.addAll(database.mainDao().getAll());
+                    editText.setText("");// editText 초기화
+                    adapter.notifyDataSetChanged(); //갱신
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
