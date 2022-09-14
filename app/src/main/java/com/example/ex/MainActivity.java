@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public static EditText editText;
     Button btAdd, btReset;
     RecyclerView recyclerView;
-    ArrayList<MainData> dataList = new ArrayList<>();
+    List<MainData> dataList = new ArrayList<>();
     RoomDB database;
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
@@ -166,16 +166,10 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d(TAG, "메인에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
-
-                    MainData data2 = new MainData();
-                    data2.setText(readmessage);
-                    database.mainDao().insert(data2);
-
                     editText.setText("");
 
                     //dataList.clear(); //리스트 초기화
                     //dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
-                    dataList.add(data2);
                     adapter.notifyDataSetChanged(); //갱신
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
@@ -205,34 +199,41 @@ public class MainActivity extends AppCompatActivity {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
                     sText = sText+"\r";
                     BluetoothFragment.mConnectedThread.write(sText);
-
+//
                     MainData data = new MainData();
                     data.setText(sText);
-                    database.mainDao().insert(data);
+//                    database.mainDao().insert(data);
 
                     editText.setText("");
 
                     Log.d(TAG, "TX : " + sText);
 
-                    dataList.clear(); //리스트 초기화
-                    //dataList.add(data);
-                    dataList.addAll(database.mainDao().getAll()); //add
+//                    dataList.clear(); //리스트 초기화
+                    dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
+
+                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList);
+                    Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
                 } else { //기기랑 연결 안 되어있는 상태
                     MainData data = new MainData();
                     data.setText(sText);
-                    database.mainDao().insert(data);
+//                    database.mainDao().insert(data);
 
                     editText.setText("");
 
                     Log.d(TAG, "TX : " + sText);
 
-                    dataList.clear(); //리스트 초기화
-                    dataList.addAll(database.mainDao().getAll()); //add
+//                    dataList.clear(); //리스트 초기화
+//                    dataList.addAll(database.mainDao().getAll()); //add
+                    dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
+
+
+                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList);
+                    Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     Log.d(TAG, "onCreate: 블루투스 기기랑 연결이 안 되어있는 상태입니다.");
@@ -245,11 +246,12 @@ public class MainActivity extends AppCompatActivity {
 
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(dataList);
-            database.mainDao().delete(dataList);
+            database.mainDao().delete((ArrayList<MainData>) dataList);
             dataList.removeAll(dataList);
             dataList.clear();
 
-            readmessage= "";
+            Log.d(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
+            Log.d(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
             //dataList.addAll(database.mainDao().getAll());
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
