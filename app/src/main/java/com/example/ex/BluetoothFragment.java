@@ -201,7 +201,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             String name1 = paired_list.get(position).getName();
             String[] address2 = name1.split("\n");
 
-            Log.d(TAG, "onCreateView: " + address2[1]);
+            Log.d(TAG, "연결 시도한 블루투스 기기 : " + address2[0]);
 
             new Thread() {
                 @Override
@@ -212,7 +212,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
                     try {
                         mBluetoothSocket = createBluetoothSocket(device);
-                        Log.d(TAG, "run: 소켓 생성 완료!");
+                        Log.d(TAG, "소켓 생성 완료!");
                     } catch (IOException e) {
                         fail = true;
                         Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
@@ -224,7 +224,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                             return;
                         }
                         mBluetoothSocket.connect();
-                        Log.d(TAG, "run: 소켓 연결 완료!");
+                        Log.d(TAG, "소켓 연결 완료!");
                     } catch (IOException e) {
                         try {
                             fail = true;

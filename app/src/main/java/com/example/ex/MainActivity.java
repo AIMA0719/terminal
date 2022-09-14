@@ -2,6 +2,7 @@ package com.example.ex;
 
 import static com.example.ex.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.BluetoothFragment.mBluetoothSocket;
+import static com.example.ex.BluetoothFragment.mConnectedThread;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -40,6 +41,7 @@ import com.example.ex.DB.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     // --------
 
     @RequiresApi(api = Build.VERSION_CODES.S)
-    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
 //        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
+        recyclerView.setAdapter(adapter); // 어댑터 설정
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
@@ -94,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-//        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
-//        dataList.clear(); // 리스트 클리어
-//        adapter.notifyDataSetChanged(); //갱신
+        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
+        dataList.clear(); // 리스트 클리어
+        adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
@@ -150,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                     1);
         }
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+        mBluetoothHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
@@ -158,31 +161,28 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                     }
 
-                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
                     editText.setText("");
 
-                    Log.d(TAG, "받은 메세지 : " + readmessage);
+                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
 
                     if(readmessage.contains(">")){
                         Log.d(TAG, "요기로 들어왔나요?");
 
-                        String [] a = readmessage.split(">");
-                        Log.d(TAG, "h1231245124 : "+ a[0]); // a[0] = 010d41 0D 5E 41 0D5E 41 0D 5E
-
+                        String [] slicing_data = readmessage.split(">"); // > 요거 짤라줌
+                        Log.d(TAG, "readMessage : "+ slicing_data[0]); // slicing_data[0] = 7E803410D5F7E903410D5F7EA03410D5F , [1] = >
 
                         MainData data1 = new MainData();
-                        data1.setText(a[0]);
+                        data1.setText(slicing_data[0]);
                         database.mainDao().insert(data1); // 디비에도 readmessage 넣어줌
+                        dataList.add(data1);
 //                        dataList.addAll(database.mainDao().getAll()); // 이거 있으면 DB에 2번 넣어줌
-                        Log.d(TAG, "add 됐나요? : "+ dataList.toString()); // add 도 됐는데!!!!
                         adapter.notifyDataSetChanged(); // 갱신도 했는데
                     }else {
                         Log.d(TAG, "안 들어왔나요?");
                     }
 
                     //dataList.clear(); //리스트 초기화
-//                    dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
                     readmessage = ""; // 초기화 시켜줌
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 }
@@ -191,14 +191,13 @@ public class MainActivity extends AppCompatActivity {
                     if (msg.arg1 == 1) {
                         String[] name = msg.obj.toString().split("\n");
                         Toast.makeText(getApplicationContext(), name[0]+" 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
+                        bluetooth_status.setText(name[0]);
                     } else {
                         Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
-                    Log.d(TAG, "write 함");
-
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
@@ -221,10 +220,16 @@ public class MainActivity extends AppCompatActivity {
 
 //                    dataList.clear(); //리스트 초기화
                     dataList.add(data);
-                    adapter.notifyDataSetChanged(); //갱신
 
                     Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList.toString());
                     Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+
+//                    if(readmessage != ""){
+//                        data.setText(readmessage);
+//                        Log.d(TAG, "요기의 read :" + readmessage);
+//                        dataList.add(data);
+//                        adapter.notifyDataSetChanged();
+//                    }
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
@@ -265,9 +270,6 @@ public class MainActivity extends AppCompatActivity {
             //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
-
-
-        recyclerView.setAdapter(adapter); // 어댑터 설정
 
     }
 

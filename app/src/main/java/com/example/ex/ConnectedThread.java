@@ -7,6 +7,7 @@ import static com.example.ex.BluetoothFragment.BT_MESSAGE_WRITE;
 import static com.example.ex.BluetoothFragment.mConnectedThread;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 
-public class ConnectedThread extends Thread implements Serializable {
+public class ConnectedThread extends Thread  {
 
     BluetoothSocket mBluetoothSocket;
     Handler mBluetoothHandler;
@@ -34,7 +35,7 @@ public class ConnectedThread extends Thread implements Serializable {
     OutputStream mmOutStream;
     private byte[] mmBuffer;
     public static String readMessage;
-    String Data = "";
+    public static String Data = "";
     String TAG = "ConnectedThread";
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
@@ -42,7 +43,6 @@ public class ConnectedThread extends Thread implements Serializable {
         mBluetoothHandler = handler;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
-
 
         try {
             tmpIn = socket.getInputStream();
@@ -69,13 +69,16 @@ public class ConnectedThread extends Thread implements Serializable {
                         Log.d(TAG, "run: 오류남");
                     }
 
-                    Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
-                    message.sendToTarget();
+                    if (Data.contains(">")){
+                        Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                        message.sendToTarget();
 
-                    Log.d(TAG, "쓰레드에서 보낸 데이터 : " + Data);
-                    if (Objects.equals(readMessage, ">")) { // > 뒤에 계속 추가되는거 방지용 초기화
-                        Data = "";
-                        Log.d(TAG, "더이상 쓰레드에서 보낼 데이터가 없습니다.");
+                        Log.d(TAG, "쓰레드에서 보낸 데이터 : " + Data);
+
+                        if (Objects.equals(readMessage, ">")) { // > 뒤에 계속 추가되는거 방지용 초기화
+                            Data = ""; // Data 마지막이니까 초기화해줌
+                            Log.d(TAG, "더이상 쓰레드에서 보낼 데이터가 없습니다.");
+                        }
                     }
 
                 }
