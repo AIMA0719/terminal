@@ -68,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
@@ -77,12 +75,10 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         bluetooth_status = findViewById(R.id.mbluetooth_status);
 
-
         database = RoomDB.getInstance(this); // 룸디비 가져옴
-        //dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
+//        dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this, dataList); //어댑터 만듦
-        recyclerView.setAdapter(adapter); // 어댑터 설정
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
@@ -98,17 +94,17 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
-        dataList.clear(); // 리스트 클리어
-        adapter.notifyDataSetChanged(); //갱신
+//        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
+//        dataList.clear(); // 리스트 클리어
+//        adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
         Intent intent = getIntent(); // device.getName 가져옴
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
-            Log.d(TAG, "onCreate: " + data);
             if ( data != null){
+                Log.d(TAG, "연결된 블루투스 기기 : " + data);
                 bluetooth_status.setText(data+" 기기랑 연결 상태입니다.");
             }
             else{
@@ -158,8 +154,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-
-                    MainData data1 = new MainData();
+                    if(msg.obj == null){
+                        Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
+                    }
 
                     Log.d(TAG, "메인엑티비티 에서 받은 데이터 : "+msg.obj);
                     readmessage += msg.obj;
@@ -168,18 +165,26 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "받은 메세지 : " + readmessage);
 
                     if(readmessage.contains(">")){
-                        data1.setText(readmessage); // readmessage = 010d41 0D 5E 41 0D5E 41 0D 5E> 이여서 > 일때 여기로 들어오긴 함
                         Log.d(TAG, "요기로 들어왔나요?");
-                        dataList.add(data1); //근데 리스트뷰에 안 나옴
+
+                        String [] a = readmessage.split(">");
+                        Log.d(TAG, "h1231245124 : "+ a[0]); // a[0] = 010d41 0D 5E 41 0D5E 41 0D 5E
+
+
+                        MainData data1 = new MainData();
+                        data1.setText(a[0]);
+                        database.mainDao().insert(data1); // 디비에도 readmessage 넣어줌
+//                        dataList.addAll(database.mainDao().getAll()); // 이거 있으면 DB에 2번 넣어줌
+                        Log.d(TAG, "add 됐나요? : "+ dataList.toString()); // add 도 됐는데!!!!
                         adapter.notifyDataSetChanged(); // 갱신도 했는데
                     }else {
                         Log.d(TAG, "안 들어왔나요?");
                     }
-                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
                     //dataList.clear(); //리스트 초기화
-                    //dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
+//                    dataList.addAll(database.mainDao().getAll()); // database.mainDao().getAll() = DB안에 있는 모든 정보를 List 형태로 불러온다.
                     readmessage = ""; // 초기화 시켜줌
+                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 }
 
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
@@ -218,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                     dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
 
-                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList);
+                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList.toString());
                     Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
@@ -237,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
 
-                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList);
+                    Log.d(TAG, "보내기 버튼 누른 후 MainRecyclerview : "+dataList.toString());
                     Log.d(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
@@ -261,7 +266,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
 
+
+        recyclerView.setAdapter(adapter); // 어댑터 설정
+
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
