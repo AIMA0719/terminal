@@ -34,4 +34,12 @@ public class MainData implements Serializable{
     {
         this.text = text;
     }
+
+    @Override
+    public String toString() {
+        return "MainData{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                '}';
+    }
 }
