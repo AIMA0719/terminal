@@ -396,7 +396,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         Toolbar toolbar = view.findViewById(R.id.bluetooth_toolbar);
         toolbar.inflateMenu(R.menu.fragment_menu);
-        toolbar.setTitle("블루투스 연결 설정");
+//        toolbar.setTitle("블루투스 연결 설정");
 
         toolbar.setNavigationIcon(R.drawable.ic_baseline_keyboard_backspace_24);
         toolbar.setNavigationOnClickListener(v -> {

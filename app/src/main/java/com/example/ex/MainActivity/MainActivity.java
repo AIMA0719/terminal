@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data);
-                    Log.d(TAG, "TX : " + sText);
+                    Log.d(TAG, "Request 메세지 : " + sText);
                     dataList.add(data);
                     adapter.notifyDataSetChanged(); //갱신
 
@@ -260,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll()); // DB에 add
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
-                    Log.d(TAG, "onCreate: 블루투스 기기랑 연결이 안 되어있는 상태입니다.");
+                    Log.d(TAG, "블루투스 기기랑 연결이 안 되어있는 상태입니다.");
                 }
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
@@ -271,10 +271,10 @@ public class MainActivity extends AppCompatActivity {
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
             mTextFileManager.delete(); // File 삭제
-
-            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
-            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
-            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
+//
+//            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
+//            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+//            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
 
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();

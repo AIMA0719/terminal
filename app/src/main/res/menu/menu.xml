@@ -17,7 +17,7 @@
         />
 
     <item
-        android:title="대시보드 보기"
+        android:title="대시보드"
         android:id="@+id/dashboard"
         app:showAsAction="never"/>
     <item

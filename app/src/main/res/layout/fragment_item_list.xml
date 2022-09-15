@@ -16,6 +16,14 @@
         android:id="@+id/bluetooth_toolbar"
         >
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="블루투스"
+            android:layout_gravity="center"
+            android:textSize="20dp">
+        </TextView>
+
     </androidx.appcompat.widget.Toolbar>
 
 

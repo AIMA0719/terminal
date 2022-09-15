@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
@@ -20,10 +21,10 @@ public class DashBoard extends AppCompatActivity {
         setContentView(R.layout.activity_dash_board);
 
         Toolbar toolbar = findViewById(R.id.DashBoard_toolbar);
+        
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("대시보드");
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     @Override
@@ -35,4 +36,14 @@ public class DashBoard extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+    }
 }
