@@ -1,4 +1,4 @@
-package com.example.ex;
+package com.example.ex.Bluetooth;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,8 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,11 +34,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ex.MainActivity.MainActivity;
+import com.example.ex.MainActivity.MyItemRecyclerViewAdapter;
+import com.example.ex.R;
+
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -244,7 +244,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         //}
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
-                            Intent intent = new Intent(getContext(),MainActivity.class);
+                            Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.putExtra("데이터",device.getName());
                             startActivity(intent);
                         }

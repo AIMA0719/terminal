@@ -1,13 +1,12 @@
-package com.example.ex;
+package com.example.ex.MainActivity;
 
-import static com.example.ex.BluetoothFragment.mBluetoothHandler;
-import static com.example.ex.BluetoothFragment.mConnectedThread;
+import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
+import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,7 +35,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.ex.DB.*;
+
+import com.example.ex.Bluetooth.BluetoothFragment;
+import com.example.ex.DashBoard.DashBoard;
+import com.example.ex.RoomDB.*;
+import com.example.ex.R;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -99,11 +102,10 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
-        // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
-        dataList.clear(); // 리스트 클리어
+        // -------- 초기화
+        database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
+        dataList.clear(); // 어플 시작할때마다 리스트 초기화
         adapter.notifyDataSetChanged(); //갱신
-
         // --------
 
         Intent intent = getIntent(); // device.getName 가져옴
@@ -175,6 +177,12 @@ public class MainActivity extends AppCompatActivity {
                         String [] slicing_data = readmessage.split(">");
                         Log.d(TAG, "readMessage : "+ slicing_data[0]);
 
+                        try {
+                            mTextFileManager.save(slicing_data[0]+">>"); // File에 add , >> 는 구분 용
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         MainData data1 = new MainData();
                         data1.setText(slicing_data[0]);
                         database.mainDao().insert(data1);
@@ -226,8 +234,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll());
 
                     try {
-                        mTextFileManager.save(sText+"\n"); // File에 add , >> 는 구분 용
-                        Log.d(TAG, "File : "+ mTextFileManager.load());
+                        mTextFileManager.save(sText+">>"); // File에 add , >> 는 구분 용
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -263,9 +270,11 @@ public class MainActivity extends AppCompatActivity {
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
+            mTextFileManager.delete(); // File 삭제
 
-            Log.d(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
-            Log.d(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
+            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
 
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
@@ -304,10 +313,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        //return super.onCreateOptionsMenu(menu);
+
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
-        return true;
+
+        return super.onCreateOptionsMenu(menu);
     } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
     @SuppressLint("NonConstantResourceId")
@@ -328,22 +338,28 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     Log.d(TAG, "Error :" + e);
                 }
-            case R.id.log_load:  //
-                if (bluetoothAdapter != null) {
-                    if (!bluetoothAdapter.isEnabled()) {
-                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                            Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                            // 로그버튼 클릭
-                        }
-                    }
-                } else {
-                    Toast.makeText(getApplicationContext(), "블루투스 지원하지 않는 기기입니다.", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "Bluetooth's is null");
-                }
                 return true;
 
-            case R.id.dashboard: //대쉬보드 클리
-                Toast.makeText(getApplicationContext(), "대쉬보드", Toast.LENGTH_SHORT).show();
+            case R.id.log_load:  // log 버튼 클릭
+                String a = mTextFileManager.load();
+                if (a == null){
+                    Toast.makeText(this, "저장할 Text가 없습니다.", Toast.LENGTH_SHORT).show();
+                }else {
+                    try {
+                        mTextFileManager.save(a);
+                        Log.e(TAG, "클릭 됐나? ");
+                        Toast.makeText(this, "Text 파일로 저장 되었습니다.", Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                return true;
+
+            case R.id.dashboard: //대쉬보드 클릭
+                Intent intent = new Intent(this, DashBoard.class);
+                startActivity(intent);
+
                 return true;
 
             default:
@@ -367,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         mConnectedThread.cancel();
     }
 
-    public class TextFileManager{
+    public static class TextFileManager{ // 파일 관리
         private static final String FILE_NAME = "Memo.txt";
 
         Context context = null;
@@ -376,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
             this.context = context;
         }
 
-        public void save(String strData) throws IOException {
+        public void save(String strData) throws IOException { // 파일 쓰기
             if(strData == null||strData.equals("")){
                 return;
             }
@@ -392,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        public String load(){
+        public String load(){ // 파일 불러 오기
             try {
                 FileInputStream fisMemo = context.openFileInput(FILE_NAME);
                 byte[] memoData = new byte[fisMemo.available()];
@@ -407,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
 
         public void delete(){
             context.deleteFile(FILE_NAME);
-        }
+        } // 파일 삭제
 
     }
 

@@ -1,26 +1,19 @@
-package com.example.ex;
-
-import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
+package com.example.ex.MainActivity;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.ex.placeholder.PlaceholderContent;
+import com.example.ex.Bluetooth.CustomAdapter;
+import com.example.ex.R;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link PlaceholderContent.Customer2}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder> {
     private Context context;
     private final List<Customer2> items;
@@ -82,7 +75,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
 
     }
 
-    static class Customer2 {
+    public static class Customer2 {
         public String device;
 
         public Customer2(String name){

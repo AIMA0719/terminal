@@ -7,18 +7,25 @@
         android:id="@+id/blutooth_connect"
         android:title="블루투스 연결"
         android:icon="@drawable/connection"
-        app:showAsAction="ifRoom"/>
-    <group>
+        app:showAsAction="ifRoom" />
 
-        <item
-            android:title="Log 저장하기"
-            android:id="@+id/log_load"
-            android:icon="@drawable/connection"/>
+    <item
+        android:title="Log 저장하기"
+        android:id="@+id/log_load"
+        android:icon="@drawable/ic_baseline_save_24"
+        app:showAsAction="ifRoom"
+        />
 
-        <item
-            android:title="대시보드 보기"
-            android:id="@+id/dashboard"
-            android:icon="@drawable/disconnection"/>
-    </group>
+    <item
+        android:title="대시보드 보기"
+        android:id="@+id/dashboard"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/settings"
+        android:title="설정"
+        android:icon="@drawable/setting"
+        app:showAsAction="never"/>
+
+
 
 </menu>

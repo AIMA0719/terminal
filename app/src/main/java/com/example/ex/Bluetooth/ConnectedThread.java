@@ -1,28 +1,17 @@
-package com.example.ex;
+package com.example.ex.Bluetooth;
 
-import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
-
-import static com.example.ex.BluetoothFragment.BT_MESSAGE_READ;
-import static com.example.ex.BluetoothFragment.BT_MESSAGE_WRITE;
-import static com.example.ex.BluetoothFragment.mConnectedThread;
+import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_READ;
+import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_WRITE;
 
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
-
-import androidx.room.Database;
-
-import com.example.ex.DB.MainData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 

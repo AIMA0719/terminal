@@ -1,4 +1,4 @@
-package com.example.ex;
+package com.example.ex.Bluetooth;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -12,8 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -29,7 +27,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +36,9 @@ import java.util.UUID;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.SystemClock;
+
+import com.example.ex.MainActivity.MainActivity;
+import com.example.ex.R;
 
 import java.io.IOException;
 import java.io.InputStream;
