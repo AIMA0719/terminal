@@ -1,10 +1,8 @@
 package com.example.ex;
 
 import static com.example.ex.BluetoothFragment.mBluetoothHandler;
-import static com.example.ex.BluetoothFragment.mBluetoothSocket;
 import static com.example.ex.BluetoothFragment.mConnectedThread;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -39,9 +38,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.example.ex.DB.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     MainAdapter adapter;
     TextView bluetooth_status, list_item;
     BluetoothFragment bluetoothFragment;
+    TextFileManager mTextFileManager = new TextFileManager(this);
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
 
@@ -177,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
                         database.mainDao().insert(data1);
                         dataList.add(data1);
 
-
-                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
-                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
+//
+//                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
+//                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
                     }else {
                         Log.d(TAG, "마지막 데이터가 아닙니다.");
@@ -219,13 +222,21 @@ public class MainActivity extends AppCompatActivity {
                     MainData data = new MainData();
                     data.setText(sText);
                     database.mainDao().insert(data); //DB에 add
-//                    dataList.add(data); //List에 add
-                    dataList.addAll(database.mainDao().getAll());
+                    dataList.add(data); //List에 add
+//                    dataList.addAll(database.mainDao().getAll());
+
+                    try {
+                        mTextFileManager.save(sText+"\n"); // File에 add , >> 는 구분 용
+                        Log.d(TAG, "File : "+ mTextFileManager.load());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     editText.setText("");// editText 초기화
                     adapter.notifyDataSetChanged(); //갱신
-
-                    Log.e(TAG, "보내기 버튼 누른 후 dataList : "+dataList);
-                    Log.e(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
+//
+//                    Log.e(TAG, "보내기 버튼 누른 후 dataList : "+dataList);
+//                    Log.e(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 
@@ -354,6 +365,50 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         mConnectedThread.cancel();
+    }
+
+    public class TextFileManager{
+        private static final String FILE_NAME = "Memo.txt";
+
+        Context context = null;
+
+        public TextFileManager(Context context){
+            this.context = context;
+        }
+
+        public void save(String strData) throws IOException {
+            if(strData == null||strData.equals("")){
+                return;
+            }
+
+            FileOutputStream fosMemo = null;
+
+            try {
+                fosMemo = context.openFileOutput(FILE_NAME,Context.MODE_PRIVATE);
+                fosMemo.write(strData.getBytes(StandardCharsets.UTF_8));
+                fosMemo.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public String load(){
+            try {
+                FileInputStream fisMemo = context.openFileInput(FILE_NAME);
+                byte[] memoData = new byte[fisMemo.available()];
+
+                while (fisMemo.read(memoData)!= -1){}
+                return new String(memoData);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        public void delete(){
+            context.deleteFile(FILE_NAME);
+        }
+
     }
 
 }
