@@ -40,7 +40,7 @@ public class ConnectedThread extends Thread  {
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mBluetoothSocket = socket;
-        mBluetoothHandler = handler;
+        BluetoothFragment.mBluetoothHandler = handler;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
@@ -70,7 +70,7 @@ public class ConnectedThread extends Thread  {
                     }
 
                     if (Data.contains(">")){
-                        Message message = mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                        Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
                         message.sendToTarget();
 
                         Log.d(TAG, "쓰레드에서 보낸 데이터 : " + Data);
@@ -116,7 +116,7 @@ public class ConnectedThread extends Thread  {
         byte[] bytes = input.getBytes();
         try {
             mmOutStream.write(bytes);
-            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_WRITE,-1,-1,mmBuffer);
+            Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_WRITE,-1,-1,mmBuffer);
             writeMessage.sendToTarget();
         } catch (IOException e) { }
 //
