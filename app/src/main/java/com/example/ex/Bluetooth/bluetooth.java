@@ -78,7 +78,7 @@ public class bluetooth extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bluetooth_connect);
 
-        Toolbar toolbar = findViewById(R.id.toolbar); // 묶어주자... 이거때매 자꾸 팅겼다..
+        Toolbar toolbar = findViewById(R.id.Bluetooth_toolbar); // 묶어주자... 이거때매 자꾸 팅겼다..
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle("블루투스 연결 페이지");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 개같은뒤로가기 이거 툴바 아이디 안묶어주면 계속 오류났었다
