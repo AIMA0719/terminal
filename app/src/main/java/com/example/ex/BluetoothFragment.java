@@ -183,7 +183,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
 
             try {
-                if (mBluetoothAdapter.isDiscovering()) { // 검색 중이냐?
+                if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                 } else {
                     mBluetoothAdapter.startDiscovery(); //검색 시작

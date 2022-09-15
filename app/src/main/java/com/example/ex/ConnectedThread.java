@@ -30,7 +30,6 @@ import java.util.Objects;
 public class ConnectedThread extends Thread  {
 
     BluetoothSocket mBluetoothSocket;
-    Handler mBluetoothHandler;
     InputStream mmInStream;
     OutputStream mmOutStream;
     private byte[] mmBuffer;
@@ -88,6 +87,7 @@ public class ConnectedThread extends Thread  {
 
                 break;
             }
+            //------------------------ 바이트 단위로 보냄 ex) 01234 를 0 1 2 3 4 이렇게
             //try{
             //    msg = "";
             //    byte[] buffer = new byte[1];
@@ -108,6 +108,7 @@ public class ConnectedThread extends Thread  {
             //} catch (IOException e) {
             //    e.printStackTrace();
             //}
+            //------------------------
 
         }
     }
@@ -118,30 +119,21 @@ public class ConnectedThread extends Thread  {
             mmOutStream.write(bytes);
             Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_WRITE,-1,-1,mmBuffer);
             writeMessage.sendToTarget();
-        } catch (IOException e) { }
-//
-//        try {
-//            mmOutStream.write(bytes);
-//            Message writeMessage = mBluetoothHandler.obtainMessage(BT_MESSAGE_READ,-1,-1,mmBuffer);
-//            writeMessage.sendToTarget();
-//
-//        } catch (IOException e) {
-//            Log.e(TAG, "Error occurred when sending data", e);
-//
-//            // Send a failure message back to the activity.
-//            Message writeErrorMsg =
-//                    mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
-//            Bundle bundle = new Bundle();
-//            bundle.putString("toast",
-//                    "Couldn't send data to the other device");
-//            writeErrorMsg.setData(bundle);
-//            mBluetoothHandler.sendMessage(writeErrorMsg);
-//        }
+        } catch (IOException e) {
+
+            Log.e(TAG, "데이터 보내기 오류!", e);
+            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
+            Bundle bundle = new Bundle();
+            bundle.putString("toast", "Couldn't send data to the other device");
+            writeErrorMsg.setData(bundle);
+            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
+        }
+
     }
 
     public void cancel() {
         try {
-            mBluetoothSocket.close();
+            BluetoothFragment.mBluetoothSocket.close();
         } catch (IOException ignored) { }
     }
 

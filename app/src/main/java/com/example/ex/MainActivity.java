@@ -97,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
         // --------
 
         // -------- 리스트 데이터베이스 리셋하고, 리스트 클리어하고 갱신 해야 빈 화면 볼 수 있음
-//        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
-//        dataList.clear(); // 리스트 클리어
-//        adapter.notifyDataSetChanged(); //갱신
+        database.mainDao().reset(database.mainDao().getAll()); //리스트 DB 삭제
+        dataList.clear(); // 리스트 클리어
+        adapter.notifyDataSetChanged(); //갱신
 
         // --------
 
@@ -114,8 +114,6 @@ public class MainActivity extends AppCompatActivity {
                 bluetooth_status.setText("기기랑 연결되어 있지 않습니다.");
             }
         }
-
-        Log.e(TAG, "밖에서 갱신");
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -171,13 +169,13 @@ public class MainActivity extends AppCompatActivity {
                     if(readmessage.contains(">")){
                         Log.d(TAG, "마지막 데이터 입니다.");
 
-                        String [] slicing_data = readmessage.split(">"); // > 요거 짤라줌
-                        Log.d(TAG, "readMessage : "+ slicing_data[0]); // slicing_data[0] = 7E803410D5F7E903410D5F7EA03410D5F , [1] = >
+                        String [] slicing_data = readmessage.split(">");
+                        Log.d(TAG, "readMessage : "+ slicing_data[0]);
 
                         MainData data1 = new MainData();
                         data1.setText(slicing_data[0]);
-                        database.mainDao().insert(data1); // 디비에도 slicing_data 넣어줌
-                        dataList.add(data1); // 리스트에도 slicing_data 넣어줌 근데 왜 안 ㄴ나와!??????????????
+                        database.mainDao().insert(data1);
+                        dataList.add(data1);
 
 
                         Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
@@ -187,9 +185,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "마지막 데이터가 아닙니다.");
                     }
 
-                    Log.e(TAG, "핸들러 갱신");
                     adapter.notifyDataSetChanged();
-                    //dataList.clear(); //리스트 초기화
+
                     readmessage = ""; // 초기화 시켜줌
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 }
@@ -226,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                     dataList.addAll(database.mainDao().getAll());
                     editText.setText("");// editText 초기화
                     adapter.notifyDataSetChanged(); //갱신
-                    Log.e(TAG, "보내기 버튼 누른 후 갱신");
+
                     Log.e(TAG, "보내기 버튼 누른 후 dataList : "+dataList);
                     Log.e(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
@@ -260,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
-            //초보들이 젤 쓰기 편해서 많이 쓰는데 퍼포먼스적으론 최적화 못할 가능성 높다
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
 
@@ -311,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.blutooth_connect:
                 try {
 //                        Intent intent = new Intent(this, bluetooth.class);
-//                        startActivity(intent);
+//                        startActivity(intent); 블루투스 엑티비티로 이동
                     FragmentView(); // 프래그먼트로 이동하는 코드
 
                     FragmentManager fm1 = getSupportFragmentManager();
@@ -357,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        mConnectedThread.cancel();
     }
 
 }
