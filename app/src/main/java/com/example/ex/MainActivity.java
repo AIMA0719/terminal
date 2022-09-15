@@ -115,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        Log.e(TAG, "밖에서 갱신");
+
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
@@ -162,9 +164,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     readmessage += msg.obj;
+                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
                     editText.setText("");
 
-                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
 
                     if(readmessage.contains(">")){
                         Log.d(TAG, "마지막 데이터 입니다.");
@@ -176,12 +178,17 @@ public class MainActivity extends AppCompatActivity {
                         data1.setText(slicing_data[0]);
                         database.mainDao().insert(data1); // 디비에도 slicing_data 넣어줌
                         dataList.add(data1); // 리스트에도 slicing_data 넣어줌 근데 왜 안 ㄴ나와!??????????????
-                        adapter.notifyDataSetChanged(); // 갱신도 했는데
+
+
+                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
+                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
                     }else {
                         Log.d(TAG, "마지막 데이터가 아닙니다.");
                     }
 
+                    Log.e(TAG, "핸들러 갱신");
+                    adapter.notifyDataSetChanged();
                     //dataList.clear(); //리스트 초기화
                     readmessage = ""; // 초기화 시켜줌
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
@@ -198,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
+                    Log.d(TAG, "Write 메세지 읽음");
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
@@ -218,6 +226,9 @@ public class MainActivity extends AppCompatActivity {
                     dataList.addAll(database.mainDao().getAll());
                     editText.setText("");// editText 초기화
                     adapter.notifyDataSetChanged(); //갱신
+                    Log.e(TAG, "보내기 버튼 누른 후 갱신");
+                    Log.e(TAG, "보내기 버튼 누른 후 dataList : "+dataList);
+                    Log.e(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
 

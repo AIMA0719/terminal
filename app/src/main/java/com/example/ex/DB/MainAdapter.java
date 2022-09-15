@@ -37,9 +37,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position)
     {
-        final MainData data = dataList.get(position);
-        database = RoomDB.getInstance(context);
-        holder.textView.setText(data.getText());
+//        final MainData data = dataList.get(position);
+//        database = RoomDB.getInstance(context);
+//        holder.textView.setText(data.getText());
+
+        holder.onbind(dataList.get(position),position);
         
     }
 
@@ -57,6 +59,11 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.ViewHolder>
         {
             super(view);
             textView = view.findViewById(R.id.text_view);
+        }
+
+        public void onbind(MainData mainData, int position) {
+            String s = ""+ (position+1);
+            textView.setText(mainData.getText());
         }
     }
 }
