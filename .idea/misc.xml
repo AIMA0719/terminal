@@ -32,7 +32,9 @@
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/activity_main.xml" value="0.3234375" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_connect.xml" value="0.3015625" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_device.xml" value="0.3015625" />
+        <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/dialog.xml" value="0.23541666666666666" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_blank.xml" value="0.3234375" />
+        <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_dialog.xml" value="0.23541666666666666" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_item.xml" value="0.3234375" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_item_list.xml" value="0.30885416666666665" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/list_row_main.xml" value="0.3234375" />
@@ -40,14 +42,6 @@
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/menu/menu.xml" value="0.44895833333333335" />
         <entry key="..\:/Users/dkwkr/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_connect.xml" value="0.24947916666666667" />
         <entry key="..\:/Users/dkwkr/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_device.xml" value="0.11666666666666667" />
-        <entry key="..\:/terminal/app/src/main/res/drawable/round_button.xml" value="0.294" />
-        <entry key="..\:/terminal/app/src/main/res/layout/activity_dash_board.xml" value="0.2667572463768116" />
-        <entry key="..\:/terminal/app/src/main/res/layout/activity_main.xml" value="0.29010416666666666" />
-        <entry key="..\:/terminal/app/src/main/res/layout/bluetooth_connect.xml" value="0.29010416666666666" />
-        <entry key="..\:/terminal/app/src/main/res/layout/bluetooth_device.xml" value="0.29010416666666666" />
-        <entry key="..\:/terminal/app/src/main/res/layout/fragment_item_list.xml" value="0.29010416666666666" />
-        <entry key="..\:/terminal/app/src/main/res/menu/fragment_menu.xml" value="0.29010416666666666" />
-        <entry key="..\:/terminal/app/src/main/res/menu/menu.xml" value="0.29010416666666666" />
       </map>
     </option>
   </component>
