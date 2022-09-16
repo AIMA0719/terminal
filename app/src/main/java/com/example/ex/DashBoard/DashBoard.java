@@ -41,8 +41,6 @@ public class DashBoard extends AppCompatActivity {
     public void onResume(){
         super.onResume();
 
-
-
     }
 
     public void onDestroy(){

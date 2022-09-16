@@ -75,8 +75,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.e(TAG, "onCreate: " );
-
         list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
@@ -109,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     public void onStart() {
         super.onStart();
-
-        Log.e(TAG, "onStart: " );
 
         // -------- 초기화
         database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
@@ -169,8 +165,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     public void onResume() {
         super.onResume();
-
-        Log.e(TAG, "onResume: " );
 
         mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override

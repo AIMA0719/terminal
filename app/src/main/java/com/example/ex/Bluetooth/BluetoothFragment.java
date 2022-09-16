@@ -37,7 +37,6 @@ import android.widget.Toast;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.MainActivity.MyItemRecyclerViewAdapter;
 import com.example.ex.R;
-import com.example.ex.databinding.FragmentDialogBinding;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -202,7 +201,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             assert getFragmentManager() != null;
             myDialogFragment.show(getFragmentManager(),MyDialogFragment.TAG_EVENT_DIALOG);
 
-            String name1 = paired_list.get(position).getName();
+            /*String name1 = paired_list.get(position).getName();
             String[] address2 = name1.split("\n");
 
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address2[0]);
@@ -258,7 +257,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                                 .sendToTarget();
                     }
                 }
-            }.start();
+            }.start();*/
 
         }); // 등록된 디바이스  클릭
 

@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="500dp"
     android:orientation="vertical"
     android:gravity="center">
     <LinearLayout
@@ -11,33 +11,35 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="DialogFragment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="DialogFragment"
+            android:textSize="20dp"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginRight="7dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="7dp"
             android:text="확인"
             android:id="@+id/ok">
 
         </Button>
 
         <Button
-            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:id="@+id/no"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="취소">
 
         </Button>
