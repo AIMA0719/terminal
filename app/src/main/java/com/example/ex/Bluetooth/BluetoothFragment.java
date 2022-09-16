@@ -90,7 +90,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
-        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
+        View view = inflater.inflate(R.layout.bluetooth_fragment, container, false);
         Context context = view.getContext();
 
         bluetooth_status = view.findViewById(R.id.bluetooth_status2);

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -67,14 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
 
-    // --------
-
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.e(TAG, "onCreate: " );
 
         list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
@@ -102,6 +103,15 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
+    public void onStart() {
+        super.onStart();
+
+        Log.e(TAG, "onStart: " );
+
         // -------- 초기화
         database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
         dataList.clear(); // 어플 시작할때마다 리스트 초기화
@@ -111,12 +121,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent(); // device.getName 가져옴
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
-            if ( data != null){
+            if (data != null) {
                 Log.d(TAG, "연결된 블루투스 기기 : " + data);
-                bluetooth_status.setText(data+" 기기랑 연결 상태입니다.");
-            }
-            else{
-                bluetooth_status.setText("기기랑 연결되어 있지 않습니다.");
+                bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
             }
         }
 
@@ -157,12 +164,19 @@ public class MainActivity extends AppCompatActivity {
                     },
                     1);
         }
+    }
+
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
+    public void onResume() {
+        super.onResume();
+
+        Log.e(TAG, "onResume: " );
 
         mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
                 if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-                    if(msg.obj == null){
+                    if (msg.obj == null) {
                         Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                     }
 
@@ -171,14 +185,14 @@ public class MainActivity extends AppCompatActivity {
                     editText.setText("");
 
 
-                    if(readmessage.contains(">")){
+                    if (readmessage.contains(">")) {
                         Log.d(TAG, "마지막 데이터 입니다.");
 
-                        String [] slicing_data = readmessage.split(">");
-                        Log.d(TAG, "readMessage : "+ slicing_data[0]);
+                        String[] slicing_data = readmessage.split(">");
+                        Log.d(TAG, "readMessage : " + slicing_data[0]);
 
                         try {
-                            mTextFileManager.save(slicing_data[0]+">>"); // File에 add , >> 는 구분 용
+                            mTextFileManager.save(slicing_data[0] + ">>"); // File에 add , >> 는 구분 용
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -192,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
 //                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
-                    }else {
+                    } else {
                         Log.d(TAG, "마지막 데이터가 아닙니다.");
                     }
 
@@ -205,25 +219,24 @@ public class MainActivity extends AppCompatActivity {
                 if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
                     if (msg.arg1 == 1) {
                         String[] name = msg.obj.toString().split("\n");
-                        Toast.makeText(getApplicationContext(), name[0]+" 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
                         bluetooth_status.setText(name[0]);
                     } else {
                         Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
-                if(msg.what== BluetoothFragment.BT_MESSAGE_WRITE){
+                if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
                     Log.d(TAG, "Write 메세지 읽음");
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
 
-
         btAdd.setOnClickListener(v -> {
             String sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
-                    sText = sText+"\r";
+                    sText = sText + "\r";
                     BluetoothFragment.mConnectedThread.write(sText);
                     Log.d(TAG, "Request 메세지 : " + sText);
 
@@ -234,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll());
 
                     try {
-                        mTextFileManager.save(sText+">>"); // File에 add , >> 는 구분 용
+                        mTextFileManager.save(sText + ">>"); // File에 add , >> 는 구분 용
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -282,6 +295,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    public void onRestart(){
+        super.onRestart();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        mConnectedThread.cancel();
+        finish();
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grandResults) { // 권한 요청 이후 로직 앱 시작하면 권한 체크 한다
@@ -327,8 +360,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.blutooth_connect:
                 try {
-//                        Intent intent = new Intent(this, bluetooth.class);
-//                        startActivity(intent); 블루투스 엑티비티로 이동
                     FragmentView(); // 프래그먼트로 이동하는 코드
 
                     FragmentManager fm1 = getSupportFragmentManager();
@@ -341,16 +372,18 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.log_load:  // log 버튼 클릭
-                String a = mTextFileManager.load();
-                if (a == null){
-                    Toast.makeText(this, "저장할 Text가 없습니다.", Toast.LENGTH_SHORT).show();
-                }else {
-                    try {
-                        mTextFileManager.save(a);
-                        Log.e(TAG, "클릭 됐나? ");
-                        Toast.makeText(this, "Text 파일로 저장 되었습니다.", Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                if (!editText.getText().equals("")) {
+                    String a = mTextFileManager.load();
+
+                    if (a == null) {
+                        Toast.makeText(this, "저장할 Text가 없습니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        try {
+                            mTextFileManager.save(a);
+                            Toast.makeText(this, "Text 파일로 저장 되었습니다.", Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -366,22 +399,6 @@ public class MainActivity extends AppCompatActivity {
                 return onOptionsItemSelected(item);
         }
     } // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
-
-    private void FragmentView() {
-
-        bluetoothFragment = new BluetoothFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.FirstFragment, bluetoothFragment);
-        fragmentTransaction.commit();
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        mConnectedThread.cancel();
-    }
 
     public static class TextFileManager{ // 파일 관리
         private static final String FILE_NAME = "Memo.txt";
@@ -425,6 +442,16 @@ public class MainActivity extends AppCompatActivity {
             context.deleteFile(FILE_NAME);
         } // 파일 삭제
 
+    }
+
+    private void FragmentView() {
+
+        bluetoothFragment = new BluetoothFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.FirstFragment, bluetoothFragment);
+        fragmentTransaction.commit();
     }
 
 }
