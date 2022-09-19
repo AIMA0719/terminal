@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-
     android:background="@color/white"
     >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/SecondFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -21,66 +26,67 @@
             android:layout_height="match_parent"
             android:text="블루투스"
             android:layout_gravity="center"
-            android:textSize="20dp">
+            android:textSize="20sp">
         </TextView>
 
     </androidx.appcompat.widget.Toolbar>
 
 
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
         <LinearLayout
-            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:orientation="vertical"
+            android:layout_marginTop="60dp">
 
-            <Button
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/bluetooth_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="블루투스 on">
+
+                </Button>
+
+                <Button
+                    android:id="@+id/bluetooth_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="블루투스 off">
+
+                </Button>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/bluetooth_on"
-                android:text="블루투스 on">
+                android:layout_gravity="center"
+                android:orientation="horizontal">
 
-            </Button>
+                <Button
+                    android:id="@+id/bluetooth_scan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="연결 가능한 디바이스 scan">
 
-            <Button
-                android:layout_marginStart="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="블루투스 off"
-                android:id="@+id/bluetooth_off">
+                </Button>
 
-            </Button>
+            </LinearLayout>
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="연결 가능한 디바이스 scan"
-                android:id="@+id/bluetooth_scan">
-
-            </Button>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginTop="170dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -137,8 +143,8 @@
 
         </LinearLayout>
 
-
     </LinearLayout>
 
+    </FrameLayout>
 
 </LinearLayout>
