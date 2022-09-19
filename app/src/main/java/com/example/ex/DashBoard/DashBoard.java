@@ -1,11 +1,16 @@
 package com.example.ex.DashBoard;
 
+import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -25,18 +30,26 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
+import at.grabner.circleprogress.CircleProgressView;
+
 public class DashBoard extends AppCompatActivity {
 
     private static final int MAX_X_VALUE = 4;
     private static final float MAX_Y_VALUE = 4;
     private static final float MIN_Y_VALUE = 1;
     private static final String SET_LABEL = "dash";
-    HorizontalBarChart mChart;
 
+    public CircleProgressView SpeedView,RpmView;
+    String TAG = "DashBoard_Activity";
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
+
+        SpeedView = findViewById(R.id.Speed_CPB);
+        RpmView = findViewById(R.id.RPM_CPB);
 
         //-------------------
         Toolbar toolbar = findViewById(R.id.DashBoard_toolbar);
@@ -45,10 +58,12 @@ public class DashBoard extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
 
+        SpeedView.setTextColorAuto(true);
+        SpeedView.setText("22");
+        RpmView.setText("23145");
+        RpmView.setTextColorAuto(true);
 
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..

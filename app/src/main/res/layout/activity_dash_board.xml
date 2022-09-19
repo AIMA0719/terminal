@@ -73,10 +73,10 @@
             android:layout_marginStart="11dp"
             android:layout_height="204dp"
             CircleProgressView:cpv_autoTextSize="false"
-            CircleProgressView:cpv_barColor="@android:color/holo_red_dark"
+            CircleProgressView:cpv_barColor="@android:color/holo_green_light"
             CircleProgressView:cpv_barWidth="20dp"
             CircleProgressView:cpv_innerContourSize="0dp"
-            CircleProgressView:cpv_maxValue="100"
+            CircleProgressView:cpv_maxValue="270"
             CircleProgressView:cpv_outerContourSize="0dp"
             CircleProgressView:cpv_rimColor="@color/black"
             CircleProgressView:cpv_rimWidth="20dp"
@@ -86,7 +86,6 @@
             CircleProgressView:cpv_textScale="1"
             CircleProgressView:cpv_unitColor="#FF2000"
             CircleProgressView:cpv_unitScale="1"
-            CircleProgressView:cpv_value="0"
             app:cpv_textSize="30dp">
 
         </at.grabner.circleprogress.CircleProgressView>
@@ -101,10 +100,10 @@
             android:layout_marginEnd="11dp"
             android:layout_height="204dp"
             CircleProgressView:cpv_autoTextSize="false"
-            CircleProgressView:cpv_barColor="@android:color/holo_red_dark"
+            CircleProgressView:cpv_barColor="@android:color/holo_green_light"
             CircleProgressView:cpv_barWidth="20dp"
             CircleProgressView:cpv_innerContourSize="0dp"
-            CircleProgressView:cpv_maxValue="100"
+            CircleProgressView:cpv_maxValue="15000"
             CircleProgressView:cpv_outerContourSize="0dp"
             CircleProgressView:cpv_rimColor="@color/black"
             CircleProgressView:cpv_rimWidth="20dp"
