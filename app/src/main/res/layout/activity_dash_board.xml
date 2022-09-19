@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DashBoard.DashBoard">
+    tools:context=".DashBoard.DashBoard"
+    android:orientation="vertical">
 
 
     <LinearLayout
@@ -28,6 +29,20 @@
             </TextView>
 
         </androidx.appcompat.widget.Toolbar>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/chart"
+            >
+
+        </com.github.mikephil.charting.charts.HorizontalBarChart>
 
     </LinearLayout>
 

@@ -4,27 +4,71 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 public class DashBoard extends AppCompatActivity {
 
+    private static final int MAX_X_VALUE = 4;
+    private static final float MAX_Y_VALUE = 4;
+    private static final float MIN_Y_VALUE = 1;
+    private static final String SET_LABEL = "dash";
+    HorizontalBarChart mChart;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
 
+        //-------------------
         Toolbar toolbar = findViewById(R.id.DashBoard_toolbar);
-        
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //-------------------
+
+        mChart = findViewById(R.id.chart);
+        mChart.setEnabled(false); //
+        mChart.setTouchEnabled(false); // 터치 불가능
+
+        setData(4,50);
+
+    }
+
+    private void setData(int count, int range) {
+
+        ArrayList<BarEntry> yVals = new ArrayList<>();
+        float barWidth = 9f;
+        float spaceForBar = 10f;
+
+        for (int i=0;i<count;i++){
+            float val = (float) (Math.random()*range);
+            yVals.add(new BarEntry(i*spaceForBar,val));
+        }
+
+        BarDataSet set1;
+        set1 = new BarDataSet(yVals,"data set1");
+        BarData data = new BarData(set1);
+        mChart.setData(data);
+
     }
 
     @Override
