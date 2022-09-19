@@ -45,31 +45,10 @@ public class DashBoard extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
 
-        mChart = findViewById(R.id.chart);
-        mChart.setEnabled(false); //
-        mChart.setTouchEnabled(false); // 터치 불가능
-
-        setData(4,50);
 
     }
 
-    private void setData(int count, int range) {
 
-        ArrayList<BarEntry> yVals = new ArrayList<>();
-        float barWidth = 9f;
-        float spaceForBar = 10f;
-
-        for (int i=0;i<count;i++){
-            float val = (float) (Math.random()*range);
-            yVals.add(new BarEntry(i*spaceForBar,val));
-        }
-
-        BarDataSet set1;
-        set1 = new BarDataSet(yVals,"data set1");
-        BarData data = new BarData(set1);
-        mChart.setData(data);
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
