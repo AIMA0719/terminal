@@ -1,6 +1,7 @@
 package com.example.ex.Bluetooth;
 
 import static com.example.ex.Bluetooth.BluetoothFragment.BT_CONNECTING_STATUS;
+import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_WRITE;
 import static com.example.ex.Bluetooth.BluetoothFragment.device;
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
@@ -50,8 +51,8 @@ import java.util.UUID;
 public class MyDialogFragment extends DialogFragment {
 
     public static final int BT_CONNECTING_STATUS = 1;
-    public static final int BT_MESSAGE_WRITE = 2;
     public static final int BT_MESSAGE_READ = 3;
+    public static final int BT_SETTINGS = 2;
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
@@ -88,6 +89,7 @@ public class MyDialogFragment extends DialogFragment {
 
             name.setText(slicing_name[0] + "과 연결 하시겠습니까?");
         }
+
 
         btn_ok.setOnClickListener(v -> {
 
@@ -129,18 +131,19 @@ public class MyDialogFragment extends DialogFragment {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start(); // 시작
 
-//                        for (int i=0;i< DefaultATCommandArray.length;i++){
-//                            mConnectedThread.write(DefaultATCommandArray[i]);
-//                        }
+                        mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
+                                .sendToTarget();
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
+                            mConnectedThread.write("atz"+"\r");
+//                            {"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
+                            mConnectedThread.write("ATE0"+"\r");
+
+
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.putExtra("데이터",device.getName());
                             startActivity(intent);
                         }
-
-                        mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
-                                .sendToTarget();
                     }
                 }
             }.start();

@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
+
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -55,6 +55,7 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final int BT_SETTINGS = 1;
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
@@ -67,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     BluetoothFragment bluetoothFragment;
     TextFileManager mTextFileManager = new TextFileManager(this);
+    public final String[] DefaultATCommandArray = new String[]{"ATZ>","ATE0>","ATD0>","ATSP0>","ATH1>","ATM0>","ATS0>","ATAT1>","ATST64>"};
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
+    String setting_message = "";
     String sText = "";
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -172,14 +175,15 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
-                if (msg.what == MyDialogFragment.BT_MESSAGE_READ) {
+
+                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
                     if (msg.obj == null) {
                         Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                     }
 
                     readmessage += msg.obj;
                     editText.setText("");
-
+                    
                     if (readmessage.contains(">")) {
                         Log.d(TAG, "Response 메세지 전달 받음");
                         String[] slicing_data = readmessage.split(">");
@@ -225,14 +229,18 @@ public class MainActivity extends AppCompatActivity {
                         String[] name = msg.obj.toString().split("\n");
                         Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
                         bluetooth_status.setText(name[0]);
+
+//                        mConnectedThread.write("atz>");
+//                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
                     } else {
                         Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
-                if (msg.what == MyDialogFragment.BT_MESSAGE_WRITE) {
+                if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
                     Log.d(TAG, "ECU 로 Request 메세지 전달");
                 }
+
             }
         }; // 핸들러 ( What에 따라 동작 )
 

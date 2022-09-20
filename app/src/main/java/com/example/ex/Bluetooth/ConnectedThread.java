@@ -1,7 +1,8 @@
 package com.example.ex.Bluetooth;
 
-import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_READ;
+
 import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_WRITE;
+import static com.example.ex.Bluetooth.MyDialogFragment.BT_MESSAGE_READ;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
@@ -13,10 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-
 
 public class ConnectedThread extends Thread  {
+
 
     BluetoothSocket mBluetoothSocket;
     InputStream mmInStream;
@@ -59,7 +59,7 @@ public class ConnectedThread extends Thread  {
 
                         if (Data.contains(">")||Data.contains("at")) { // > 뒤에 계속 추가되는거 방지용 초기화
                             Log.d(TAG, "Request 메세지 전달 받음");
-                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
                             message.sendToTarget();
                             Log.d(TAG, "핸드폰으로 Response 메세지 전달");
 
@@ -111,7 +111,7 @@ public class ConnectedThread extends Thread  {
             Log.e(TAG, "데이터 보내기 오류!", e);
             Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
             Bundle bundle = new Bundle();
-            bundle.putString("toast", "Couldn't send data to the other device");
+            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
             writeErrorMsg.setData(bundle);
             BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
         }

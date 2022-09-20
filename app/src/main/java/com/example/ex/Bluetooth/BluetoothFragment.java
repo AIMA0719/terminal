@@ -49,8 +49,9 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment implements Serializable {
 
-    public static final int BT_MESSAGE_READ = 3;
     public static final int BT_MESSAGE_WRITE = 5;
+    public static final int BT_MESSAGE_READ = 6;
+    public static final int BT_MESSAGE_READ_AT = 7;
     private static final int RESULT_OK = 1111;
     private static final int RESULT_CANCELED = 1112;
     public TextView bluetooth_status;
@@ -316,6 +317,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         });
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
