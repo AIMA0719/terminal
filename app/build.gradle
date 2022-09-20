@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation 'com.github.jakob-grabner:Circle-Progress-View:1.4' // 프로그레스 바 라이브러리
+    implementation 'com.github.zurche:plain-pie:v0.2.9'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0' //MP안드 라이브러리
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.4.0'
