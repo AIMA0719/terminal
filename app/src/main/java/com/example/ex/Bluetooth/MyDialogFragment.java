@@ -48,11 +48,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class MyDialogFragment extends DialogFragment {
-    public static final String TAG_EVENT_DIALOG = "dialog_event";
+
+    public static final int BT_CONNECTING_STATUS = 1;
+    public static final int BT_MESSAGE_WRITE = 2;
+    public static final int BT_MESSAGE_READ = 3;
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
-    public static final int BT_MESSAGE_READ1 =99;
+
     public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
 
 
@@ -86,27 +89,6 @@ public class MyDialogFragment extends DialogFragment {
             name.setText(slicing_name[0] + "과 연결 하시겠습니까?");
         }
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) { // 메시지 종류에 따라서
-                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-                    if (msg.obj == null) {
-                        Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
-                    }
-
-                    String readMessage = msg.obj.toString();
-                    Log.e(TAG, "handleMessage: "+readMessage);
-
-                    if (readMessage.contains("at")||(readMessage.contains("AT"))){
-                        Log.d(TAG, "제대로 받나"+readMessage);
-                    }
-
-
-                }
-            }
-        };
-
-
         btn_ok.setOnClickListener(v -> {
 
             new Thread() {
@@ -136,7 +118,7 @@ public class MyDialogFragment extends DialogFragment {
                         try {
                             fail = true;
                             mBluetoothSocket.close();
-                            mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, -1, -1)
+                            mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, -1, -1)
                                     .sendToTarget();
                         } catch (IOException e2) {
                             //insert code to deal with this
@@ -157,7 +139,7 @@ public class MyDialogFragment extends DialogFragment {
                             startActivity(intent);
                         }
 
-                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
+                        mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
                                 .sendToTarget();
                     }
                 }

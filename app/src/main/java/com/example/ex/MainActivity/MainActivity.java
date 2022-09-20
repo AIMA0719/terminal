@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ex.Bluetooth.BluetoothFragment;
+import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.DashBoard.DashBoard;
 import com.example.ex.RoomDB.*;
 import com.example.ex.R;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     TextFileManager mTextFileManager = new TextFileManager(this);
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
+    String sText = "";
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) { // 메시지 종류에 따라서
-                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
+                if (msg.what == MyDialogFragment.BT_MESSAGE_READ) {
                     if (msg.obj == null) {
                         Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                     }
@@ -218,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                 }
 
-                if (msg.what == BluetoothFragment.BT_CONNECTING_STATUS) {
+                if (msg.what == MyDialogFragment.BT_CONNECTING_STATUS) {
                     if (msg.arg1 == 1) {
                         String[] name = msg.obj.toString().split("\n");
                         Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
@@ -228,14 +230,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
+                if (msg.what == MyDialogFragment.BT_MESSAGE_WRITE) {
                     Log.d(TAG, "ECU 로 Request 메세지 전달");
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
 
         btAdd.setOnClickListener(v -> {
-            String sText = editText.getText().toString().trim();
+            sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
                     sText = sText + "\r";
