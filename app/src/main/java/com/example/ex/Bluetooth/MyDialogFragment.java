@@ -1,6 +1,7 @@
 package com.example.ex.Bluetooth;
 
 import static com.example.ex.Bluetooth.BluetoothFragment.BT_CONNECTING_STATUS;
+import static com.example.ex.Bluetooth.BluetoothFragment.device;
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
@@ -86,10 +87,7 @@ public class MyDialogFragment extends DialogFragment {
                 public void run() {
                     boolean fail = false;
 
-                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                    }
-                    mBluetoothAdapter.cancelDiscovery();
-                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(Slicing_name[1]);
+                    device = mBluetoothAdapter.getRemoteDevice(getArguments().getString("이름").split("\n")[1]);
 
                     try {
                         mBluetoothSocket = createBluetoothSocket(device);
@@ -98,7 +96,7 @@ public class MyDialogFragment extends DialogFragment {
                         fail = true;
                         Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                     }
-
+                    // Establish the Bluetooth socket connection.
                     try {
                         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
@@ -117,10 +115,13 @@ public class MyDialogFragment extends DialogFragment {
                             Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                         }
                     }
-
                     if (!fail) {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start(); // 시작
+
+                        //for (int i=0;i< DefaultATCommandArray.length;i++){
+                        //    mConnectedThread.write(DefaultATCommandArray[i]);
+                        //}
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
                             Intent intent = new Intent(getContext(), MainActivity.class);
@@ -128,6 +129,8 @@ public class MyDialogFragment extends DialogFragment {
                             startActivity(intent);
                         }
 
+                        mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
+                                .sendToTarget();
                     }
                 }
             }.start();
