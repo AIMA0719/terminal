@@ -57,9 +57,6 @@ public class MyDialogFragment extends DialogFragment {
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
 
-    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
-
-
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     final String TAG = "Dialog_Fragment";
 
@@ -135,10 +132,7 @@ public class MyDialogFragment extends DialogFragment {
                                 .sendToTarget();
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
-                            mConnectedThread.write("atz"+"\r");
-//                            {"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
-                            mConnectedThread.write("ATE0"+"\r");
-
+                            mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
 
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.putExtra("데이터",device.getName());

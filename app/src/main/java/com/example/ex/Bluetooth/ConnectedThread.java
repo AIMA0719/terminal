@@ -2,6 +2,7 @@ package com.example.ex.Bluetooth;
 
 
 import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_WRITE;
+import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 import static com.example.ex.Bluetooth.MyDialogFragment.BT_MESSAGE_READ;
 
 import android.bluetooth.BluetoothSocket;
@@ -17,20 +18,23 @@ import java.nio.charset.StandardCharsets;
 
 public class ConnectedThread extends Thread  {
 
-
+    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
     BluetoothSocket mBluetoothSocket;
     InputStream mmInStream;
     OutputStream mmOutStream;
     private byte[] mmBuffer;
     public static String readMessage;
     public static String Data = "";
-    String TAG = "ConnectedThread";
+    public final String TAG = "ConnectedThread";
+    public int index = 1;
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mBluetoothSocket = socket;
         BluetoothFragment.mBluetoothHandler = handler;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
+
+
 
         try {
             tmpIn = socket.getInputStream();
@@ -57,14 +61,28 @@ public class ConnectedThread extends Thread  {
                         Log.d(TAG, "run: 오류남");
                     }
 
-                        if (Data.contains(">")||Data.contains("at")) { // > 뒤에 계속 추가되는거 방지용 초기화
-                            Log.d(TAG, "Request 메세지 전달 받음");
-                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
-                            message.sendToTarget();
-                            Log.d(TAG, "핸드폰으로 Response 메세지 전달");
+                        if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
 
-                            Data = ""; // Data 마지막이니까 초기화해줌
+                            if (Data.contains("at")||(Data.contains("OBD"))){ // 초기 AT Commands 세팅
+                                Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                                message.sendToTarget();
+                                while (index<9) {
+                                    mConnectedThread.write(DefaultATCommandArray[index]+"\r");
+                                    index += 1;
+                                    Log.d(TAG, "AT Commands setting중");
+                                }
+                            }else { // 일반 명령어 입력시
+                                Log.d(TAG, "Request 메세지 전달 받음");
+                                Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                                message.sendToTarget();
+                                Log.d(TAG, "핸드폰으로 Response 메세지 전달");
+                            }
+
+                            Data = ""; // Data 마지막이니까 초기화해줌 안해주면 계속 쌓인다
 //                            Log.d(TAG, "마지막 데이터 입니다.");
+                        }
+                        else if(Data.contains("at")||(Data.contains("AT"))){
+
                         }
 
                 }
@@ -117,6 +135,24 @@ public class ConnectedThread extends Thread  {
         }
 
     }
+
+//    public void setting(String input) {
+//        byte[] bytes = input.getBytes();
+//        try {
+//            mmOutStream.write(bytes);
+//            Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(MyDialogFragment.BT_SETTINGS,-1,-1,mmBuffer);
+//            writeMessage.sendToTarget();
+//        } catch (IOException e) {
+//
+//            Log.e(TAG, "데이터 보내기 오류!", e);
+//            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
+//            Bundle bundle = new Bundle();
+//            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
+//            writeErrorMsg.setData(bundle);
+//            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
+//        }
+//
+//    }
 
     public void cancel() {
         try {

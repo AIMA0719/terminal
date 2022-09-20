@@ -68,10 +68,8 @@ public class MainActivity extends AppCompatActivity {
     TextView bluetooth_status, list_item;
     BluetoothFragment bluetoothFragment;
     TextFileManager mTextFileManager = new TextFileManager(this);
-    public final String[] DefaultATCommandArray = new String[]{"ATZ>","ATE0>","ATD0>","ATSP0>","ATH1>","ATM0>","ATS0>","ATAT1>","ATST64>"};
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
-    String setting_message = "";
     String sText = "";
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -187,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
                     if (readmessage.contains(">")) {
                         Log.d(TAG, "Response 메세지 전달 받음");
                         String[] slicing_data = readmessage.split(">");
-                        Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
                         try {
                             mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
@@ -198,12 +195,15 @@ public class MainActivity extends AppCompatActivity {
                         if((readmessage.contains("at"))||(readmessage.contains("OBD"))){
                             Log.d(TAG, "AT command 를 입력 했습니다.");
                             Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
-                        }else if(readmessage.contains("?")){
+                        }else if(readmessage.equals(editText.getText()+"?")){
                             Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
                         }else if(readmessage.contains("NO")){
                             Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                        }else if(readmessage.contains("ok")||(readmessage.contains("OK"))){
+                            Log.d(TAG, "AT Commands setting중");
                         }
                         else {
+                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
                                 MainData data1 = new MainData();
                                 data1.setText(slicing_data[0]);
                                 database.mainDao().insert(data1);
