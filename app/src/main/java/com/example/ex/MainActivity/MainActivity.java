@@ -1,6 +1,7 @@
 package com.example.ex.MainActivity;
 
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
+import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothSocket;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
 import androidx.annotation.NonNull;
@@ -175,26 +176,30 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     readmessage += msg.obj;
-                    Log.d(TAG, "메인엑티비티 에서 받은 데이터 : " + readmessage);
                     editText.setText("");
 
-
                     if (readmessage.contains(">")) {
-                        Log.d(TAG, "마지막 데이터 입니다.");
-
+                        Log.d(TAG, "Response 메세지 전달 받음");
                         String[] slicing_data = readmessage.split(">");
-                        Log.d(TAG, "readMessage : " + slicing_data[0]);
+                        Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
                         try {
-                            mTextFileManager.save(slicing_data[0] + ">>"); // File에 add , >> 는 구분 용
+                            mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-                        MainData data1 = new MainData();
-                        data1.setText(slicing_data[0]);
-                        database.mainDao().insert(data1);
-                        dataList.add(data1);
+                        if(slicing_data[0].contains("AT")||(slicing_data[0].contains("at"))){
+                            Log.d(TAG, "AT command 를 입력 했습니다.");
+                        }else if(readmessage.contains("?")){
+                            Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            MainData data1 = new MainData();
+                            data1.setText(slicing_data[0]);
+                            database.mainDao().insert(data1);
+                            dataList.add(data1);
+                        }
 
 //
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
@@ -221,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
-                    Log.d(TAG, "Write 메세지 읽음");
+                    Log.d(TAG, "ECU 로 Request 메세지 전달");
                 }
             }
         }; // 핸들러 ( What에 따라 동작 )
@@ -306,7 +311,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        mConnectedThread.cancel();
+        if( mConnectedThread.isAlive()){
+            mConnectedThread.interrupt();
+            try {
+                mBluetoothSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         finish();
     }
 

@@ -35,7 +35,7 @@ public class ConnectedThread extends Thread  {
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
-        } catch (IOException e) { }
+        } catch (IOException ignored) { }
 
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
@@ -57,17 +57,16 @@ public class ConnectedThread extends Thread  {
                         Log.d(TAG, "run: 오류남");
                     }
 
-                    if (Data.contains(">")){
-                        Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
-                        message.sendToTarget();
+                        if (Data.contains(">")||Data.contains("at")) { // > 뒤에 계속 추가되는거 방지용 초기화
+                            Log.d(TAG, "Request 메세지 전달 받음");
+                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(bluetooth.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                            message.sendToTarget();
+                            Log.d(TAG, "핸드폰으로 Response 메세지 전달");
 
-                        Log.d(TAG, "쓰레드에서 보낸 데이터 : " + Data);
-
-                        if (Objects.equals(readMessage, ">")) { // > 뒤에 계속 추가되는거 방지용 초기화
                             Data = ""; // Data 마지막이니까 초기화해줌
-                            Log.d(TAG, "더이상 쓰레드에서 보낼 데이터가 없습니다.");
+//                            Log.d(TAG, "마지막 데이터 입니다.");
                         }
-                    }
+
 
                 }
 

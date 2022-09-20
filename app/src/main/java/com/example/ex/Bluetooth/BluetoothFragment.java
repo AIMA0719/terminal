@@ -50,13 +50,13 @@ import java.util.UUID;
 public class BluetoothFragment extends Fragment implements Serializable {
 
     public static final int BT_MESSAGE_READ = 3;
-    public static final int BT_MESSAGE_WRITE = 3;
+    public static final int BT_MESSAGE_WRITE = 5;
     private static final int RESULT_OK = 1111;
     private static final int RESULT_CANCELED = 1112;
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
-    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
+//    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
@@ -347,12 +347,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void onDestroy(){
         super.onDestroy();
         requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
-//        mConnectedThread.interrupt();
-//        try {
-//            mBluetoothSocket.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+
     } // 생명주기
 
     @Override
@@ -369,26 +364,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
     } // 권한 요청하는 함수
 
-    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
-        try {
-            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
-            return (BluetoothSocket) m.invoke(device, MY_UUID);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
-        }
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-        }
-        return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-    } // 소켓 만들기 위한 메소드
 
-    public boolean isConnected(BluetoothDevice device) {
-        try {
-            Method m = device.getClass().getMethod("isConnected", (Class[]) null);
-            boolean connected = (boolean) m.invoke(device, (Object[]) null);
-            return connected;
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    } // 블루투스 연결 됐는지 체크하는 함수 브로드캐스트로도 할 수 있지만 이거 사용해봤다
 
 }

@@ -26,6 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +40,7 @@ import android.widget.Toast;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.R;
+import com.example.ex.RoomDB.MainData;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -48,7 +52,9 @@ public class MyDialogFragment extends DialogFragment {
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
-    private String[] Slicing_name;
+    public static final int BT_MESSAGE_READ1 =99;
+    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
+
 
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     final String TAG = "Dialog_Fragment";
@@ -75,10 +81,31 @@ public class MyDialogFragment extends DialogFragment {
 
         if (getArguments() != null) {
             String bluetooth_name = getArguments().getString("이름");
-            Slicing_name = bluetooth_name.split("\n");
+            String[] slicing_name = bluetooth_name.split("\n");
 
-            name.setText(Slicing_name[0] + "과 연결 하시겠습니까?");
+            name.setText(slicing_name[0] + "과 연결 하시겠습니까?");
         }
+
+        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) { // 메시지 종류에 따라서
+                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
+                    if (msg.obj == null) {
+                        Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
+                    }
+
+                    String readMessage = msg.obj.toString();
+                    Log.e(TAG, "handleMessage: "+readMessage);
+
+                    if (readMessage.contains("at")||(readMessage.contains("AT"))){
+                        Log.d(TAG, "제대로 받나"+readMessage);
+                    }
+
+
+                }
+            }
+        };
+
 
         btn_ok.setOnClickListener(v -> {
 
@@ -87,6 +114,7 @@ public class MyDialogFragment extends DialogFragment {
                 public void run() {
                     boolean fail = false;
 
+                    assert getArguments() != null;
                     device = mBluetoothAdapter.getRemoteDevice(getArguments().getString("이름").split("\n")[1]);
 
                     try {
@@ -119,9 +147,9 @@ public class MyDialogFragment extends DialogFragment {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start(); // 시작
 
-                        //for (int i=0;i< DefaultATCommandArray.length;i++){
-                        //    mConnectedThread.write(DefaultATCommandArray[i]);
-                        //}
+//                        for (int i=0;i< DefaultATCommandArray.length;i++){
+//                            mConnectedThread.write(DefaultATCommandArray[i]);
+//                        }
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
                             Intent intent = new Intent(getContext(), MainActivity.class);
@@ -172,5 +200,14 @@ public class MyDialogFragment extends DialogFragment {
             throw new IllegalStateException(e);
         }
     } // 블루투스 연결 됐는지 체크하는 함수 브로드캐스트로도 할 수 있지만 이거 사용해봤다
+
+    public void onDestroy(){
+        super.onDestroy();
+        try {
+            mBluetoothSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
