@@ -189,19 +189,22 @@ public class MainActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
 
-                        if(slicing_data[0].contains("AT")||(slicing_data[0].contains("at"))){
+                        if((readmessage.contains("at"))||(readmessage.contains("OBD"))){
                             Log.d(TAG, "AT command 를 입력 했습니다.");
+                            Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
                         }else if(readmessage.contains("?")){
                             Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                        }else if(readmessage.contains("NO")){
+                            Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            MainData data1 = new MainData();
-                            data1.setText(slicing_data[0]);
-                            database.mainDao().insert(data1);
-                            dataList.add(data1);
+                                MainData data1 = new MainData();
+                                data1.setText(slicing_data[0]);
+                                database.mainDao().insert(data1);
+                                dataList.add(data1);
+
                         }
 
-//
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
 //                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 

@@ -67,7 +67,6 @@ public class ConnectedThread extends Thread  {
 //                            Log.d(TAG, "마지막 데이터 입니다.");
                         }
 
-
                 }
 
             } catch (IOException e) {
