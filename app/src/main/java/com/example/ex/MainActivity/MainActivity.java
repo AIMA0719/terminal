@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     if (readmessage.contains(">")) {
                         Log.d(TAG, "Response 메세지 전달 받음");
                         String[] slicing_data = readmessage.split(">");
+                        Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
                         try {
                             mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
@@ -203,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "AT Commands setting중");
                         }
                         else {
-                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
                                 MainData data1 = new MainData();
                                 data1.setText(slicing_data[0]);
                                 database.mainDao().insert(data1);
@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
+        mConnectedThread.write("ATZ"+"\r");
         if( mConnectedThread.isAlive()){
             mConnectedThread.interrupt();
             try {

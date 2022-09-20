@@ -84,7 +84,7 @@ public class MyDialogFragment extends DialogFragment {
             String bluetooth_name = getArguments().getString("이름");
             String[] slicing_name = bluetooth_name.split("\n");
 
-            name.setText(slicing_name[0] + "과 연결 하시겠습니까?");
+            name.setText(slicing_name[0] +"\n"+ "기기와 연결 하시겠습니까?");
         }
 
 
