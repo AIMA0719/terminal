@@ -284,4 +284,6 @@ public class CustomPieChart extends PieView {
     public void setMaxPercentage(final float maxPercentage) {
         mMaxPercentage = maxPercentage;
     }
+
+
 }

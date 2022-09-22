@@ -33,7 +33,11 @@ public class DashBoard extends AppCompatActivity {
     public BluetoothDevice device;
     public String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
     public String device_name;
-    public String Speed_data,Rpm_data,Tmp_data,Volt_data,Maf_data ="";
+    public String Speed_data;
+    public String Rpm_data;
+    public String Tmp_data;
+    public String Volt_data;
+    public String Maf_data ="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,72 @@ public class DashBoard extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
+
+        //----------------------pieChart setting
+
+        CustomPieChart SpeedPie = findViewById(R.id.pieView_speed);
+        CustomPieChart RpmPie = findViewById(R.id.pieView_rpm);
+        CustomPieChart VoltPie = findViewById(R.id.pieView_volt);
+        CustomPieChart MafPie = findViewById(R.id.pieView_maf);
+        CustomPieChart TmpPie = findViewById(R.id.pieView_tmp);
+
+        SpeedPie.setPercentageBackgroundColor(R.color.purple_200); // 뒤에 컬러
+        TmpPie.setPercentageBackgroundColor(R.color.purple_200);
+        RpmPie.setPercentageBackgroundColor(R.color.purple_200);
+        VoltPie.setPercentageBackgroundColor(R.color.purple_200);
+        MafPie.setPercentageBackgroundColor(R.color.purple_200);
+
+
+        SpeedPie.setPieInnerPadding(30); //안에 패딩 얼마나
+        TmpPie.setPieInnerPadding(30);
+        RpmPie.setPieInnerPadding(30);
+        MafPie.setPieInnerPadding(30);
+        VoltPie.setPieInnerPadding(30);
+
+        SpeedPie.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
+        TmpPie.setInnerTextVisibility(View.VISIBLE);
+        RpmPie.setInnerTextVisibility(View.VISIBLE);
+        MafPie.setInnerTextVisibility(View.VISIBLE);
+        VoltPie.setInnerTextVisibility(View.VISIBLE);
+
+        TmpPie.setPercentageTextSize(25); //안에 텍스트 사이즈
+        SpeedPie.setPercentageTextSize(25);
+        RpmPie.setPercentageTextSize(25);
+        MafPie.setPercentageTextSize(25);
+        VoltPie.setPercentageTextSize(25);
+
+
+        //----------------------pieChart control
+
+        Thread pieChartThread =  new Thread(() -> {
+            while (true){
+                value += 1;
+                if (value>100){
+                    value = 1;
+                }
+                mBluetoothHandler.post(() -> {
+                    SpeedPie.setInnerText(Speed_data+" km/h"); // 안에 값 변경
+                    //SpeedPie.setPercentage(value); // 퍼센트 변경
+
+                    TmpPie.setInnerText(Tmp_data+" °C");
+                    //TmpPie.setPercentage(value*2);
+
+                    RpmPie.setInnerText(Rpm_data+" rpm");
+
+                    MafPie.setInnerText(Maf_data+" g/s");
+
+                    VoltPie.setInnerText(Volt_data+" v");
+
+                });
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        pieChartThread.start();
 
 
     }
@@ -73,71 +143,47 @@ public class DashBoard extends AppCompatActivity {
                     if(msg.obj != null){
                         String data = msg.obj.toString();
                         String [] a = data.split(">");
+
                         if(a[0].contains("010d")){ // 속도 = A
-                            Tmp_data = a[0];
+                            String real = a[0].substring(11,13);
+                            int real_real = Integer.parseInt(real,16);
+                            Speed_data = String.valueOf(real_real);
+
                         }else if(a[0].contains("0105")){ // 냉각수 = A -40
-                            Speed_data = a[0];
+                            String real = a[0].substring(11,13);
+                            int real_real = Integer.parseInt(real,16)-40;
+                            Tmp_data = String.valueOf(real_real);
+
                         }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
-                            Rpm_data = a[0];
+                            String real = a[0].substring(11,13);
+                            String read2 = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16)) / 4;
+                            Rpm_data = String.valueOf(real_real);
+
                         }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
-                            Maf_data = a[0];
+                            String real = a[0].substring(11,13);
+                            String read2 = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16) )/ 100;
+                            Maf_data = String.valueOf(real_real);
+
                         }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
-                            Volt_data = a[0];
+                            String real = a[0].substring(11,13);
+                            String read2 = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16)) / 1000;
+                            Volt_data = String.valueOf(real_real);
                         }
                     }
                 }
             }
         };
 
-        //----------------------pieChart setting
-
-        CustomPieChart SpeedPie = findViewById(R.id.pieView_speed);
-        CustomPieChart RpmPie = findViewById(R.id.pieView_rpm);
-
-        SpeedPie.setPercentageBackgroundColor(R.color.purple_200);
-        RpmPie.setPercentageBackgroundColor(R.color.purple_200);
-
-        SpeedPie.setPieInnerPadding(30);
-        RpmPie.setPieInnerPadding(30);
-        // Update the visibility of the widget text
-        SpeedPie.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
-        SpeedPie.setPercentageTextSize(35); //안에 텍스트 사이즈
-
-        RpmPie.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
-        RpmPie.setPercentageTextSize(35); //안에 텍스트 사이즈
-
-        //----------------------pieChart control
-
-        Thread pieChartThread =  new Thread(() -> {
-            while (true){
-                value += 1;
-                if (value>100){
-                    value = 1;
-                }
-                mBluetoothHandler.post(() -> {
-                    SpeedPie.setInnerText(Speed_data); // 안에 값 변경
-                    SpeedPie.setPercentage(value); // 퍼센트 변경
-
-                    RpmPie.setInnerText(String.valueOf(value));
-                    RpmPie.setPercentage(value*2);
-
-                });
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        pieChartThread.start();
 
         Thread DashBoardThread = new Thread(() ->{
             while (true){
                 for (String dashBoard_datum : DashBoard_Data) {
                     BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
                     try {
-                        Thread.sleep(500);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -71,7 +71,7 @@
             android:layout_height="150dp"
             plainpie:inner_pie_padding="20"
             plainpie:inner_text_visibility="true"
-            plainpie:percentage_size="40"
+            plainpie:percentage_size="30"
             android:layout_marginStart="20dp"/>
 
 
@@ -81,7 +81,7 @@
             android:layout_height="150dp"
             plainpie:inner_pie_padding="20"
             plainpie:inner_text_visibility="true"
-            plainpie:percentage_size="20"
+            plainpie:percentage_size="30"
             android:layout_marginStart="50dp"/>
 
     </LinearLayout>
@@ -89,14 +89,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="25dp"
-            android:text="km/h"
+            android:text="냉각수 온도"
             android:gravity="center">
 
         </TextView>
@@ -107,27 +108,78 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="25sp"
-            android:text="rpm">
+            android:text="MAF">
 
         </TextView>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.example.ex.DashBoard.CustomPieChart
+            android:id="@+id/pieView_tmp"
+
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            plainpie:inner_pie_padding="20"
+            plainpie:inner_text_visibility="true"
+            plainpie:percentage_size="30"
+            android:layout_marginStart="20dp"
+            />
+
+
+        <com.example.ex.DashBoard.CustomPieChart
+            android:id="@+id/pieView_maf"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="50dp"
+            plainpie:inner_pie_padding="20"
+            plainpie:percentage_size="30"
+            plainpie:inner_text_visibility="true"
+             />
 
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="org.androidtown.graph.MainActivity">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp">
 
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/chart"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="25dp"
+            android:text="볼트"
+            android:gravity="center">
 
-        </com.github.mikephil.charting.charts.PieChart>
+        </TextView>
 
-    </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.example.ex.DashBoard.CustomPieChart
+            android:id="@+id/pieView_volt"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="20dp"
+            plainpie:inner_pie_padding="20"
+            plainpie:inner_text_visibility="true"
+            plainpie:percentage_size="30" />
+
+    </LinearLayout>
+
+
 
 
 
