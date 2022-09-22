@@ -112,6 +112,7 @@ public class ConnectedThread extends Thread  {
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
 
+
                 break;
             }
             //------------------------ 바이트 단위로 보냄 ex) 01234 를 0 1 2 3 4 이렇게
