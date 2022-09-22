@@ -2,16 +2,12 @@ package com.example.ex.DashBoard;
 
 
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
-import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-
+import com.example.ex.Bluetooth.BluetoothFragment;
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
@@ -23,36 +19,27 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
-
-import com.example.ex.Bluetooth.BluetoothFragment;
-import com.example.ex.Bluetooth.ConnectedThread;
-import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.UUID;
-
 
 public class DashBoard extends AppCompatActivity {
 
     public final String TAG = "DashBoard_Activity";
     public int value = 0;
+    public int i;
     public static int mMaxPercentage = 100;
     public static int mPercentage = 0;
     public static int mAngle = 0;
     public static final int CIRCLE_DEGREES = 360;
-    public static DashBoardThread mDashBoardThread;
     public BluetoothSocket mBluetoothSocket;
-    public BluetoothAdapter mBluetoothAdapter;
     public BluetoothDevice device;
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
+    public final String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
     public String device_name;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,42 +63,23 @@ public class DashBoard extends AppCompatActivity {
     public void onStart(){
         super.onStart();
 
-        boolean fail = false;
-
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        device = mBluetoothAdapter.getRemoteDevice(device_name);
-
-        try {
-            mBluetoothSocket = createBluetoothSocket(device);
-            Log.d(TAG, "소켓 생성 완료!");
-        } catch (IOException e) {
-            fail = true;
-            Toast.makeText(getApplicationContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-        }
-        try {
-            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            mBluetoothSocket.connect();
-            Log.d(TAG, "소켓 연결 실패!");
-        } catch (IOException e) {
-            try {
-                fail = true;
-                mBluetoothSocket.close();
-            } catch (IOException e2) {
-                Log.e(TAG, "소켓 생성 실패!");
-            }
-        }
-        if (!fail) {
-            DashBoardThread mDashBoardThread = new DashBoardThread(mBluetoothSocket);
-            mDashBoardThread.start();
-            Log.d(TAG, "대쉬보드 쓰레드 시작");
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        mBluetoothHandler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
+                    if(msg.obj != null){
+                        Log.e(TAG, "handleMessage123: "+msg.obj );
+                    }
+                }
+
+            }
+        };
 
         //----------------------pieChart setting
 
@@ -132,23 +100,14 @@ public class DashBoard extends AppCompatActivity {
 
         //----------------------pieChart control
 
-        Handler handler = new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                if(msg.what == DashBoardThread.DATA_SEND){
-                    Log.e(TAG, "handleMessage: "+msg.obj );
-                }
-
-            }
-        };
-
         new Thread(() -> {
             while (true){
+                BluetoothFragment.mConnectedThread.write(DashBoard_Data[i]+"\r");
                 value += 1;
                 if (value>100){
                     value = 1;
                 }
-                handler.post(() -> {
+                mBluetoothHandler.post(() -> {
                     SpeedPie.setInnerText(String.valueOf(value)); // 안에 값 변경
                     SpeedPie.setPercentage(value); // 퍼센트 변경
 
@@ -184,16 +143,4 @@ public class DashBoard extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
 
-
-    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
-        try {
-            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
-            return (BluetoothSocket) m.invoke(device, MY_UUID);
-        } catch (Exception e) {
-            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
-        }
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-        }
-        return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-    } // 소켓 만들기 위한 메소드
 }

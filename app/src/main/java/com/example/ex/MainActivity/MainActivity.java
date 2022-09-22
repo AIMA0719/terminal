@@ -109,8 +109,9 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
             if (data != null) {
-                Log.d(TAG, "연결된 블루투스 기기 : " + data.split("\n")[0]);
-                bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
+                String [] data2 = data.split("\n");
+                Log.d(TAG, "연결된 블루투스 기기 : " + data2[0]);
+                bluetooth_status.setText(data2[0] + " 기기랑 연결 상태입니다.");
 
             }
         }
