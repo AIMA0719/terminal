@@ -55,7 +55,6 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int BT_SETTINGS = 1;
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
 
@@ -112,9 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "연결된 블루투스 기기 : " + data);
                 bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
 
-                Intent intent1 = new Intent(this,DashBoard.class);
-                intent1.putExtra("기기이름",data);
-                startActivity(intent1);
             }
         }
 
@@ -413,8 +409,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.dashboard: //대쉬보드 클릭
-                Intent intent = new Intent(this, DashBoard.class);
-                startActivity(intent);
+                Intent intent = getIntent();
+                String data = intent.getStringExtra("데이터");
+                Intent intent1 = new Intent(this, DashBoard.class);
+                intent1.putExtra("기기이름",data);
+                startActivity(intent1);
 
                 return true;
 
