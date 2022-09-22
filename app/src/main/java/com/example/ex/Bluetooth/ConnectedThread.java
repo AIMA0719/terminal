@@ -88,7 +88,6 @@ public class ConnectedThread extends Thread  {
                                 if (index== DefaultATCommandArray.length){
                                     Log.d(TAG, "AT Commands setting 완료!");
                                 }
-
                             }
                         }
                         else { // 일반 명령어 입력시

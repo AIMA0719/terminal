@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ex.Bluetooth.BluetoothFragment;
+import com.example.ex.Bluetooth.ConnectedThread;
 import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.DashBoard.DashBoard;
 import com.example.ex.RoomDB.*;
@@ -173,78 +174,80 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) { // 메시지 종류에 따라서
+        new Thread(() -> {
+            mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message msg) { // 메시지 종류에 따라서
 
-                if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
-                    if (msg.obj == null) {
-                        Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
-                    }
-
-                    readmessage += msg.obj;
-                    editText.setText("");
-                    
-                    if (readmessage.contains(">")) {
-                        Log.d(TAG, "Response 메세지 전달 받음");
-                        String[] slicing_data = readmessage.split(">");
-                        Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
-
-                        try {
-                            mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                    if (msg.what == BluetoothFragment.BT_MESSAGE_READ) {
+                        if (msg.obj == null) {
+                            Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                         }
 
-                        if((readmessage.contains("at"))||(readmessage.contains("OBD"))){
-                            Log.d(TAG, "AT command 를 입력 했습니다.");
-                            Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
-                        }else if(readmessage.equals(editText.getText()+"?")){
-                            Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                        }else if(readmessage.contains("NO")){
-                            Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                        }else if(readmessage.contains("ok")||(readmessage.contains("OK"))){
-                            Log.d(TAG, "AT Commands setting중");
-                        }
-                        else {
-                            MainData data1 = new MainData();
-                            data1.setText(slicing_data[0]);
-                            database.mainDao().insert(data1);
-                            dataList.add(data1);
+                        readmessage += msg.obj;
+                        editText.setText("");
 
-                        }
+                        if (readmessage.contains(">")) {
+                            Log.d(TAG, "Response 메세지 전달 받음");
+                            String[] slicing_data = readmessage.split(">");
+                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
+
+                            try {
+                                mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            if((readmessage.contains("at"))||(readmessage.contains("OBD"))){
+                                Log.d(TAG, "AT command 를 입력 했습니다.");
+                                Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
+                            }else if(readmessage.equals(editText.getText()+"?")){
+                                Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                            }else if(readmessage.contains("NO")){
+                                Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                            }else if(readmessage.contains("ok")||(readmessage.contains("OK"))){
+                                Log.d(TAG, "AT Commands setting중");
+                            }
+                            else {
+                                MainData data1 = new MainData();
+                                data1.setText(slicing_data[0]);
+                                database.mainDao().insert(data1);
+                                dataList.add(data1);
+
+                            }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
 //                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
-                    } else {
-                        Log.d(TAG, "마지막 데이터가 아닙니다.");
+                        } else {
+                            Log.d(TAG, "마지막 데이터가 아닙니다.");
+                        }
+
+                        adapter.notifyDataSetChanged();
+
+                        readmessage = ""; // 초기화 시켜줌
+                        Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }
 
-                    adapter.notifyDataSetChanged();
-
-                    readmessage = ""; // 초기화 시켜줌
-                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
-                }
-
-                if (msg.what == MyDialogFragment.BT_CONNECTING_STATUS) {
-                    if (msg.arg1 == 1) {
-                        String[] name = msg.obj.toString().split("\n");
-                        Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
+                    if (msg.what == MyDialogFragment.BT_CONNECTING_STATUS) {
+                        if (msg.arg1 == 1) {
+                            String[] name = msg.obj.toString().split("\n");
+                            Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
 
 //                        mConnectedThread.write("atz>");
 //                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
-                    } else {
-                        Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
 
-                if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
-                    Log.d(TAG, "ECU 로 Request 메세지 전달");
-                }
+                    if (msg.what == BluetoothFragment.BT_MESSAGE_WRITE) {
+                        Log.d(TAG, "ECU 로 Request 메세지 전달");
+                    }
 
-            }
-        }; // 핸들러 ( What에 따라 동작 )
+                }
+            }; // 핸들러 ( What에 따라 동작 )
+        }).start();
 
         btAdd.setOnClickListener(v -> {
             sText = editText.getText().toString().trim();
@@ -320,6 +323,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onRestart(){
         super.onRestart();
+
+        mConnectedThread = new ConnectedThread(mBluetoothSocket,mBluetoothHandler);
+        mConnectedThread.start();
     }
 
     @Override
