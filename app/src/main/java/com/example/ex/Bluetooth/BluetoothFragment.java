@@ -227,6 +227,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
             MyDialogFragment myDialogFragment = new MyDialogFragment();
             myDialogFragment.setArguments(bundle);
+
             transaction.replace(R.id.SecondFragment,myDialogFragment);
             transaction.commit();
 

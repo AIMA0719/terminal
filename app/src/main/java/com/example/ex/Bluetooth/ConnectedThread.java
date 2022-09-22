@@ -61,32 +61,36 @@ public class ConnectedThread extends Thread  {
                         Log.d(TAG, "run: 오류남");
                     }
 
-                        if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
+                    if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
 
-                            if (Data.contains("at")||(Data.contains("OBD"))){ // 초기 AT Commands 세팅
-                                Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
-                                message.sendToTarget();
-                                while (index<9) {
-                                    mConnectedThread.write(DefaultATCommandArray[index]+"\r");
-                                    index += 1;
-                                    sleep(100);
-                                    Log.d(TAG, "AT Commands setting중");
+                        if (Data.contains("at")||(Data.contains("OBD")||(Data.contains("AT")))){ // 초기 AT Commands 세팅
+                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                            message.sendToTarget();
+                            while (index<DefaultATCommandArray.length) {
+                                mConnectedThread.write(DefaultATCommandArray[index]+"\r");
+                                sleep(100);
+                                Log.d(TAG, DefaultATCommandArray[index]+" setting Ok");
+                                index += 1;
+                                if (index== DefaultATCommandArray.length){
+                                    Log.d(TAG, "AT Commands setting 완료!");
                                 }
-                            }else { // 일반 명령어 입력시
-                                Log.d(TAG, "Request 메세지 전달 받음");
-                                Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
-                                message.sendToTarget();
-                                Log.d(TAG, "핸드폰으로 Response 메세지 전달");
+
                             }
+                        }else { // 일반 명령어 입력시
+                            Log.d(TAG, "Request 메세지 전달 받음");
+                            Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                            message.sendToTarget();
+                            Log.d(TAG, "핸드폰으로 Response 메세지 전달");
+                        }
 
-                            Data = ""; // Data 마지막이니까 초기화해줌 안해주면 계속 쌓인다
+                        Data = ""; // Data 마지막이니까 초기화해줌 안해주면 계속 쌓인다
 //                            Log.d(TAG, "마지막 데이터 입니다.");
-                        }
-                        else if(Data.contains("at")||(Data.contains("AT"))){
+                    }
+                    else if(Data.contains("at")||(Data.contains("AT")||(Data.contains("OBD")))){
+                        Log.d(TAG, "제발..");
+                    }
 
-                        }
-
-                }
+                    }
 
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();

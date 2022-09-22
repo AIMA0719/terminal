@@ -85,6 +85,7 @@ public class MyDialogFragment extends DialogFragment {
             String[] slicing_name = bluetooth_name.split("\n");
 
             name.setText(slicing_name[0] +"\n"+ "기기와 연결 하시겠습니까?");
+
         }
 
 
@@ -135,7 +136,7 @@ public class MyDialogFragment extends DialogFragment {
                             mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
 
                             Intent intent = new Intent(getContext(), MainActivity.class);
-                            intent.putExtra("데이터",device.getName());
+                            intent.putExtra("데이터",getArguments().getString("이름"));
                             startActivity(intent);
                         }
                     }

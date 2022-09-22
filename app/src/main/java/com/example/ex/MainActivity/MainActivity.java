@@ -105,6 +105,19 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
+        Intent intent = getIntent(); // device.getName 가져옴
+        if (intent != null) {
+            String data = intent.getStringExtra("데이터");
+            if (data != null) {
+                Log.d(TAG, "연결된 블루투스 기기 : " + data);
+                bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
+
+                Intent intent1 = new Intent(this,DashBoard.class);
+                intent1.putExtra("기기이름",data);
+                startActivity(intent1);
+            }
+        }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -118,14 +131,6 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
-        Intent intent = getIntent(); // device.getName 가져옴
-        if (intent != null) {
-            String data = intent.getStringExtra("데이터");
-            if (data != null) {
-                Log.d(TAG, "연결된 블루투스 기기 : " + data);
-                bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
-            }
-        }
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -204,10 +209,10 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "AT Commands setting중");
                         }
                         else {
-                                MainData data1 = new MainData();
-                                data1.setText(slicing_data[0]);
-                                database.mainDao().insert(data1);
-                                dataList.add(data1);
+                            MainData data1 = new MainData();
+                            data1.setText(slicing_data[0]);
+                            database.mainDao().insert(data1);
+                            dataList.add(data1);
 
                         }
 
@@ -228,7 +233,6 @@ public class MainActivity extends AppCompatActivity {
                     if (msg.arg1 == 1) {
                         String[] name = msg.obj.toString().split("\n");
                         Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
-                        bluetooth_status.setText(name[0]);
 
 //                        mConnectedThread.write("atz>");
 //                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
@@ -248,8 +252,7 @@ public class MainActivity extends AppCompatActivity {
             sText = editText.getText().toString().trim();
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
-                    sText = sText + "\r";
-                    BluetoothFragment.mConnectedThread.write(sText);
+                    BluetoothFragment.mConnectedThread.write(sText+"\r");
                     Log.d(TAG, "Request 메세지 : " + sText);
 
                     MainData data = new MainData();

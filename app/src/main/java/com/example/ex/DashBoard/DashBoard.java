@@ -1,12 +1,16 @@
 package com.example.ex.DashBoard;
 
 
+import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
+import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
@@ -43,7 +47,10 @@ public class DashBoard extends AppCompatActivity {
     public static final int CIRCLE_DEGREES = 360;
     public static DashBoardThread mDashBoardThread;
     public BluetoothSocket mBluetoothSocket;
+    public BluetoothAdapter mBluetoothAdapter;
+    public BluetoothDevice device;
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
+    public String device_name;
 
 
     @Override
@@ -57,6 +64,52 @@ public class DashBoard extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
+
+        Intent intent = getIntent();
+        device_name = intent.getStringExtra("기기이름").split("\n")[1];
+        Log.e(TAG, "대쉬보드에 들어옴");
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        boolean fail = false;
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        device = mBluetoothAdapter.getRemoteDevice(device_name);
+
+        try {
+            mBluetoothSocket = createBluetoothSocket(device);
+            Log.d(TAG, "소켓 생성 완료!");
+        } catch (IOException e) {
+            fail = true;
+            Toast.makeText(getApplicationContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+        }
+        try {
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            mBluetoothSocket.connect();
+            Log.d(TAG, "소켓 연결 완료!");
+        } catch (IOException e) {
+            try {
+                fail = true;
+                mBluetoothSocket.close();
+            } catch (IOException e2) {
+                Log.e(TAG, "소켓 생성 실패!");
+            }
+        }
+        if (!fail) {
+            DashBoardThread mDashBoardThread = new DashBoardThread(mBluetoothSocket);
+            mDashBoardThread.start();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         //----------------------pieChart setting
 
@@ -110,42 +163,14 @@ public class DashBoard extends AppCompatActivity {
         }).start();
     }
 
-    //@Override
-    //public void onResume(){
-    //    super.onResume();
-//
-    //    boolean fail = false;
-//
-    //    device = MyDialogFragment.mBluetoothAdapter.getRemoteDevice(getArguments().getString("이름").split("\n")[1]);
-//
-    //    try {
-    //        mBluetoothSocket = createBluetoothSocket(device);
-    //        Log.d(TAG, "소켓 생성 완료!");
-    //    } catch (IOException e) {
-    //        fail = true;
-    //        Toast.makeText(getApplicationContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-    //    }
-    //    try {
-    //        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//
-    //            return;
-    //        }
-    //        mBluetoothSocket.connect();
-    //        Log.d(TAG, "소켓 연결 완료!");
-    //    } catch (IOException e) {
-    //        try {
-    //            fail = true;
-    //            mBluetoothSocket.close();
-    //        } catch (IOException e2) {
-    //            Log.e(TAG, "소켓 생성 실패!");
-    //        }
-    //    }
-    //    if (!fail) {
-    //        DashBoardThread mDashBoardThread = new DashBoardThread(mBluetoothSocket);
-    //        mDashBoardThread.start();
-    //    }
-    //}
-
+    public void onDestroy(){
+        super.onDestroy();
+        try {
+            mBluetoothSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
@@ -156,10 +181,6 @@ public class DashBoard extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
-
-    public void onDestroy(){
-        super.onDestroy();
-    }
 
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
