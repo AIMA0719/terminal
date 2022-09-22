@@ -1,85 +1,150 @@
 package com.example.ex.DashBoard;
 
-import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.motion.utils.Easing;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Picture;
-import android.os.Build;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.ex.Bluetooth.BluetoothFragment;
+import com.example.ex.Bluetooth.ConnectedThread;
+import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
-import com.github.mikephil.charting.charts.HorizontalBarChart;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.Random;
+import java.util.ResourceBundle;
+import java.util.UUID;
 
-import at.grabner.circleprogress.CircleProgressView;
-import az.plainpie.PieView;
-import az.plainpie.animation.PieAngleAnimation;
 
 public class DashBoard extends AppCompatActivity {
 
-    private static final int MAX_X_VALUE = 4;
-    private static final float MAX_Y_VALUE = 4;
-    private static final float MIN_Y_VALUE = 1;
-    private static final String SET_LABEL = "dash";
-    public PieChart pieChart;
-    String TAG = "DashBoard_Activity";
+    public final String TAG = "DashBoard_Activity";
+    public int value = 0;
+    public static int mMaxPercentage = 100;
+    public static int mPercentage = 0;
+    public static int mAngle = 0;
+    public static final int CIRCLE_DEGREES = 360;
+    public static DashBoardThread mDashBoardThread;
+    public BluetoothSocket mBluetoothSocket;
+    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
 
-        //-------------------
+        //------------------- Toolbar setting
         Toolbar toolbar = findViewById(R.id.DashBoard_toolbar);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
 
-        PieView pieView = findViewById(R.id.pieView);
-        pieView.setPercentageBackgroundColor(R.color.purple_200);
+        //----------------------pieChart setting
 
-        pieView.setPieInnerPadding(30);
+        CustomPieChart SpeedPie = findViewById(R.id.pieView_speed);
+        CustomPieChart RpmPie = findViewById(R.id.pieView_rpm);
 
+        SpeedPie.setPercentageBackgroundColor(R.color.purple_200);
+        RpmPie.setPercentageBackgroundColor(R.color.purple_200);
+
+        SpeedPie.setPieInnerPadding(30);
+        RpmPie.setPieInnerPadding(30);
         // Update the visibility of the widget text
-        pieView.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
-        pieView.setPercentage(33);
-        pieView.setInnerText("속도"); // 안에 텍스트 변경
-        pieView.setPercentageTextSize(35); //안에 텍스트 사이즈
+        SpeedPie.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
+        SpeedPie.setPercentageTextSize(35); //안에 텍스트 사이즈
 
+        RpmPie.setInnerTextVisibility(View.VISIBLE); // 안에 텍스트 보여주기
+        RpmPie.setPercentageTextSize(35); //안에 텍스트 사이즈
 
+        //----------------------pieChart control
 
+        Handler handler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if(msg.what == DashBoardThread.DATA_SEND){
+                    Log.e(TAG, "handleMessage: "+msg.obj );
+                }
+
+            }
+        };
+
+        new Thread(() -> {
+            while (true){
+                value += 1;
+                if (value>100){
+                    value = 1;
+                }
+                handler.post(() -> {
+                    SpeedPie.setInnerText(String.valueOf(value)); // 안에 값 변경
+                    SpeedPie.setPercentage(value); // 퍼센트 변경
+
+                    RpmPie.setInnerText(String.valueOf(value));
+                    RpmPie.setPercentage(value*2);
+
+                });
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
+
+    //@Override
+    //public void onResume(){
+    //    super.onResume();
+//
+    //    boolean fail = false;
+//
+    //    device = MyDialogFragment.mBluetoothAdapter.getRemoteDevice(getArguments().getString("이름").split("\n")[1]);
+//
+    //    try {
+    //        mBluetoothSocket = createBluetoothSocket(device);
+    //        Log.d(TAG, "소켓 생성 완료!");
+    //    } catch (IOException e) {
+    //        fail = true;
+    //        Toast.makeText(getApplicationContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+    //    }
+    //    try {
+    //        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//
+    //            return;
+    //        }
+    //        mBluetoothSocket.connect();
+    //        Log.d(TAG, "소켓 연결 완료!");
+    //    } catch (IOException e) {
+    //        try {
+    //            fail = true;
+    //            mBluetoothSocket.close();
+    //        } catch (IOException e2) {
+    //            Log.e(TAG, "소켓 생성 실패!");
+    //        }
+    //    }
+    //    if (!fail) {
+    //        DashBoardThread mDashBoardThread = new DashBoardThread(mBluetoothSocket);
+    //        mDashBoardThread.start();
+    //    }
+    //}
 
 
     @Override
@@ -92,13 +157,20 @@ public class DashBoard extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
 
-    @Override
-    public void onResume(){
-        super.onResume();
-
-    }
-
     public void onDestroy(){
         super.onDestroy();
     }
+
+
+    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+        try {
+            final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
+            return (BluetoothSocket) m.invoke(device, MY_UUID);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
+        }
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        }
+        return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
+    } // 소켓 만들기 위한 메소드
 }

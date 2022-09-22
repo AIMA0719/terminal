@@ -69,6 +69,7 @@ public class ConnectedThread extends Thread  {
                                 while (index<9) {
                                     mConnectedThread.write(DefaultATCommandArray[index]+"\r");
                                     index += 1;
+                                    sleep(100);
                                     Log.d(TAG, "AT Commands setting중");
                                 }
                             }else { // 일반 명령어 입력시
@@ -87,7 +88,7 @@ public class ConnectedThread extends Thread  {
 
                 }
 
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
 
                 break;
