@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.e(TAG, "메인 엑티비티에 들어옴" );
 
         list_item = findViewById(R.id.text_view);
         editText = findViewById(R.id.command_write);
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null) {
             String data = intent.getStringExtra("데이터");
             if (data != null) {
-                Log.d(TAG, "연결된 블루투스 기기 : " + data);
+                Log.d(TAG, "연결된 블루투스 기기 : " + data.split("\n")[0]);
                 bluetooth_status.setText(data + " 기기랑 연결 상태입니다.");
 
             }

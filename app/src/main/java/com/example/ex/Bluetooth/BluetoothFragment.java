@@ -94,6 +94,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
         View view = inflater.inflate(R.layout.bluetooth_fragment, container, false);
         Context context = view.getContext();
+        Log.e(TAG, "블루투스 프래그먼트에 들어옴");
 
         bluetooth_status = view.findViewById(R.id.bluetooth_status2);
         bluetooth_on = view.findViewById(R.id.bluetooth_on);

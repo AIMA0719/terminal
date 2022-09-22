@@ -93,7 +93,7 @@ public class DashBoard extends AppCompatActivity {
                 return;
             }
             mBluetoothSocket.connect();
-            Log.d(TAG, "소켓 연결 완료!");
+            Log.d(TAG, "소켓 연결 실패!");
         } catch (IOException e) {
             try {
                 fail = true;
@@ -105,6 +105,7 @@ public class DashBoard extends AppCompatActivity {
         if (!fail) {
             DashBoardThread mDashBoardThread = new DashBoardThread(mBluetoothSocket);
             mDashBoardThread.start();
+            Log.d(TAG, "대쉬보드 쓰레드 시작");
         }
     }
 
