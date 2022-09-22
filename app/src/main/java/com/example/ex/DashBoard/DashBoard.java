@@ -5,13 +5,10 @@ import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import com.example.ex.Bluetooth.BluetoothFragment;
-import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -22,23 +19,19 @@ import android.view.View;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.UUID;
 
 public class DashBoard extends AppCompatActivity {
 
     public final String TAG = "DashBoard_Activity";
     public int value = 0;
-    public int i;
     public static int mMaxPercentage = 100;
     public static int mPercentage = 0;
     public static int mAngle = 0;
     public static final int CIRCLE_DEGREES = 360;
     public BluetoothSocket mBluetoothSocket;
     public BluetoothDevice device;
-    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
-    public final String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
+    public String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
     public String device_name;
 
     @Override
@@ -74,6 +67,7 @@ public class DashBoard extends AppCompatActivity {
             public void handleMessage(@NonNull Message msg) {
                 if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
                     if(msg.obj != null){
+
                         Log.e(TAG, "handleMessage123: "+msg.obj );
                     }
                 }
@@ -102,7 +96,6 @@ public class DashBoard extends AppCompatActivity {
 
         new Thread(() -> {
             while (true){
-                BluetoothFragment.mConnectedThread.write(DashBoard_Data[i]+"\r");
                 value += 1;
                 if (value>100){
                     value = 1;
@@ -116,9 +109,22 @@ public class DashBoard extends AppCompatActivity {
 
                 });
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(() ->{
+            while (true){
+                for (String dashBoard_datum : DashBoard_Data) {
+                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

@@ -52,7 +52,6 @@ public class MyDialogFragment extends DialogFragment {
 
     public static final int BT_CONNECTING_STATUS = 1;
     public static final int BT_MESSAGE_READ = 3;
-    public static final int BT_SETTINGS = 2;
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
@@ -183,11 +182,7 @@ public class MyDialogFragment extends DialogFragment {
 
     public void onDestroy(){
         super.onDestroy();
-        try {
-            mBluetoothSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
 
