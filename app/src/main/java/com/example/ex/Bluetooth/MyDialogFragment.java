@@ -1,35 +1,23 @@
 package com.example.ex.Bluetooth;
 
-import static com.example.ex.Bluetooth.BluetoothFragment.BT_CONNECTING_STATUS;
-import static com.example.ex.Bluetooth.BluetoothFragment.BT_MESSAGE_WRITE;
 import static com.example.ex.Bluetooth.BluetoothFragment.device;
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,15 +25,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.ex.MainActivity.MainActivity;
-import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.R;
-import com.example.ex.RoomDB.MainData;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MyDialogFragment extends DialogFragment {
@@ -94,7 +77,7 @@ public class MyDialogFragment extends DialogFragment {
                 @Override
                 public void run() {
 
-                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
                     if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
@@ -115,7 +98,7 @@ public class MyDialogFragment extends DialogFragment {
                     }
                     // Establish the Bluetooth socket connection.
                     try {
-                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
                             return;
                         }
@@ -155,7 +138,7 @@ public class MyDialogFragment extends DialogFragment {
 
         btn_no.setOnClickListener(v -> {
 
-            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction(); // bluetooth fragment로 이동
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction(); // bluetooth fragment로 이동
             BluetoothFragment bluetoothFragment = new BluetoothFragment();
             transaction.replace(R.id.SecondFragment,bluetoothFragment);
             transaction.commit();
@@ -174,7 +157,7 @@ public class MyDialogFragment extends DialogFragment {
         } catch (Exception e) {
             Log.e(TAG, "Could not create Insecure RFComm Connection", e);
         }
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
         }
         return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
     } // 소켓 만들기 위한 메소드
@@ -182,8 +165,7 @@ public class MyDialogFragment extends DialogFragment {
     public boolean isConnected(BluetoothDevice device) {
         try {
             Method m = device.getClass().getMethod("isConnected", (Class[]) null);
-            boolean connected = (boolean) m.invoke(device, (Object[]) null);
-            return connected;
+            return (boolean) m.invoke(device, (Object[]) null);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

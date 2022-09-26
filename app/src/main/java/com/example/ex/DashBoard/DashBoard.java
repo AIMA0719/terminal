@@ -16,11 +16,6 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
-
-import com.example.ex.Bluetooth.*;
-
-
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
 import java.io.IOException;
@@ -143,48 +138,49 @@ public class DashBoard extends AppCompatActivity {
             };
 
             while (run){
-                for (String dashBoard_datum : DashBoard_Data) {
-                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
-                    try {
-                        Thread.sleep(180);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                if(BluetoothFragment.mConnectedThread!= null) {
+                    for (String dashBoard_datum : DashBoard_Data) {
+                        BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
 
                     mBluetoothHandler.post(() -> { // DashBoard UI control
-                        if (Speed_data!=null){
-                            SpeedPie.setInnerText(Speed_data+" Km/h"); // 안에 값 변경
-                            SpeedPie.setPercentage(Float.parseFloat(Speed_data)*mMaxPercentage/255); // 퍼센트 변경
-                        }else {
-                            SpeedPie.setInnerText("No data"); // 안에 값 변경
+                        if (Speed_data != null) {
+                            SpeedPie.setInnerText(Speed_data + " Km/h"); // 안에 값 변경
+                            SpeedPie.setPercentage(Float.parseFloat(Speed_data) * mMaxPercentage / 255); // 퍼센트 변경
+                        } else {
+                            SpeedPie.setInnerText("잠시만요"); // 안에 값 변경
                         }
-                        if(Tmp_data!=null){
-                            TmpPie.setInnerText(Tmp_data+" °C");
-                            TmpPie.setPercentage(Float.parseFloat(Tmp_data)*mMaxPercentage/215); // 퍼센트 변경
-                        }else {
-                            TmpPie.setInnerText("No data");
-                        }
-
-                        if(Rpm_data!=null){
-                            RpmPie.setInnerText(Rpm_data+" Rpm");
-                            RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data)*mMaxPercentage/16383.75)); // 퍼센트 변경
-                        }else {
-                            RpmPie.setInnerText("No data");
+                        if (Tmp_data != null) {
+                            TmpPie.setInnerText(Tmp_data + " °C");
+                            TmpPie.setPercentage(Float.parseFloat(Tmp_data) * mMaxPercentage / 215); // 퍼센트 변경
+                        } else {
+                            TmpPie.setInnerText("잠시만요");
                         }
 
-                        if(Maf_data!=null){
-                            MafPie.setInnerText(Maf_data+" g/s");
-                            MafPie.setPercentage((float) (Float.parseFloat(Maf_data)*mMaxPercentage/655.35)); // 퍼센트 변경
-                        }else {
-                            MafPie.setInnerText("No data");
+                        if (Rpm_data != null) {
+                            RpmPie.setInnerText(Rpm_data + " Rpm");
+                            RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data) * mMaxPercentage / 16383.75)); // 퍼센트 변경
+                        } else {
+                            RpmPie.setInnerText("잠시만요");
                         }
 
-                        if(Volt_data!=null){
-                            VoltPie.setInnerText(Volt_data+" v"); // 배터리 전압인데 12V에서 안 변한다.
-                            VoltPie.setPercentage((float) (Float.parseFloat(Volt_data)*mMaxPercentage/65.535)); // 퍼센트 변경
-                        }else {
-                            VoltPie.setInnerText("No data");
+                        if (Maf_data != null) {
+                            MafPie.setInnerText(Maf_data + " g/s");
+                            MafPie.setPercentage((float) (Float.parseFloat(Maf_data) * mMaxPercentage / 655.35)); // 퍼센트 변경
+                        } else {
+                            MafPie.setInnerText("잠시만요");
+                        }
+
+                        if (Volt_data != null) {
+                            VoltPie.setInnerText(Volt_data + " v"); // 배터리 전압인데 12V에서 안 변한다.
+                            VoltPie.setPercentage((float) (Float.parseFloat(Volt_data) * mMaxPercentage / 65.535)); // 퍼센트 변경
+                        } else {
+                            VoltPie.setInnerText("잠시만요");
                         }
 
                     });
@@ -193,6 +189,8 @@ public class DashBoard extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }
+                
                 if (!run) {
                     break;
                 }

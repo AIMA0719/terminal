@@ -58,21 +58,19 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
-
     public EditText editText;
-    Button btAdd, btReset;
-    RecyclerView recyclerView;
-    List<MainData> dataList = new ArrayList<>();
-    RoomDB database;
-    MainAdapter adapter;
-    TextView list_item;
-    BluetoothFragment bluetoothFragment;
-    TextFileManager mTextFileManager = new TextFileManager(this);
-
-    String readdress = ""; // 핸들러로 받은 메세지 저장
-    String sText = "";
-    boolean flag = false;
-    boolean bluetooth_flag = false;
+    public Button btAdd, btReset;
+    public RecyclerView recyclerView;
+    public List<MainData> dataList = new ArrayList<>();
+    public RoomDB database;
+    public MainAdapter adapter;
+    public TextView list_item;
+    public BluetoothFragment bluetoothFragment;
+    public TextFileManager mTextFileManager = new TextFileManager(this);
+    public String readdress = ""; // 핸들러로 받은 메세지 저장
+    public String sText = ""; // editText 창에 입력한 메세지
+    public boolean flag = false;
+    public boolean bluetooth_flag = false;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -107,16 +105,6 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
-//        Intent intent = getIntent(); // device.getName 가져옴
-//        if (intent != null) {
-//            String data = intent.getStringExtra("데이터");
-//            if (data != null) {
-//                String [] data2 = data.split("\n");
-//                Log.d(TAG, "연결된 블루투스 기기 : " + data2[0]);
-//                bluetooth_status.setText(data2[0] + " 기기랑 연결 상태입니다.");
-//
-//            }
-//        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -134,30 +122,35 @@ public class MainActivity extends AppCompatActivity {
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
         int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+        int permission5 = ContextCompat.checkSelfPermission(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        int permission6 = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permission7 = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
-                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
+                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED||
+        permission5 == PackageManager.PERMISSION_DENIED||permission6 == PackageManager.PERMISSION_GRANTED||permission7 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
             try {
-                requestPermissions(new String[]{ //위치권한요청
+                requestPermissions(new String[]{ //안 열려있으면 권한 요청
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_SCAN}, 1);
+                        Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 1);
 
             } catch (Exception e) {
                 Log.d(TAG, "권한 오류", e);
-                return;
-            }
-        }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             requestPermissions(
                     new String[]{
                             Manifest.permission.BLUETOOTH,
                             Manifest.permission.BLUETOOTH_SCAN,
                             Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT
-
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE
                     },
                     1);
         } else {
@@ -266,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll());
 
                     try {
-                        mTextFileManager.save(sText + ">>"); // File에 add , >> 는 구분 용
+                        mTextFileManager.save(sText + "::"); // File에 add
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -352,8 +345,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 1) {
             boolean check_result = false;  //  권한 체크 했니?
 
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { //SDK 31 미만이면 블루투스 스캔 권한 없어도 됨.
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) { //SDK 31 미만이면 블루투스 스캔 권한 없어도 됨.
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
                         ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                     check_result = true;
@@ -384,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
 
-    @SuppressLint("NonConstantResourceId")
+    @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
@@ -403,7 +395,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
 
             case R.id.log_load:  // log 버튼 클릭
-                if (!editText.getText().equals("")) {
                     String a = mTextFileManager.load();
 
                     if (a == null) {
@@ -412,11 +403,14 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             mTextFileManager.save(a);
                             Toast.makeText(this, "Text 파일로 저장 되었습니다.", Toast.LENGTH_SHORT).show();
+                            database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
+                            dataList.clear(); // 어플 시작할때마다 리스트 초기화
+                            adapter.notifyDataSetChanged(); //갱신
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                }
+
 
                 return true;
 
