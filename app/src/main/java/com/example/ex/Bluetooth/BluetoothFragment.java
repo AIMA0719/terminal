@@ -88,7 +88,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bluetooth_fragment, container, false);
         Context context = view.getContext();
         Log.e(TAG, "블루투스 프래그먼트에 들어옴");
@@ -129,7 +129,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         //------------------------
 
         CheckPairedDevice(); // 등록된 디바이스 출력
-
+        CheckScanDevice(); // 연결 가능한 디바이스 출력
 
         bluetooth_on.setOnClickListener(v -> {
             if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
@@ -176,37 +176,18 @@ public class BluetoothFragment extends Fragment implements Serializable {
             }
         }); // Bluetooth off 클릭
 
-        bluetooth_scan.setOnClickListener(v -> { // 연결 가능한 디바이스 검색 버튼 클릭 이벤트 처리 부분
-
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-            startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
-
-            try {
-                if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
-                    mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                } else {
-                    mBluetoothAdapter.startDiscovery(); //검색 시작
-                    //Log.d(TAG, "디바이스 검색 했습니다.");
-                    adapter2.notifyDataSetChanged();
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "Discover error" + e);
-            }
-        }); // Bluetooth scan 클릭
-
         adapter.setOnItemClickListener((position, view2) -> { // 등록된 디바이스  클릭
 
             String name1 = paired_list.get(position).getName();
             String[] address1 = name1.split("\n");
 
             Bundle bundle = new Bundle();
-            bundle.putString("이름",paired_list.get(position).getName());
+            bundle.putString("이름", paired_list.get(position).getName());
 
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
             MyDialogFragment myDialogFragment = new MyDialogFragment();
             myDialogFragment.setArguments(bundle);
-            transaction.replace(R.id.SecondFragment,myDialogFragment);
+            transaction.replace(R.id.SecondFragment, myDialogFragment);
             transaction.commit();
 
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address1[0]);
@@ -220,13 +201,13 @@ public class BluetoothFragment extends Fragment implements Serializable {
             String[] address = name.split("\n");
 
             Bundle bundle = new Bundle();
-            bundle.putString("이름",scan_list.get(position).getName());
+            bundle.putString("이름", scan_list.get(position).getName());
 
             FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
             MyDialogFragment myDialogFragment = new MyDialogFragment();
             myDialogFragment.setArguments(bundle);
 
-            transaction.replace(R.id.SecondFragment,myDialogFragment);
+            transaction.replace(R.id.SecondFragment, myDialogFragment);
             transaction.commit();
 
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address[0]);
@@ -236,7 +217,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         return view;
     }
 
-    public void CheckPairedDevice(){
+    public void CheckPairedDevice() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
@@ -259,6 +240,29 @@ public class BluetoothFragment extends Fragment implements Serializable {
         listView_pairing.setAdapter(adapter);
     } // 등록된 디바이스 출력
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void CheckScanDevice() {
+
+        //Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        //discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        //startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
+
+        try {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+            } else {
+                mBluetoothAdapter.startDiscovery(); //검색 시작
+                //Log.d(TAG, "디바이스 검색 했습니다.");
+                adapter2.notifyDataSetChanged();
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Discover error" + e);
+        }
+    }
+
     private final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
         int cnt = 0;
 
@@ -274,7 +278,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
                     } else {
                         if (device.getName() != null) {
-                            scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName()+"\n"+device.getAddress()));
+                            scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress()));
                             adapter2.notifyDataSetChanged(); //갱신
                             cnt += 1;
                         }
@@ -288,7 +292,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
                     if (device.getName() != null) {
-                        scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName()+"\n"+device.getAddress()));
+                        scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress()));
                         adapter2.notifyDataSetChanged(); //갱신
                         cnt += 1;
                     }
@@ -311,6 +315,12 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         toolbar.setNavigationIcon(R.drawable.ic_baseline_keyboard_backspace_24);
         toolbar.setNavigationOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+            }
             Intent intent = new Intent(getContext(),MainActivity.class);
             startActivity(intent);
         });
