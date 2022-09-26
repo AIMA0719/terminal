@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
     public EditText editText;
-    public Button btAdd, btReset;
+    public Button btAdd, btReset,AT,OBD;
     public RecyclerView recyclerView;
     public List<MainData> dataList = new ArrayList<>();
     public RoomDB database;
@@ -71,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
     public String sText = ""; // editText 창에 입력한 메세지
     public boolean flag = false;
     public boolean bluetooth_flag = false;
+    private Fragment AtCommandsFragment;
+    private Fragment ObdPidsFragment;
+
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -85,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
+        AT = findViewById(R.id.AT_Commands);
+        OBD = findViewById(R.id.OBD_PIDS);
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
@@ -118,48 +124,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); //갱신
         // --------
 
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
-        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
-        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
-        int permission5 = ContextCompat.checkSelfPermission(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE);
-        int permission6 = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permission7 = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
-                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED||
-        permission5 == PackageManager.PERMISSION_DENIED||permission6 == PackageManager.PERMISSION_GRANTED||permission7 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
-            try {
-                requestPermissions(new String[]{ //안 열려있으면 권한 요청
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.MANAGE_EXTERNAL_STORAGE}, 1);
-
-            } catch (Exception e) {
-                Log.d(TAG, "권한 오류", e);
-
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH,
-                            Manifest.permission.BLUETOOTH_SCAN,
-                            Manifest.permission.BLUETOOTH_ADVERTISE,
-                            Manifest.permission.BLUETOOTH_CONNECT,
-                            Manifest.permission.MANAGE_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE
-                    },
-                    1);
-        } else {
-            requestPermissions(
-                    new String[]{
-                            Manifest.permission.BLUETOOTH
-                    },
-                    1);
-        }
+        CheckPermission();
     }
 
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
@@ -305,6 +270,32 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
         }); // -------- Window clear 버튼 클릭이벤트
 
+        AT.setOnClickListener(view -> {
+            try {
+                AtCommands(); // 프래그먼트로 이동하는 코드
+
+                FragmentManager fm1 = getSupportFragmentManager();
+                FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
+                ft1.replace(R.id.FirstFragment, AtCommandsFragment);
+                ft1.commit();
+            } catch (Exception e) {
+                Log.d(TAG, "Error :" + e);
+            }
+        });
+
+        OBD.setOnClickListener(view ->{
+            try {
+                ObdPids(); // 프래그먼트로 이동하는 코드
+
+                FragmentManager fm1 = getSupportFragmentManager();
+                FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
+                ft1.replace(R.id.FirstFragment, ObdPidsFragment);
+                ft1.commit();
+            } catch (Exception e) {
+                Log.d(TAG, "Error :" + e);
+            }
+        });
+
     }
 
     @Override
@@ -338,6 +329,46 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         finish();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
+    public void CheckPermission(){
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permission3 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT);
+        int permission4 = ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN);
+        int permission5 = ContextCompat.checkSelfPermission(this,Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        int permission6 = ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permission7 = ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if(permission == PackageManager.PERMISSION_DENIED || permission2 == PackageManager.PERMISSION_DENIED ||
+                permission3 == PackageManager.PERMISSION_DENIED || permission4 == PackageManager.PERMISSION_DENIED||
+                permission5 == PackageManager.PERMISSION_DENIED|| permission6 == PackageManager.PERMISSION_DENIED||
+                permission7 == PackageManager.PERMISSION_DENIED) {  // 권한이 열려있는지 확인
+            try {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S){  // SDK가 31 미만이면
+                    requestPermissions(new String[]{ //안 열려있으면 권한 요청
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.BLUETOOTH
+                    }, 1);
+                }else if ( Build.VERSION.SDK_INT > Build.VERSION_CODES.S){ //SDK가 31 이상이면
+                    requestPermissions(
+                            new String[]{
+                                    Manifest.permission.BLUETOOTH,
+                                    Manifest.permission.BLUETOOTH_SCAN,
+                                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                                    Manifest.permission.BLUETOOTH_CONNECT,
+                                    Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                            },
+                            1);
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "권한 오류", e);
+            }
+        }
     }
 
     @Override
@@ -383,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.blutooth_connect:
                 try {
-                    FragmentView(); // 프래그먼트로 이동하는 코드
+                    BluetoothFragment(); // 프래그먼트로 이동하는 코드
 
                     FragmentManager fm1 = getSupportFragmentManager();
                     FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
@@ -476,7 +507,27 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void FragmentView() {
+    private void BluetoothFragment() {
+
+        bluetoothFragment = new BluetoothFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.FirstFragment, bluetoothFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void AtCommands() {
+
+        bluetoothFragment = new BluetoothFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.FirstFragment, AtCommandsFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void ObdPids() {
 
         bluetoothFragment = new BluetoothFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();

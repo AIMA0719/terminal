@@ -39,14 +39,10 @@ import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.MainActivity.MyItemRecyclerViewAdapter;
 import com.example.ex.R;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 
 public class BluetoothFragment extends Fragment implements Serializable {
 
@@ -83,13 +79,12 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.bluetooth_fragment, container, false);
+        View view = inflater.inflate(R.layout.fragment_bluetooth, container, false);
         Context context = view.getContext();
         Log.e(TAG, "블루투스 프래그먼트에 들어옴");
 
