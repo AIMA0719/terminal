@@ -16,6 +16,9 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import com.example.ex.Bluetooth.*;
+
+
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
 import java.io.IOException;
@@ -24,7 +27,6 @@ import java.util.Objects;
 public class DashBoard extends AppCompatActivity {
 
     public final String TAG = "DashBoard_Activity";
-    public int value = 0;
     public static int mMaxPercentage = 100;
     public static int mPercentage = 0;
     public static int mAngle = 0;
@@ -32,12 +34,14 @@ public class DashBoard extends AppCompatActivity {
     public BluetoothSocket mBluetoothSocket;
     public BluetoothDevice device;
     public String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
-    public String device_name;
     public String Speed_data;
     public String Rpm_data;
     public String Tmp_data;
     public String Volt_data;
-    public String Maf_data ="";
+    public String Maf_data;
+    public static Thread DashBoardThread;
+    private boolean run;
+    public ConnectedThread mConnectedThread;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,74 @@ public class DashBoard extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //-------------------
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        setRun(true);
+
+        Log.e(TAG, "대쉬보드에 들어옴");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mBluetoothHandler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
+                    if(msg.obj != null){
+                        String data = msg.obj.toString();
+                        String [] a = data.split(">");
+
+                        if(a[0].contains("010d")){ // 속도 = A
+                            int A = Integer.parseInt(a[0].substring(11,13),16);
+                            Speed_data = String.valueOf(A);
+
+                        }else if(a[0].contains("0105")){ // 냉각수 = A-40
+                            int A = Integer.parseInt(a[0].substring(11,13),16);
+                            Tmp_data = String.valueOf(A-40);
+
+                        }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
+                            String A = a[0].substring(11,13);
+                            String B = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 4;
+                            Rpm_data = String.valueOf(real_real);
+
+                        }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
+                            String A = a[0].substring(11,13);
+                            String B = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16) )/ 100;
+                            Maf_data = String.valueOf(real_real);
+
+                        }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
+                            String A = a[0].substring(11,13);
+                            String B = a[0].substring(14,16);
+                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 1000;
+                            Volt_data = String.valueOf(real_real);
+                        }
+                    }
+                }
+            }
+        };
+
+        DashBoardThread = new Thread(() ->{
+            run = true;
+            while (run){
+                for (String dashBoard_datum : DashBoard_Data) {
+                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
+                    try {
+                        Thread.sleep(180);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        DashBoardThread.start();
 
         //----------------------pieChart setting
 
@@ -64,7 +136,6 @@ public class DashBoard extends AppCompatActivity {
         RpmPie.setPercentageBackgroundColor(R.color.purple_200);
         VoltPie.setPercentageBackgroundColor(R.color.purple_200);
         MafPie.setPercentageBackgroundColor(R.color.purple_200);
-
 
         SpeedPie.setPieInnerPadding(30); //안에 패딩 얼마나
         TmpPie.setPieInnerPadding(30);
@@ -89,22 +160,40 @@ public class DashBoard extends AppCompatActivity {
 
         Thread pieChartThread =  new Thread(() -> {
             while (true){
-                value += 1;
-                if (value>100){
-                    value = 1;
-                }
                 mBluetoothHandler.post(() -> {
-                    SpeedPie.setInnerText(Speed_data+" km/h"); // 안에 값 변경
-                    //SpeedPie.setPercentage(value); // 퍼센트 변경
+                    if (Speed_data!=null){
+                        SpeedPie.setInnerText(Speed_data+" km/h"); // 안에 값 변경
+                        SpeedPie.setPercentage(Float.parseFloat(Speed_data)*mMaxPercentage/255); // 퍼센트 변경
+                    }else {
+                        SpeedPie.setInnerText("No data"); // 안에 값 변경
+                    }
+                    if(Tmp_data!=null){
+                        TmpPie.setInnerText(Tmp_data+" °C");
+                        TmpPie.setPercentage(Float.parseFloat(Tmp_data)*mMaxPercentage/215); // 퍼센트 변경
+                    }else {
+                        TmpPie.setInnerText("No data");
+                    }
 
-                    TmpPie.setInnerText(Tmp_data+" °C");
-                    //TmpPie.setPercentage(value*2);
+                    if(Rpm_data!=null){
+                        RpmPie.setInnerText(Rpm_data+" rpm");
+                        RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data)*mMaxPercentage/16383.75)); // 퍼센트 변경
+                    }else {
+                        RpmPie.setInnerText("No data");
+                    }
 
-                    RpmPie.setInnerText(Rpm_data+" rpm");
+                    if(Maf_data!=null){
+                        MafPie.setInnerText(Maf_data+" g/s");
+                        MafPie.setPercentage((float) (Float.parseFloat(Maf_data)*mMaxPercentage/655.35)); // 퍼센트 변경
+                    }else {
+                        MafPie.setInnerText("No data");
+                    }
 
-                    MafPie.setInnerText(Maf_data+" g/s");
-
-                    VoltPie.setInnerText(Volt_data+" v");
+                    if(Volt_data!=null){
+                        VoltPie.setInnerText(Volt_data+" v");
+                        VoltPie.setPercentage((float) (Float.parseFloat(Volt_data)*mMaxPercentage/65.535)); // 퍼센트 변경
+                    }else {
+                        VoltPie.setInnerText("No data");
+                    }
 
                 });
                 try {
@@ -116,82 +205,14 @@ public class DashBoard extends AppCompatActivity {
         });
 
         pieChartThread.start();
-
-
     }
 
-    @Override
-    public void onStart(){
-        super.onStart();
+    public void onPause(){
+        super.onPause();
+        Log.e(TAG, "DashBoard 퍼즈 됐나요?" );
+        setRun(false);
+        DashBoardThread.interrupt(); // 쓰레드 처리함
 
-        Intent intent = getIntent();
-        if(intent != null){
-            device_name = intent.getStringExtra("기기이름").split("\n")[1];
-        }
-        Log.e(TAG, "대쉬보드에 들어옴");
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        mBluetoothHandler = new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
-                    if(msg.obj != null){
-                        String data = msg.obj.toString();
-                        String [] a = data.split(">");
-
-                        if(a[0].contains("010d")){ // 속도 = A
-                            String real = a[0].substring(11,13);
-                            int real_real = Integer.parseInt(real,16);
-                            Speed_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("0105")){ // 냉각수 = A -40
-                            String real = a[0].substring(11,13);
-                            int real_real = Integer.parseInt(real,16)-40;
-                            Tmp_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
-                            String real = a[0].substring(11,13);
-                            String read2 = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16)) / 4;
-                            Rpm_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
-                            String real = a[0].substring(11,13);
-                            String read2 = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16) )/ 100;
-                            Maf_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
-                            String real = a[0].substring(11,13);
-                            String read2 = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(real,16)*256 + Integer.parseInt(read2,16)) / 1000;
-                            Volt_data = String.valueOf(real_real);
-                        }
-                    }
-                }
-            }
-        };
-
-
-        Thread DashBoardThread = new Thread(() ->{
-            while (true){
-                for (String dashBoard_datum : DashBoard_Data) {
-                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        DashBoardThread.start();
     }
 
     public void onDestroy(){
@@ -203,10 +224,15 @@ public class DashBoard extends AppCompatActivity {
         }
     }
 
+    public void setRun(boolean run){
+        this.run = run;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) { // 뒤로가기 버튼 만들고 누르면 작동하는 함수..
         if (item.getItemId() == android.R.id.home) {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("thread",1);
             startActivity(intent);
             return true;
         }
