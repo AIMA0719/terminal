@@ -16,6 +16,8 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
 import com.example.ex.Bluetooth.*;
 
 
@@ -67,63 +69,6 @@ public class DashBoard extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        mBluetoothHandler = new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
-                    if(msg.obj != null){
-                        String data = msg.obj.toString();
-                        String [] a = data.split(">");
-
-                        if(a[0].contains("010d")){ // 속도 = A
-                            int A = Integer.parseInt(a[0].substring(11,13),16);
-                            Speed_data = String.valueOf(A);
-
-                        }else if(a[0].contains("0105")){ // 냉각수 = A-40
-                            int A = Integer.parseInt(a[0].substring(11,13),16);
-                            Tmp_data = String.valueOf(A-40);
-
-                        }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
-                            String A = a[0].substring(11,13);
-                            String B = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 4;
-                            Rpm_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
-                            String A = a[0].substring(11,13);
-                            String B = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16) )/ 100;
-                            Maf_data = String.valueOf(real_real);
-
-                        }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
-                            String A = a[0].substring(11,13);
-                            String B = a[0].substring(14,16);
-                            int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 1000;
-                            Volt_data = String.valueOf(real_real);
-                        }
-                    }
-                }
-            }
-        };
-
-        DashBoardThread = new Thread(() ->{
-            while (run){
-                for (String dashBoard_datum : DashBoard_Data) {
-                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
-                    try {
-                        Thread.sleep(180);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (!run) {
-                    break;
-                }
-            }
-        });
-
-        DashBoardThread.start();
-
         //----------------------pieChart setting
 
         CustomPieChart SpeedPie = findViewById(R.id.pieView_speed);
@@ -156,62 +101,111 @@ public class DashBoard extends AppCompatActivity {
         MafPie.setPercentageTextSize(25);
         VoltPie.setPercentageTextSize(25);
 
+        DashBoardThread = new Thread(() ->{
 
-        //----------------------pieChart control
+            mBluetoothHandler = new Handler(Looper.getMainLooper()){
+                @Override
+                public void handleMessage(@NonNull Message msg) {
+                    if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
+                        if(msg.obj != null){
+                            String data = msg.obj.toString();
+                            String [] a = data.split(">");
 
-        Thread pieChartThread =  new Thread(() -> {
-            while (true){
-                mBluetoothHandler.post(() -> {
-                    if (Speed_data!=null){
-                        SpeedPie.setInnerText(Speed_data+" Km/h"); // 안에 값 변경
-                        SpeedPie.setPercentage(Float.parseFloat(Speed_data)*mMaxPercentage/255); // 퍼센트 변경
-                    }else {
-                        SpeedPie.setInnerText("No data"); // 안에 값 변경
+                            if(a[0].contains("010d")){ // 속도 = A
+                                int A = Integer.parseInt(a[0].substring(11,13),16);
+                                Speed_data = String.valueOf(A);
+
+                            }else if(a[0].contains("0105")){ // 냉각수 = A-40
+                                int A = Integer.parseInt(a[0].substring(11,13),16);
+                                Tmp_data = String.valueOf(A-40);
+
+                            }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
+                                String A = a[0].substring(11,13);
+                                String B = a[0].substring(14,16);
+                                int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 4;
+                                Rpm_data = String.valueOf(real_real);
+
+                            }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
+                                String A = a[0].substring(11,13);
+                                String B = a[0].substring(14,16);
+                                int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16) )/ 100;
+                                Maf_data = String.valueOf(real_real);
+
+                            }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
+                                String A = a[0].substring(11,13);
+                                String B = a[0].substring(14,16);
+                                int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 1000;
+                                Volt_data = String.valueOf(real_real);
+                            }
+                        }
                     }
-                    if(Tmp_data!=null){
-                        TmpPie.setInnerText(Tmp_data+" °C");
-                        TmpPie.setPercentage(Float.parseFloat(Tmp_data)*mMaxPercentage/215); // 퍼센트 변경
-                    }else {
-                        TmpPie.setInnerText("No data");
-                    }
-
-                    if(Rpm_data!=null){
-                        RpmPie.setInnerText(Rpm_data+" Rpm");
-                        RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data)*mMaxPercentage/16383.75)); // 퍼센트 변경
-                    }else {
-                        RpmPie.setInnerText("No data");
-                    }
-
-                    if(Maf_data!=null){
-                        MafPie.setInnerText(Maf_data+" g/s");
-                        MafPie.setPercentage((float) (Float.parseFloat(Maf_data)*mMaxPercentage/655.35)); // 퍼센트 변경
-                    }else {
-                        MafPie.setInnerText("No data");
-                    }
-
-                    if(Volt_data!=null){
-                        VoltPie.setInnerText(Volt_data+" v"); // 배터리 전압인데 12V에서 안 변한다.
-                        VoltPie.setPercentage((float) (Float.parseFloat(Volt_data)*mMaxPercentage/65.535)); // 퍼센트 변경
-                    }else {
-                        VoltPie.setInnerText("No data");
-                    }
-
-                });
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+            };
+
+            while (run){
+                for (String dashBoard_datum : DashBoard_Data) {
+                    BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
+                    try {
+                        Thread.sleep(180);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                    mBluetoothHandler.post(() -> { // DashBoard UI control
+                        if (Speed_data!=null){
+                            SpeedPie.setInnerText(Speed_data+" Km/h"); // 안에 값 변경
+                            SpeedPie.setPercentage(Float.parseFloat(Speed_data)*mMaxPercentage/255); // 퍼센트 변경
+                        }else {
+                            SpeedPie.setInnerText("No data"); // 안에 값 변경
+                        }
+                        if(Tmp_data!=null){
+                            TmpPie.setInnerText(Tmp_data+" °C");
+                            TmpPie.setPercentage(Float.parseFloat(Tmp_data)*mMaxPercentage/215); // 퍼센트 변경
+                        }else {
+                            TmpPie.setInnerText("No data");
+                        }
+
+                        if(Rpm_data!=null){
+                            RpmPie.setInnerText(Rpm_data+" Rpm");
+                            RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data)*mMaxPercentage/16383.75)); // 퍼센트 변경
+                        }else {
+                            RpmPie.setInnerText("No data");
+                        }
+
+                        if(Maf_data!=null){
+                            MafPie.setInnerText(Maf_data+" g/s");
+                            MafPie.setPercentage((float) (Float.parseFloat(Maf_data)*mMaxPercentage/655.35)); // 퍼센트 변경
+                        }else {
+                            MafPie.setInnerText("No data");
+                        }
+
+                        if(Volt_data!=null){
+                            VoltPie.setInnerText(Volt_data+" v"); // 배터리 전압인데 12V에서 안 변한다.
+                            VoltPie.setPercentage((float) (Float.parseFloat(Volt_data)*mMaxPercentage/65.535)); // 퍼센트 변경
+                        }else {
+                            VoltPie.setInnerText("No data");
+                        }
+
+                    });
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                if (!run) {
+                    break;
+                }
+
             }
         });
-
-        pieChartThread.start();
+        DashBoardThread.start();
     }
 
     public void onPause(){
         super.onPause();
         Log.e(TAG, "DashBoard 퍼즈 됐나요?" );
-        setRun(false);
+//        setRun(false);
         DashBoardThread.interrupt(); // 쓰레드 처리함
 
     }

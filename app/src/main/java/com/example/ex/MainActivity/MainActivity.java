@@ -65,13 +65,14 @@ public class MainActivity extends AppCompatActivity {
     List<MainData> dataList = new ArrayList<>();
     RoomDB database;
     MainAdapter adapter;
-    TextView bluetooth_status, list_item;
+    TextView list_item;
     BluetoothFragment bluetoothFragment;
     TextFileManager mTextFileManager = new TextFileManager(this);
 
-    String readmessage = ""; // 핸들러로 받은 메세지 저장
+    String readdress = ""; // 핸들러로 받은 메세지 저장
     String sText = "";
     boolean flag = false;
+    boolean bluetooth_flag = false;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -86,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
         recyclerView = findViewById(R.id.recycler_view);
-        bluetooth_status = findViewById(R.id.mbluetooth_status);
 
         database = RoomDB.getInstance(this); // 룸디비 가져옴
         dataList = database.mainDao().getAll(); //리스트 만듦 리스트 디비에 있는거 얘가 보여주는거
@@ -107,17 +107,16 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(toolbar.getOverflowIcon()).setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP); // three dots 색상 변경
         // --------
 
-        Intent intent = getIntent(); // device.getName 가져옴
-        if (intent != null) {
-            String data = intent.getStringExtra("데이터");
-            if (data != null) {
-                String [] data2 = data.split("\n");
-                Log.d(TAG, "연결된 블루투스 기기 : " + data2[0]);
-                bluetooth_status.setText(data2[0] + " 기기랑 연결 상태입니다.");
-
-            }
-        }
-
+//        Intent intent = getIntent(); // device.getName 가져옴
+//        if (intent != null) {
+//            String data = intent.getStringExtra("데이터");
+//            if (data != null) {
+//                String [] data2 = data.split("\n");
+//                Log.d(TAG, "연결된 블루투스 기기 : " + data2[0]);
+//                bluetooth_status.setText(data2[0] + " 기기랑 연결 상태입니다.");
+//
+//            }
+//        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -130,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         dataList.clear(); // 어플 시작할때마다 리스트 초기화
         adapter.notifyDataSetChanged(); //갱신
         // --------
-
 
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
         int permission2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
@@ -177,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
         new Thread(() -> {
             mBluetoothHandler = new Handler(Looper.getMainLooper()) {
+
                 @Override
                 public void handleMessage(Message msg) { // 메시지 종류에 따라서
 
@@ -185,12 +184,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                         }
 
-                        readmessage += msg.obj;
+                        readdress += msg.obj;
                         editText.setText("");
 
-                        if (readmessage.contains(">")) {
+                        if (readdress.contains(">")) {
                             Log.d(TAG, "Response 메세지 전달 받음");
-                            String[] slicing_data = readmessage.split(">");
+                            String[] slicing_data = readdress.split(">");
                             Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
                             try {
@@ -199,26 +198,24 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
 
-                            if((readmessage.contains("at"))||(readmessage.contains("OBD"))){
+                            if((readdress.contains("at"))||(readdress.contains("OBD"))){
                                 Log.d(TAG, "AT command 를 입력 했습니다.");
                                 Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
-                            }else if(readmessage.equals(editText.getText()+"?")){
+                            }else if(readdress.equals(editText.getText()+"?")){
                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readmessage.contains("NO")){
+                            }else if(readdress.contains("NO")){
                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readmessage.contains("ok")||(readmessage.contains("OK"))){
+                            }else if(readdress.contains("ok")||(readdress.contains("OK"))){
                                 Log.d(TAG, "AT Commands setting중");
                             }
                             else {
                                 if(!flag) {
                                     MainData data1 = new MainData();
-                                    data1.setText(slicing_data[0]);
+                                    data1.setText("RX : "+slicing_data[0]);
                                     database.mainDao().insert(data1);
                                     dataList.add(data1);
                                 }
-                                else {
-                                    Toast.makeText(MainActivity.this, "이거로됨?", Toast.LENGTH_SHORT).show();
-                                }
+
                             }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
@@ -230,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
                         adapter.notifyDataSetChanged();
 
-                        readmessage = ""; // 초기화 시켜줌
+                        readdress = ""; // 초기화 시켜줌
                         Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }
 
@@ -263,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Request 메세지 : " + sText);
 
                     MainData data = new MainData();
-                    data.setText(sText);
+                    data.setText("TX : "+sText);
                     database.mainDao().insert(data); //DB에 add
                     dataList.add(data); //List에 add
 //                    dataList.addAll(database.mainDao().getAll());
@@ -428,6 +425,10 @@ public class MainActivity extends AppCompatActivity {
                 String data = intent.getStringExtra("데이터");
                 Intent intent1 = new Intent(this, DashBoard.class);
                 intent1.putExtra("기기이름",data);
+                if(bluetooth_flag){
+                    intent1.putExtra("블루투스연결","연결됨");
+                    Log.e(TAG, "onOptionsItemSelected: 넘어감?" );
+                }
                 startActivity(intent1);
 
                 return true;
