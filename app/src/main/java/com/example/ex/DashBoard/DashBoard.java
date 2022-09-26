@@ -40,8 +40,7 @@ public class DashBoard extends AppCompatActivity {
     public String Volt_data;
     public String Maf_data;
     public static Thread DashBoardThread;
-    private boolean run;
-    public ConnectedThread mConnectedThread;
+    public boolean run = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,7 +107,6 @@ public class DashBoard extends AppCompatActivity {
         };
 
         DashBoardThread = new Thread(() ->{
-            run = true;
             while (run){
                 for (String dashBoard_datum : DashBoard_Data) {
                     BluetoothFragment.mConnectedThread.write(dashBoard_datum + "\r");
@@ -117,6 +115,9 @@ public class DashBoard extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                }
+                if (!run) {
+                    break;
                 }
             }
         });
@@ -162,7 +163,7 @@ public class DashBoard extends AppCompatActivity {
             while (true){
                 mBluetoothHandler.post(() -> {
                     if (Speed_data!=null){
-                        SpeedPie.setInnerText(Speed_data+" km/h"); // 안에 값 변경
+                        SpeedPie.setInnerText(Speed_data+" Km/h"); // 안에 값 변경
                         SpeedPie.setPercentage(Float.parseFloat(Speed_data)*mMaxPercentage/255); // 퍼센트 변경
                     }else {
                         SpeedPie.setInnerText("No data"); // 안에 값 변경
@@ -175,7 +176,7 @@ public class DashBoard extends AppCompatActivity {
                     }
 
                     if(Rpm_data!=null){
-                        RpmPie.setInnerText(Rpm_data+" rpm");
+                        RpmPie.setInnerText(Rpm_data+" Rpm");
                         RpmPie.setPercentage((float) (Float.parseFloat(Rpm_data)*mMaxPercentage/16383.75)); // 퍼센트 변경
                     }else {
                         RpmPie.setInnerText("No data");
@@ -189,7 +190,7 @@ public class DashBoard extends AppCompatActivity {
                     }
 
                     if(Volt_data!=null){
-                        VoltPie.setInnerText(Volt_data+" v");
+                        VoltPie.setInnerText(Volt_data+" v"); // 배터리 전압인데 12V에서 안 변한다.
                         VoltPie.setPercentage((float) (Float.parseFloat(Volt_data)*mMaxPercentage/65.535)); // 퍼센트 변경
                     }else {
                         VoltPie.setInnerText("No data");
@@ -233,6 +234,7 @@ public class DashBoard extends AppCompatActivity {
         if (item.getItemId() == android.R.id.home) {
             Intent intent = new Intent(this, MainActivity.class);
             intent.putExtra("thread",1);
+            setRun(false);
             startActivity(intent);
             return true;
         }

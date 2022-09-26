@@ -52,6 +52,7 @@ public class MyDialogFragment extends DialogFragment {
 
     public static final int BT_CONNECTING_STATUS = 1;
     public static final int BT_MESSAGE_READ = 3;
+    public static final int BT_MESSAGE_READ2 = 4;
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
     public BluetoothSocket mBluetoothSocket;
@@ -130,6 +131,7 @@ public class MyDialogFragment extends DialogFragment {
 
                         mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
                                 .sendToTarget();
+
 
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
                             mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다

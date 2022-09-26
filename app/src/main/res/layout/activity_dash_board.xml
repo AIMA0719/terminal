@@ -151,12 +151,12 @@
         android:layout_marginTop="20dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="25dp"
-            android:text="볼트"
-            android:gravity="center">
+            android:textSize="25sp"
+            android:text="배터리 전압"
+            android:layout_marginStart="35dp">
 
         </TextView>
 
@@ -164,14 +164,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <com.example.ex.DashBoard.CustomPieChart
             android:id="@+id/pieView_volt"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_gravity="center"
             android:layout_marginStart="20dp"
             plainpie:inner_pie_padding="20"
             plainpie:inner_text_visibility="true"

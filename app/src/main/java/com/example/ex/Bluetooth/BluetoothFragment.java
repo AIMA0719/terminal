@@ -49,21 +49,17 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment implements Serializable {
 
-    public static final int BT_MESSAGE_WRITE = 5;
-    public static final int BT_MESSAGE_READ = 6;
-    public static final int DASH_SEND = 8;
-    public static final int BT_MESSAGE_READ_AT = 7;
-    private static final int RESULT_OK = 1111;
-    private static final int RESULT_CANCELED = 1112;
+    public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
+    public static final int REQUEST_LOACTION = 2;
+    public static final int BT_CONNECTING_STATUS = 3;
+    public static final int BT_MESSAGE_WRITE = 4;
+    public static final int BT_MESSAGE_READ = 5;
+    public static final int BT_MESSAGE_READ2 = 6;
+    private static final int RESULT_OK = 7;
+    private static final int RESULT_CANCELED = 8;
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
-//    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
-    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
-
-    public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
-    public static final int REQUEST_LOACTION = 2;
-    public static final int BT_CONNECTING_STATUS = 4;
 
     public BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
     public static Handler mBluetoothHandler;

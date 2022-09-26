@@ -38,8 +38,6 @@ public class ConnectedThread extends Thread  {
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
-
-
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
@@ -65,15 +63,6 @@ public class ConnectedThread extends Thread  {
                     } catch (Exception e) {
                         Log.d(TAG, "run: 오류남");
                     }
-
-                    //while (index2 != 5) {
-                    //    sleep(100);
-                    //    mConnectedThread.write(DashBoard_Data[index2]+"\r");
-                    //    Log.e(TAG, "보냈냐?: "+DashBoard_Data[index2] );
-                    //    Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(DashBoard.DASH_SEND, mmBuffer.length, -1, Data); //
-                    //    message.sendToTarget();
-                    //    index2 += 1;
-                    //}
 
                     if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
 
@@ -158,30 +147,10 @@ public class ConnectedThread extends Thread  {
 
     }
 
-//    public void setting(String input) {
-//        byte[] bytes = input.getBytes();
-//        try {
-//            mmOutStream.write(bytes);
-//            Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(MyDialogFragment.BT_SETTINGS,-1,-1,mmBuffer);
-//            writeMessage.sendToTarget();
-//        } catch (IOException e) {
-//
-//            Log.e(TAG, "데이터 보내기 오류!", e);
-//            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
-//            Bundle bundle = new Bundle();
-//            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
-//            writeErrorMsg.setData(bundle);
-//            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
-//        }
-//
-//    }
-
     public void cancel() {
         try {
             BluetoothFragment.mBluetoothSocket.close();
         } catch (IOException ignored) { }
     }
 
-
-
-} // 연결하기 위한 스레드
+}

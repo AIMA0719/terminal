@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     String readmessage = ""; // 핸들러로 받은 메세지 저장
     String sText = "";
+    boolean flag = false;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -209,11 +210,15 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, "AT Commands setting중");
                             }
                             else {
-                                MainData data1 = new MainData();
-                                data1.setText(slicing_data[0]);
-                                database.mainDao().insert(data1);
-                                dataList.add(data1);
-
+                                if(!flag) {
+                                    MainData data1 = new MainData();
+                                    data1.setText(slicing_data[0]);
+                                    database.mainDao().insert(data1);
+                                    dataList.add(data1);
+                                }
+                                else {
+                                    Toast.makeText(MainActivity.this, "이거로됨?", Toast.LENGTH_SHORT).show();
+                                }
                             }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
@@ -251,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
         btAdd.setOnClickListener(v -> {
             sText = editText.getText().toString().trim();
+            flag = false; // 대시보드 데이터를 창에 안 띄워주기 위함
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
                     BluetoothFragment.mConnectedThread.write(sText+"\r");
@@ -314,6 +320,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause(){
         super.onPause();
+        flag = true;
+
     }
 
     @Override
@@ -323,7 +331,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onRestart(){
         super.onRestart();
-
         mConnectedThread = new ConnectedThread(mBluetoothSocket,mBluetoothHandler);
         mConnectedThread.start();
     }
