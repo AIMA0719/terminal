@@ -39,6 +39,7 @@ import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -215,19 +216,32 @@ public class BluetoothFragment extends Fragment implements Serializable {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
-                    adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
+                    if(!paired_list.contains(bt.getName())){
+                        if(isConnected(bt)){
+                            paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 됨"));
+                        }
+                        else {
+                            paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
+                        }
+                        adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
+                    }
+
                 }
             } else {
+                Log.d(TAG, "CheckPairedDevice: 오류");
             }
         } else { //샤오미에선 여기 돔
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
+                    if(isConnected(bt)){
+                        paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
+                    }
                     paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨")); // 저 new Customer을 그냥 Device로 바꿔야함.
                     adapter.notifyDataSetChanged();
                 }
             } else {
+                Log.d(TAG, "CheckPairedDevice: 오류");
             }
         }
         listView_pairing.setAdapter(adapter);
@@ -271,9 +285,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
                     } else {
                         if (device.getName() != null) {
-                            scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress(),"연결 안 됨"));
+                            if(!scan_list.contains(device)){
+                                if(isConnected(device)){
+                                    scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress(),"연결 됨"));
+                                    cnt += 1;
+                                }
+                                else {
+                                    scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress(),"연결 안 됨"));
+                                    cnt += 1;
+                                }
+                            }
                             adapter2.notifyDataSetChanged(); //갱신
-                            cnt += 1;
                         }
                     }
                 } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -366,5 +388,14 @@ public class BluetoothFragment extends Fragment implements Serializable {
         requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
 
     }
+
+    public boolean isConnected(BluetoothDevice device) {
+        try {
+            Method m = device.getClass().getMethod("isConnected", (Class[]) null);
+            return (boolean) m.invoke(device, (Object[]) null);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    } // 블루투스 연결 됐는지 체크하는 함수 브로드캐스트로도 할 수 있지만 이거 사용해봤다
 
 }

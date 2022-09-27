@@ -4,6 +4,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +51,22 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Customer2 item = items.get(position);
+
+        String content = item.getStatus(); // 바꾸고 싶은 부분의 Text 가져와서
+        SpannableString spannableString = new SpannableString(content);  // SpannableString 객체에 넣어줌
+
+        int start = content.indexOf(item.getStatus()); //바꾸고 싶은 부분 시작
+        int end = start + item.getStatus().length(); //바꾸고 싶은 부분 끝
+
+        spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#438bff")),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 색깔 바꿔주고
+        spannableString.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 굵은 글씨로 바꿔 줌
+
         holder.textView.setText(item.getDevice());
-        holder.status.setText(item.getStatus());
+        if(item.getStatus().equals("연결 안 됨")){
+            holder.status.setText(item.getStatus()); // 넣어줌
+        }else {
+            holder.status.setText(spannableString);
+        }
 
     }
 
