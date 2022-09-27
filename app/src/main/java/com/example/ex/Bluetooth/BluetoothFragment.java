@@ -78,6 +78,14 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        //------------------------ 인플레이터
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
+
     }
 
     @Override
@@ -135,6 +143,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         adapter.setOnItemClickListener((position, view2) -> { // 등록된 디바이스  클릭
 
+            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+            }
+
             String name1 = paired_list.get(position).getDevice();
             String[] address1 = name1.split("\n");
 
@@ -162,6 +174,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }); // 등록된 디바이스  클릭
 
         adapter2.setOnItemClickListener((position, view2) -> { // 연결 가능한 디바이스 클릭
+
+            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+            }
 
             String name = scan_list.get(position).getDevice();
             String[] address = name.split("\n");
@@ -218,13 +234,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
         listView_pairing.setLayoutManager(layoutManager);
         listView_scan.setLayoutManager(layoutManager1);
         listView_scan.setAdapter(adapter2);
-
-        //------------------------ 인플레이터
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
 
         return view;
     }
