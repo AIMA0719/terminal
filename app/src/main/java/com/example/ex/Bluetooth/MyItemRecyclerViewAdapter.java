@@ -1,4 +1,4 @@
-package com.example.ex.MainActivity;
+package com.example.ex.Bluetooth;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.ex.Bluetooth.CustomAdapter;
 import com.example.ex.R;
 
 import java.util.List;
@@ -46,7 +45,8 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Customer2 item = items.get(position);
-        holder.textView.setText(item.getName());
+        holder.textView.setText(item.getDevice());
+        holder.status.setText(item.getStatus());
 
     }
 
@@ -58,11 +58,13 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView textView;
+        TextView status;
 
         public ViewHolder(View view) {
             super(view);
 
             textView = view.findViewById(R.id.device);
+            status = view.findViewById(R.id.bluetooth_boolean);
 
             itemView.setOnClickListener(v -> {
                 int pos = getAbsoluteAdapterPosition();
@@ -72,18 +74,31 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             });
 
         }
-
     }
 
     public static class Customer2 {
         public String device;
+        public String status;
 
-        public Customer2(String name){
+        public Customer2(String name,String status){
             this.device = name;
+            this.status = status;
         }
 
-        public String getName(){
+        public String getDevice(){
             return device;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public void setDevice(String device) {
+            this.device = device;
         }
     }
 }

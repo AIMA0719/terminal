@@ -126,6 +126,10 @@ public class MyDialogFragment extends DialogFragment {
                         if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
                             mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
 
+                            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+                            }
+
                             Intent intent = new Intent(getContext(), MainActivity.class);
                             intent.putExtra("데이터",getArguments().getString("이름"));
                             startActivity(intent);
