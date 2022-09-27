@@ -12,4 +12,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="Bluetooth_connection">블루투스 연결</string>
+    <string name="DashBoard">대시보드</string>
+    <string name="Setting">설정</string>
 </resources>

@@ -46,10 +46,14 @@ import com.example.ex.DashBoard.DashBoard;
 import com.example.ex.RoomDB.*;
 import com.example.ex.R;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,12 +154,6 @@ public class MainActivity extends AppCompatActivity {
                             String[] slicing_data = readdress.split(">");
                             Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
-                            try {
-                                mTextFileManager.save(slicing_data[0] + "::"); // File에 add , :: 는 구분 용
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
                             if((readdress.contains("at"))||(readdress.contains("OBD"))){
                                 Log.d(TAG, "AT command 를 입력 했습니다.");
                                 Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
@@ -172,8 +170,12 @@ public class MainActivity extends AppCompatActivity {
                                     data1.setText("RX : "+slicing_data[0]);
                                     database.mainDao().insert(data1);
                                     dataList.add(data1);
+                                    try {
+                                        mTextFileManager.save("RX : "+ slicing_data[0]+"\n"); // File에 add , :: 는 구분 용
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-
                             }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     if (msg.what == MyDialogFragment.BT_CONNECTING_STATUS) {
                         if (msg.arg1 == 1) {
                             String[] name = msg.obj.toString().split("\n");
-                            Toast.makeText(getApplicationContext(), name[0] + " 와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
 
 //                        mConnectedThread.write("atz>");
 //                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
@@ -224,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll());
 
                     try {
-                        mTextFileManager.save(sText + "::"); // File에 add
+                        mTextFileManager.save("TX : "+sText+"\n" ); // File에 add
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -260,8 +262,7 @@ public class MainActivity extends AppCompatActivity {
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
-            mTextFileManager.delete(); // File 삭제
-//
+
 //            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
 //            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 //            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         flag = true;
-
+        Log.e(TAG, "MainActivity 퍼즈" );
     }
 
     @Override
@@ -425,23 +426,25 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
 
-            case R.id.log_load:  // log 버튼 클릭
-                    String a = mTextFileManager.load();
+            case R.id.log_load:  // 내부 저장소에 저장된 log 불러오기
 
-                    if (a == null) {
-                        Toast.makeText(this, "저장할 Text가 없습니다.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        try {
-                            mTextFileManager.save(a);
-                            Toast.makeText(this, "Text 파일로 저장 되었습니다.", Toast.LENGTH_SHORT).show();
-                            database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
-                            dataList.clear(); // 어플 시작할때마다 리스트 초기화
-                            adapter.notifyDataSetChanged(); //갱신
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
+                dataList.clear(); // 어플 시작할때마다 리스트 초기화
+                mTextFileManager.delete(); // 내부 저장소도 초기화
 
+                String a = mTextFileManager.load();
+
+                if(a != null){
+                    MainData data1 = new MainData();
+                    data1.setText(a);
+                    database.mainDao().insert(data1); // 디비에 넣고
+                    dataList.add(data1); // 리스트에도 넣고
+                    adapter.notifyDataSetChanged(); //갱신
+
+                    editText.setText("");
+
+                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1);
+                }
 
                 return true;
 
@@ -463,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
         }
     } // -------- 메뉴 (Three dots) 버튼 클릭 이벤트
 
-    public static class TextFileManager{ // 파일 관리
+    public static class TextFileManager{ // 내부 저장소 파일 관리 클래스
         private static final String FILE_NAME = "Memo.txt";
 
         Context context = null;
@@ -472,33 +475,42 @@ public class MainActivity extends AppCompatActivity {
             this.context = context;
         }
 
-        public void save(String strData) throws IOException { // 파일 쓰기
+        public void save(String strData) throws IOException { // 파일을 저장
             if(strData == null||strData.equals("")){
                 return;
             }
 
-            FileOutputStream fosMemo = null;
-
             try {
-                fosMemo = context.openFileOutput(FILE_NAME,Context.MODE_PRIVATE);
+                FileOutputStream fosMemo = context.openFileOutput(FILE_NAME,Context.MODE_APPEND); // FileOutputStream 객체 생성 , PRIVATE = 덮어쓰기, APPEND = 새로 쓰기
                 fosMemo.write(strData.getBytes(StandardCharsets.UTF_8));
                 fosMemo.close();
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }
 
-        public String load(){ // 파일 불러 오기
+        public String load(){ // 파일 읽어서 불러오기
+            String strTmp;
             try {
-                FileInputStream fisMemo = context.openFileInput(FILE_NAME);
-                byte[] memoData = new byte[fisMemo.available()];
-
-                while (fisMemo.read(memoData)!= -1){}
-                return new String(memoData);
+                FileInputStream fis = context.openFileInput(FILE_NAME);
+                StringBuilder buffer = new StringBuilder();
+                byte[] dataBuffer = new byte[1024];
+                int n = 0;
+                
+                while ((n=fis.read(dataBuffer))!=-1){
+                    buffer.append(new String(dataBuffer));
+                }
+                strTmp = buffer.toString();
+                fis.close();
+                
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast.makeText(context, "저장할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
+                return null;
             }
-            return null;
+            Toast.makeText(context, "파일 Load 완료!", Toast.LENGTH_SHORT).show();
+            return strTmp;
         }
 
         public void delete(){

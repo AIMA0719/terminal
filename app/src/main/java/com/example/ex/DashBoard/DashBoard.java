@@ -202,7 +202,7 @@ public class DashBoard extends AppCompatActivity {
 
     public void onPause(){
         super.onPause();
-        Log.e(TAG, "DashBoard 퍼즈 됐나요?" );
+        Log.e(TAG, "DashBoard 퍼즈" );
 //        setRun(false);
         DashBoardThread.interrupt(); // 쓰레드 처리함
 

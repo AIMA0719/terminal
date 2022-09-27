@@ -5,27 +5,20 @@
 
     <item
         android:id="@+id/blutooth_connect"
-        android:title="블루투스 연결"
+        android:title="@string/Bluetooth_connection"
         android:icon="@drawable/connection"
         app:showAsAction="ifRoom" />
 
     <item
-        android:title="Log 저장하기"
+        android:title="저장된 Log 불러오기"
         android:id="@+id/log_load"
         android:icon="@drawable/ic_baseline_save_24"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
         />
 
     <item
-        android:title="대시보드"
+        android:title="@string/DashBoard"
         android:id="@+id/dashboard"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/settings"
-        android:title="설정"
-        android:icon="@drawable/setting"
-        app:showAsAction="never"/>
-
-
 
 </menu>
