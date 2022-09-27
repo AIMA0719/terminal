@@ -262,7 +262,6 @@ public class MainActivity extends AppCompatActivity {
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
-
 //            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
 //            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 //            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
@@ -428,11 +427,8 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.log_load:  // 내부 저장소에 저장된 log 불러오기
 
-                database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
-                dataList.clear(); // 어플 시작할때마다 리스트 초기화
-                mTextFileManager.delete(); // 내부 저장소도 초기화
-
                 String a = mTextFileManager.load();
+
 
                 if(a != null){
                     MainData data1 = new MainData();
@@ -444,8 +440,31 @@ public class MainActivity extends AppCompatActivity {
                     editText.setText("");
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1);
+                }else {
+                    Toast.makeText(this, "저장할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
                 }
 
+//                database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
+//                dataList.clear(); // 어플 시작할때마다 리스트 초기화
+//                mTextFileManager.delete(); // 내부 저장소도 초기화
+                return true;
+                
+            case R.id.delete_load:
+
+                if(mTextFileManager.load() == null){
+                    Toast.makeText(this, "삭제할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
+                }
+                else {
+
+                    mTextFileManager.delete();
+                    dataList.clear(); //리스트 초기화
+                    dataList.addAll(database.mainDao().getAll()); // DB에 add
+
+                    adapter.notifyDataSetChanged(); //갱신
+
+                    editText.setText("");
+                    Toast.makeText(this, "저장된 Log 전부 삭제 했습니다.", Toast.LENGTH_SHORT).show();
+                }
                 return true;
 
             case R.id.dashboard: //대쉬보드 클릭
@@ -506,7 +525,6 @@ public class MainActivity extends AppCompatActivity {
                 
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(context, "저장할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
                 return null;
             }
             Toast.makeText(context, "파일 Load 완료!", Toast.LENGTH_SHORT).show();

@@ -17,8 +17,14 @@
         />
 
     <item
+        android:id="@+id/delete_load"
+        android:title="저장된 Log 삭제하기"
+        app:showAsAction="never"/>
+
+    <item
         android:title="@string/DashBoard"
         android:id="@+id/dashboard"
         app:showAsAction="never"/>
+
 
 </menu>
