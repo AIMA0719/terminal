@@ -153,4 +153,23 @@ public class ConnectedThread extends Thread  {
         } catch (IOException ignored) { }
     }
 
+    public void disconnection(){
+        try {
+            if(mmInStream != null){
+                mmInStream.close();
+                mmInStream = null;
+            }
+            if(mmOutStream != null){
+                mmOutStream.close();
+                mmOutStream = null;
+            }
+            if(BluetoothFragment.mBluetoothSocket != null){
+                BluetoothFragment.mBluetoothSocket = null;
+            }
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

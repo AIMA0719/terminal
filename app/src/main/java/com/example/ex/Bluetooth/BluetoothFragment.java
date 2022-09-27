@@ -142,9 +142,18 @@ public class BluetoothFragment extends Fragment implements Serializable {
             bundle.putString("이름", paired_list.get(position).getDevice());
 
             FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            MyDialogFragment myDialogFragment = new MyDialogFragment();
-            myDialogFragment.setArguments(bundle);
-            transaction.replace(R.id.SecondFragment, myDialogFragment);
+            if(paired_list.get(position).getStatus().equals("연결 안 됨")){
+                MyDialogFragment myDialogFragment = new MyDialogFragment();
+                myDialogFragment.setArguments(bundle);
+
+                transaction.replace(R.id.SecondFragment, myDialogFragment);
+
+            }else {
+                CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
+                cancelDialogFragment.setArguments(bundle);
+
+                transaction.replace(R.id.SecondFragment, cancelDialogFragment);
+            }
             transaction.commit();
 
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address1[0]);
@@ -161,11 +170,20 @@ public class BluetoothFragment extends Fragment implements Serializable {
             bundle.putString("이름", scan_list.get(position).getDevice());
 
             FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            MyDialogFragment myDialogFragment = new MyDialogFragment();
-            myDialogFragment.setArguments(bundle);
+            if(scan_list.get(position).getStatus().equals("연결 안 됨")){
+                MyDialogFragment myDialogFragment = new MyDialogFragment();
+                myDialogFragment.setArguments(bundle);
 
-            transaction.replace(R.id.SecondFragment, myDialogFragment);
+                transaction.replace(R.id.SecondFragment, myDialogFragment);
+            }
+            else {
+                CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
+                cancelDialogFragment.setArguments(bundle);
+
+                transaction.replace(R.id.SecondFragment, cancelDialogFragment);
+            }
             transaction.commit();
+
 
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address[0]);
 
