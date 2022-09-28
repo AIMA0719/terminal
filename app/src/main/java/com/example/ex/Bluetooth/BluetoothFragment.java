@@ -226,13 +226,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 })
                 .setNegativeButton("확인",(dialog, which) -> {
                     mConnectedThread.cancel();
-                    try {
-                        mBluetoothSocket.close();
-                        Log.e(TAG, "블루투스 연결 취소" );
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    Log.e(TAG, "블루투스 연결 취소" );
+                    MyItemRecyclerViewAdapter.Connection_flag = false;
+                    adapter.notifyDataSetChanged();
                     dialog.dismiss();
+
+                    //Intent intent = new Intent(getContext(), MainActivity.class); // 그냥 메인으로 보내서 업데이트 함..
+                    //startActivity(intent);
+
+                    mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 2, -1,device_name)
+                            .sendToTarget();
+
                 })
                 .create();
         return builder.show();
@@ -244,76 +248,72 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         builder.setTitle("블루투스 연결 설정")
                 .setMessage(device_name+" 기기와\n연결 하시겠습니까?")
-                .setPositiveButton("취소", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .setNegativeButton("확인",(dialog, which) -> {
+                .setPositiveButton("취소", (dialog, which) -> dialog.dismiss())
+                .setNegativeButton("확인",(dialog, which) -> new Thread() {
+                    @Override
+                    public void run() {
 
-                    new Thread() {
-                        @Override
-                        public void run() {
+                        MyItemRecyclerViewAdapter.Connection_flag = true;
 
-                            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                            mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+                        }
+
+                        boolean fail = false;
+
+                        device = mBluetoothAdapter.getRemoteDevice(device_address);
+
+                        try {
+                            mBluetoothSocket = createBluetoothSocket(device);
+                            Log.d(TAG, "소켓 생성 완료!");
+                        } catch (IOException e) {
+                            fail = true;
+                            Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                        }
+                        // Establish the Bluetooth socket connection.
+                        try {
+                            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
                                 return;
                             }
-                            if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
-                                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                            }
-
-                            boolean fail = false;
-
-                            device = mBluetoothAdapter.getRemoteDevice(device_address);
-
+                            mBluetoothSocket.connect();
+                            Log.d(TAG, "소켓 연결 완료!");
+                        } catch (IOException e) {
                             try {
-                                mBluetoothSocket = createBluetoothSocket(device);
-                                Log.d(TAG, "소켓 생성 완료!");
-                            } catch (IOException e) {
                                 fail = true;
+                                mBluetoothSocket.close();
+                                mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, -1, -1)
+                                        .sendToTarget();
+                            } catch (IOException e2) {
+                                //insert code to deal with this
                                 Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
                             }
-                            // Establish the Bluetooth socket connection.
-                            try {
-                                if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        }
+                        if (!fail) {
+                            mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
+                            mConnectedThread.start(); // 시작
 
-                                    return;
+                            mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, device_name)
+                                    .sendToTarget();
+
+
+                            if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
+                                mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
+
+                                if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
+                                    mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                                 }
-                                mBluetoothSocket.connect();
-                                Log.d(TAG, "소켓 연결 완료!");
-                            } catch (IOException e) {
-                                try {
-                                    fail = true;
-                                    mBluetoothSocket.close();
-                                    mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, -1, -1)
-                                            .sendToTarget();
-                                } catch (IOException e2) {
-                                    //insert code to deal with this
-                                    Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                            if (!fail) {
-                                mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
-                                mConnectedThread.start(); // 시작
 
-                                mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, device_name)
-                                        .sendToTarget();
-
-
-                                if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
-                                    mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
-
-                                    if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
-                                        mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                                    }
-
-                                    Intent intent = new Intent(getContext(), MainActivity.class);
-                                    intent.putExtra("데이터",device_name);
-                                    startActivity(intent);
-                                }
+                                Intent intent = new Intent(getContext(), MainActivity.class);
+                                intent.putExtra("데이터",device_name);
+                                startActivity(intent);
                             }
                         }
-                    }.start();
-
-                })
+                    }
+                }.start())
                 .create();
         return builder.show();
     }
@@ -352,6 +352,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void CheckPairedDevice() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
+            MyItemRecyclerViewAdapter.Connection_flag = true;
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
                     if(isConnected(bt)){
@@ -366,6 +367,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 Log.d(TAG, "CheckPairedDevice: 오류");
             }
         } else { //샤오미에선 여기 돔
+            MyItemRecyclerViewAdapter.Connection_flag = true;
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..

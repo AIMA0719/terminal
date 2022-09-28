@@ -23,6 +23,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     private Context context;
     private final List<Customer2> items;
     private static final String TAG = "adapter";
+    public static boolean Connection_flag = true;
 
     public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
         void onItemClicked(int position,View view);
@@ -62,11 +63,17 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         spannableString.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 굵은 글씨로 바꿔 줌
 
         holder.textView.setText(item.getDevice());
-        if(item.getStatus().equals("연결 안 됨")){
-            holder.status.setText(item.getStatus()); // 넣어줌
+
+        if(Connection_flag){
+            if(item.getStatus().equals("연결 안 됨")){
+                holder.status.setText(item.getStatus()); // 넣어줌
+            }else {
+                holder.status.setText(spannableString);
+            }
         }else {
-            holder.status.setText(spannableString);
+            holder.status.setText("연결 안 됨");
         }
+
 
     }
 

@@ -197,7 +197,11 @@ public class MainActivity extends AppCompatActivity {
 
 //                        mConnectedThread.write("atz>");
 //                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
-                        } else {
+                        } else if (msg.arg1==2){
+                            String[] name = msg.obj.toString().split("\n");
+                            Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 취소 했습니다", Toast.LENGTH_SHORT).show();
+                        }
+                            else {
                             Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
