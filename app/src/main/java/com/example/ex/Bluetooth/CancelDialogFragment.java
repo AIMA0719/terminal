@@ -6,16 +6,20 @@ import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -32,18 +36,25 @@ import com.example.ex.R;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.UUID;
 
-public class CancelDialogFragment extends Fragment {
+public class CancelDialogFragment extends DialogFragment {
 
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
-    public BluetoothSocket mBluetoothSocket;
 
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     final String TAG = "Dialog_Fragment";
 
     public CancelDialogFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -52,8 +63,6 @@ public class CancelDialogFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_cancel_dialog, container, false);
-        Button cancel_ok = view.findViewById(R.id.cancel_ok);
-        Button cancel_no = view.findViewById(R.id.cancel_no);
         name = view.findViewById(R.id.cancel_bluetooth_name);
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -66,16 +75,14 @@ public class CancelDialogFragment extends Fragment {
             name.setText(slicing_name[0] +"\n"+ "기기와 연결 취소 하시겠습니까?");
 
         }
-
-        cancel_ok.setOnClickListener(v -> {
-
-        });
-
-        cancel_no.setOnClickListener(v ->{
-
-        });
-
-
+//
+//        cancel_ok.setOnClickListener(v -> {
+//
+//        });
+//
+//        cancel_no.setOnClickListener(v ->{
+//
+//        });
 //        setCancelable(false); // 유저가 화면 밖 검은 곳 터치하면 취소되게 하는거 방지용용
 
         return view;
@@ -95,5 +102,20 @@ public class CancelDialogFragment extends Fragment {
 
     }
 
+    @SuppressLint("InflateParams")
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.fragment_cancel_dialog,null))
+                .setTitle("블루투스 연결 설정")
+                .setPositiveButton(R.string.cancel_ok, (dialog, which) -> {
+                    Log.e(TAG, "onCreateDialog: dsf" );
+                })
+                .setNegativeButton("취소",(dialog, which) -> {
+                    dialog.dismiss();
+                });
+        return builder.create();
+    }
 
 }
