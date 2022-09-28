@@ -28,9 +28,9 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         void onItemClicked(int position,View view);
     }
 
-    public CustomAdapter.OnItemClickListener itemClickListener = null;  // 참조 변수 선언
+    public OnItemClickListener itemClickListener = null;  // 참조 변수 선언
 
-    public void setOnItemClickListener(CustomAdapter.OnItemClickListener listener){  // OnItemClickListener 전달 메소드
+    public void setOnItemClickListener(OnItemClickListener listener){  // OnItemClickListener 전달 메소드
         this.itemClickListener = listener;
     }
 
@@ -87,9 +87,11 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             status = view.findViewById(R.id.bluetooth_boolean);
 
             itemView.setOnClickListener(v -> {
-                int pos = getAbsoluteAdapterPosition();
+                int pos = getAdapterPosition();
                 if(pos != RecyclerView.NO_POSITION){
-                    itemClickListener.onItemClicked(pos,v);
+                    if(itemClickListener!=null){
+                        itemClickListener.onItemClicked(pos,v);
+                    }
                 }
             });
 

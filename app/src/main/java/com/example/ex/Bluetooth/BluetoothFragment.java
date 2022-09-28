@@ -93,6 +93,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onResume() {
         super.onResume();
@@ -149,7 +150,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         adapter.setOnItemClickListener((position, view2) -> { // 등록된 디바이스  클릭
 
             mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.e(TAG, "디바이스 검색 취소");
+            Log.d(TAG, "디바이스 검색 취소");
 
             String name1 = paired_list.get(position).getDevice();
             String[] address1 = name1.split("\n");
@@ -157,13 +158,15 @@ public class BluetoothFragment extends Fragment implements Serializable {
             //Bundle bundle = new Bundle(); //프래그먼트 <-> 프래그먼트 데이터 이동을 번들로 함
             //bundle.putString("이름", paired_list.get(position).getDevice());
 
-            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
             if(paired_list.get(position).getStatus().equals("연결 안 됨")){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();  // 프래그먼트 다이얼로그 만들어서 써봄 일단 AlertDialog로 쓴다..
                 //myDialogFragment.setArguments(bundle);
 
                 //transaction.replace(R.id.SecondFragment, myDialogFragment);
                 Connection_onCreateDialog(address1[0],address1[1]);
+                //paired_list.remove(position);
+                //adapter.notifyDataSetChanged();
 
             }else {
                 //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
@@ -171,19 +174,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
                 //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
                 DisConnection_onCreateDialog(address1[0],address1[1]);
+
             }
-
-            transaction.commit();
-
+            //transaction.commit();
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address1[0]);
-
 
         }); // 등록된 디바이스  클릭
 
         adapter2.setOnItemClickListener((position, view2) -> { // 연결 가능한 디바이스 클릭
 
             mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.e(TAG, "디바이스 검색 취소");
+            Log.d(TAG, "디바이스 검색 취소");
 
             String name = scan_list.get(position).getDevice();
             String[] address = name.split("\n");
@@ -191,7 +192,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             Bundle bundle = new Bundle();
             bundle.putString("이름", scan_list.get(position).getDevice());
 
-            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+            //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
             if(scan_list.get(position).getStatus().equals("연결 안 됨")){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();
                 //myDialogFragment.setArguments(bundle);
@@ -207,13 +208,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 DisConnection_onCreateDialog(address[0],address[1]);
 
             }
-            transaction.commit();
-
-
+            //transaction.commit();
             Log.d(TAG, "연결 시도한 블루투스 기기 : " + address[0]);
 
         }); // 연결 가능한 디바이스 클릭 이벤트
-
 
     }
 
@@ -227,7 +225,14 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     dialog.dismiss();
                 })
                 .setNegativeButton("확인",(dialog, which) -> {
-
+                    mConnectedThread.cancel();
+                    try {
+                        mBluetoothSocket.close();
+                        Log.e(TAG, "블루투스 연결 취소" );
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    dialog.dismiss();
                 })
                 .create();
         return builder.show();
@@ -390,10 +395,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
             }
             if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
                 mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                Log.e(TAG, "디바이스 검색 취소");
+                Log.d(TAG, "디바이스 검색 취소");
             } else {
                 mBluetoothAdapter.startDiscovery(); //검색 시작
-                Log.e(TAG, "디바이스 검색 시작");
+                Log.d(TAG, "디바이스 검색 시작");
                 adapter2.notifyDataSetChanged();
             }
         } catch (Exception e) {
@@ -467,7 +472,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             }
             if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
                 mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-                Log.e(TAG, "디바이스 검색 취소");
+                Log.d(TAG, "디바이스 검색 취소");
             }
             Intent intent = new Intent(getContext(),MainActivity.class);
             startActivity(intent);
@@ -528,7 +533,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
         if(mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.e(TAG, "디바이스 검색 취소");
+            Log.d(TAG, "디바이스 검색 취소");
         }
     }
 
@@ -540,7 +545,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
         if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
             mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.e(TAG, "디바이스 검색 취소");
+            Log.d(TAG, "디바이스 검색 취소");
         }
         requireContext().unregisterReceiver(mDeviceDiscoverReceiver);
 

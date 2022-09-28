@@ -132,17 +132,21 @@ public class ConnectedThread extends Thread  {
     public void write(String input) {
         byte[] bytes = input.getBytes();
         try {
-            mmOutStream.write(bytes);
-            Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_WRITE,-1,-1,mmBuffer);
-            writeMessage.sendToTarget();
+            if(mBluetoothSocket.isConnected()){
+                mmOutStream.write(bytes);
+                Message writeMessage = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_WRITE,-1,-1,mmBuffer);
+                writeMessage.sendToTarget();
+            }
+            else {
+                Log.e(TAG, "write: 소켓 연결 안 됨" );
+            }
         } catch (IOException e) {
-
             Log.e(TAG, "데이터 보내기 오류!", e);
-            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
-            Bundle bundle = new Bundle();
-            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
-            writeErrorMsg.setData(bundle);
-            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
+//            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
+//            Bundle bundle = new Bundle();
+//            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
+//            writeErrorMsg.setData(bundle);
+//            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
         }
 
     }
