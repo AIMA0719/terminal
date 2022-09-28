@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
         dataList.clear(); // 어플 시작할때마다 리스트 초기화
         adapter.notifyDataSetChanged(); //갱신
         // --------
-
         CheckPermission();
     }
 
@@ -359,9 +358,11 @@ public class MainActivity extends AppCompatActivity {
                                     Manifest.permission.BLUETOOTH_SCAN,
                                     Manifest.permission.BLUETOOTH_ADVERTISE,
                                     Manifest.permission.BLUETOOTH_CONNECT,
+                                    Manifest.permission.ACCESS_FINE_LOCATION, // 정확한 위치
+                                    Manifest.permission.ACCESS_COARSE_LOCATION, // 대략적인 위치
                                     Manifest.permission.MANAGE_EXTERNAL_STORAGE,
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    Manifest.permission.READ_EXTERNAL_STORAGE
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE, // 스토리지 쓰기
+                                    Manifest.permission.READ_EXTERNAL_STORAGE // 스토리지(저장소) 읽기
                             },
                             1);
                 }
