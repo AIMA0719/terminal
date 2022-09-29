@@ -217,28 +217,31 @@ public class MainActivity extends AppCompatActivity {
             flag = false; // 대시보드 데이터를 창에 안 띄워주기 위함
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { // 시뮬레이터랑 연결 되어있는 상태라면
-                    BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
-                    Log.d(TAG, "Request 메세지 : " + sText);
+                    if(mBluetoothSocket != null){
+                        BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
+                        Log.d(TAG, "Request 메세지 : " + sText);
 
-                    MainData data = new MainData();
-                    data.setText("TX : "+sText);
-                    database.mainDao().insert(data); //DB에 add
-                    dataList.add(data); //List에 add
+                        MainData data = new MainData();
+                        data.setText("TX : "+sText);
+                        database.mainDao().insert(data); //DB에 add
+                        dataList.add(data); //List에 add
 //                    dataList.addAll(database.mainDao().getAll());
 
-                    try {
-                        mTextFileManager.save("TX : "+sText+"\n" ); // 내부 저장소에 add
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                        try {
+                            mTextFileManager.save("TX : "+sText+"\n" ); // 내부 저장소에 add
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
 
-                    editText.setText("");// editText 초기화
-                    adapter.notifyDataSetChanged(); //갱신
+                        editText.setText("");// editText 초기화
+                        adapter.notifyDataSetChanged(); //갱신
 //
 //                    Log.e(TAG, "보내기 버튼 누른 후 dataList : "+dataList);
 //                    Log.e(TAG, "보내기 버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
 
-                    Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                        Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
+                    }
+
 
                 } else { //기기랑 연결 안 되어있는 상태
                     MainData data = new MainData();
