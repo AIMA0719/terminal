@@ -12,16 +12,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +25,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
 
@@ -46,7 +47,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothFragment extends Fragment implements Serializable {
+public class BluetoothFragment extends Fragment implements Serializable, onPressedListener {
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     public static final int REQUEST_LOACTION = 2;
@@ -76,6 +77,14 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     Set<android.bluetooth.BluetoothDevice> pairedDevice; // 등록된 디바이스 받는 Set
 
+
+    public void onBackPressed(){
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction().remove(BluetoothFragment.this).commit();
+        fragmentManager.popBackStack();
+
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +97,20 @@ public class BluetoothFragment extends Fragment implements Serializable {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+
+            @Override
+
+            public void handleOnBackPressed() {
+
+                // Handle the back button event
+
+            }
+
+        };
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
     }
 

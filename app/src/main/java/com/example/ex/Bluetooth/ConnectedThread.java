@@ -6,12 +6,9 @@ import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 import static com.example.ex.Bluetooth.MyDialogFragment.BT_MESSAGE_READ;
 
 import android.bluetooth.BluetoothSocket;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-
-import com.example.ex.DashBoard.DashBoard;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,15 +35,18 @@ public class ConnectedThread extends Thread  {
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
-        try {
-            tmpIn = socket.getInputStream();
-            tmpOut = socket.getOutputStream();
-        } catch (IOException ignored) {
-            Log.e(TAG, "ConnectedThread: 소켓 이 닫혀있습니다!" );
+        if(mBluetoothSocket != null){
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException ignored) {
+                Log.e(TAG, "ConnectedThread: 소켓 이 닫혀있습니다!" );
+            }
+
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
         }
 
-        mmInStream = tmpIn;
-        mmOutStream = tmpOut;
     }
 
     @Override

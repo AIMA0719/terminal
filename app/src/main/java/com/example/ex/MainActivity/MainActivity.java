@@ -4,18 +4,6 @@ import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothSocket;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -39,21 +27,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.Bluetooth.ConnectedThread;
 import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.DashBoard.DashBoard;
-import com.example.ex.RoomDB.*;
 import com.example.ex.R;
+import com.example.ex.RoomDB.MainAdapter;
+import com.example.ex.RoomDB.MainData;
+import com.example.ex.RoomDB.RoomDB;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean bluetooth_flag = false;
     private Fragment AtCommandsFragment;
     private Fragment ObdPidsFragment;
+
+    long backKeyPressedTime = 0;
 
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -322,16 +321,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        mConnectedThread.write("ATZ"+"\r");
-        if( mConnectedThread.isAlive()){
-            mConnectedThread.interrupt();
-            try {
-                mBluetoothSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        finish();
+        mConnectedThread.cancel();
+        mConnectedThread.interrupt();
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -572,4 +564,26 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        // 기존 뒤로 가기 버튼의 기능을 막기 위해 주석 처리 또는 삭제
+
+        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
+        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지났으면 Toast 출력
+        // 2500 milliseconds = 2.5 seconds
+
+        if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
+            backKeyPressedTime = System.currentTimeMillis();
+            Toast.makeText(this, "한 번 더 누르시면 종료됩니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
+        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지나지 않았으면 종료
+        if (System.currentTimeMillis() <= backKeyPressedTime + 1000) {
+            Toast.makeText(this, "어플을 종료합니다.", Toast.LENGTH_LONG).show();
+            finish();
+            Log.d(TAG,"어플 종료");
+        }
+    }
 }
