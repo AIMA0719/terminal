@@ -84,14 +84,3 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 //    } //삭제하는 메소드드
 }
 
-class Customer {
-    public String device;
-
-    public Customer(String name){
-        this.device = name;
-    }
-
-    public String getName(){
-        return device;
-    }
-}

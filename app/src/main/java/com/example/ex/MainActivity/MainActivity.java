@@ -41,7 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.Bluetooth.ConnectedThread;
 import com.example.ex.Bluetooth.MyDialogFragment;
-import com.example.ex.DashBoard.DashBoard;
+import com.example.ex.DashBoard.DashBoardActivity;
 import com.example.ex.R;
 import com.example.ex.RoomDB.MainAdapter;
 import com.example.ex.RoomDB.MainData;
@@ -73,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
     public String sText = ""; // editText 창에 입력한 메세지
     public boolean flag = false;
     public boolean bluetooth_flag = false;
-    private Fragment AtCommandsFragment;
-    private Fragment ObdPidsFragment;
-    public static int screenflag = 0;
+    private Fragment AtCommandsFragment; // AT 커맨드 프래그먼트
+    private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
+    public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
 
     long backKeyPressedTime = 0;
 
@@ -127,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
         dataList.clear(); // 어플 시작할때마다 리스트 초기화
         adapter.notifyDataSetChanged(); //갱신
         // --------
-        CheckPermission();
+
+        CheckPermission(); // 권한 체크
     }
 
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
@@ -151,19 +152,16 @@ public class MainActivity extends AppCompatActivity {
                         if (readdress.contains(">")) {
                             Log.d(TAG, "Response 메세지 전달 받음");
                             String[] slicing_data = readdress.split(">");
-                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
+                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]); // slicing_data[0] = ex) 0105 41 05 09 41 05 90
 
-                            if((readdress.contains("at"))||(readdress.contains("OBD"))){
-                                Log.d(TAG, "AT command 를 입력 했습니다.");
-                                Toast.makeText(MainActivity.this, "AT command 를 입력 했습니다.", Toast.LENGTH_SHORT).show();
-                            }else if(readdress.equals(editText.getText()+"?")){
+                            if(readdress.equals(editText.getText()+"?")){ // 명령어 제외하고 입력
                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readdress.contains("NO")){
+                            }else if(readdress.contains("NO")){ // 데이터 없는 명령어 입력
                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readdress.contains("ok")||(readdress.contains("OK"))){
+                            }else if(readdress.contains("ok")||(readdress.contains("OK"))){ // 초기 세팅
                                 Log.d(TAG, "AT Commands setting중");
                             }
-                            else {
+                            else { // 명령어 제대로 된거 입력 하면
                                 if(!flag) {
                                     MainData data1 = new MainData();
                                     data1.setText("RX : "+slicing_data[0]);
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "마지막 데이터가 아닙니다.");
                         }
 
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged(); // 갱신
 
                         readdress = ""; // 초기화 시켜줌
                         Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
@@ -195,13 +193,11 @@ public class MainActivity extends AppCompatActivity {
                             String[] name = msg.obj.toString().split("\n");
                             Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 되었습니다.", Toast.LENGTH_SHORT).show();
 
-//                        mConnectedThread.write("atz>");
-//                        mBluetoothHandler.obtainMessage(MainActivity.BT_SETTINGS,1,-1).sendToTarget(); 메인에서 보냈고, 받을 Activity 에서 핸들러만들어서 받으면 된다.
                         } else if (msg.arg1==2){
                             String[] name = msg.obj.toString().split("\n");
                             Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 취소 했습니다", Toast.LENGTH_SHORT).show();
                         }
-                            else {
+                        else {
                             Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -211,15 +207,15 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 }
-            }; // 핸들러 ( What에 따라 동작 )
+            }; // 핸들러
         }).start();
 
         btAdd.setOnClickListener(v -> {
             sText = editText.getText().toString().trim();
             flag = false; // 대시보드 데이터를 창에 안 띄워주기 위함
             if (!sText.equals("")) {
-                if (BluetoothFragment.device != null) { //연결 되어있는 상태라면
-                    BluetoothFragment.mConnectedThread.write(sText+"\r");
+                if (BluetoothFragment.device != null) { // 시뮬레이터랑 연결 되어있는 상태라면
+                    BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
                     Log.d(TAG, "Request 메세지 : " + sText);
 
                     MainData data = new MainData();
@@ -229,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
 //                    dataList.addAll(database.mainDao().getAll());
 
                     try {
-                        mTextFileManager.save("TX : "+sText+"\n" ); // File에 add
+                        mTextFileManager.save("TX : "+sText+"\n" ); // 내부 저장소에 add
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -245,14 +241,14 @@ public class MainActivity extends AppCompatActivity {
                 } else { //기기랑 연결 안 되어있는 상태
                     MainData data = new MainData();
                     data.setText(sText);
-                    database.mainDao().insert(data);
-                    Log.d(TAG, "Request 메세지 : " + sText);
-                    dataList.add(data);
-                    adapter.notifyDataSetChanged(); //갱신
 
+                    dataList.clear(); //리스트 초기화
+                    dataList.add(data); // 리스트에 추가
+                    adapter.notifyDataSetChanged(); //갱신
                     editText.setText("");
-//                    dataList.clear(); //리스트 초기화
-//                    dataList.addAll(database.mainDao().getAll()); // DB에 add
+                    Log.d(TAG, "Request 메세지 : " + sText);
+
+//                    database.mainDao().insert(data); // 연결 안 됐으면 DB에 넣을필욘 없다
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     Log.d(TAG, "블루투스 기기랑 연결이 안 되어있는 상태입니다.");
@@ -265,9 +261,10 @@ public class MainActivity extends AppCompatActivity {
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
+
 //            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
 //            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
-//            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load());
+//            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load()); 이건 따로 기능으로 냅두려고 여기에 안 넣었다.
 
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
@@ -467,7 +464,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.dashboard: //대쉬보드 클릭
                 Intent intent = getIntent();
                 String data = intent.getStringExtra("데이터");
-                Intent intent1 = new Intent(this, DashBoard.class);
+                Intent intent1 = new Intent(this, DashBoardActivity.class);
                 intent1.putExtra("기기이름",data);
                 if(bluetooth_flag){
                     intent1.putExtra("블루투스연결","연결됨");

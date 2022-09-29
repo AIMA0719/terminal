@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:plainpie="http://schemas.android.com/apk/res-auto"    tools:context=".DashBoard.DashBoard"
+    xmlns:plainpie="http://schemas.android.com/apk/res-auto"    tools:context=".DashBoard.DashBoardActivity"
     android:orientation="vertical">
 
     <LinearLayout

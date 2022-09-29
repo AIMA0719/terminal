@@ -1,50 +1,27 @@
 package com.example.ex.Bluetooth;
 
-import static com.example.ex.Bluetooth.BluetoothFragment.device;
-import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
-import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
-
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.ex.MainActivity.MainActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+
 import com.example.ex.R;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Objects;
-import java.util.UUID;
 
 public class CancelDialogFragment extends DialogFragment {
 
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
 
-    private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     final String TAG = "Dialog_Fragment";
 
     public CancelDialogFragment() {
@@ -53,7 +30,6 @@ public class CancelDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
     }
 
@@ -87,15 +63,6 @@ public class CancelDialogFragment extends DialogFragment {
 
         return view;
     }
-
-    public boolean isConnected(BluetoothDevice device) {
-        try {
-            Method m = device.getClass().getMethod("isConnected", (Class[]) null);
-            return (boolean) m.invoke(device, (Object[]) null);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    } // 블루투스 연결 됐는지 체크하는 함수 브로드캐스트로도 할 수 있지만 이거 사용해봤다
 
     public void onDestroy(){
         super.onDestroy();

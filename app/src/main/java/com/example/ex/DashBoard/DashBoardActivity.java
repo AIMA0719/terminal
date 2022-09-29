@@ -25,7 +25,7 @@ import com.example.ex.R;
 import java.io.IOException;
 import java.util.Objects;
 
-public class DashBoard extends AppCompatActivity {
+public class DashBoardActivity extends AppCompatActivity {
 
     public final String TAG = "DashBoard_Activity";
     public static int mMaxPercentage = 100;

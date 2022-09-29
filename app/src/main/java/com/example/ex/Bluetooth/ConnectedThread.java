@@ -18,10 +18,9 @@ import java.nio.charset.StandardCharsets;
 public class ConnectedThread extends Thread  {
 
     public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE0","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
-    public final String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
-    BluetoothSocket mBluetoothSocket;
-    InputStream mmInStream;
-    OutputStream mmOutStream;
+    public BluetoothSocket mBluetoothSocket;
+    public InputStream mmInStream;
+    public OutputStream mmOutStream;
     private byte[] mmBuffer;
     public static String readMessage;
     public static String Data = "";
@@ -105,10 +104,10 @@ public class ConnectedThread extends Thread  {
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
 
-
                     break;
                 }
-                //------------------------ 바이트 단위로 보냄 ex) 01234 를 0 1 2 3 4 이렇게
+
+                //------------------------ 아래 코드는 바이트 단위로 보냄 ex) 01234 를 0 1 2 3 4 이렇게
                 //try{
                 //    msg = "";
                 //    byte[] buffer = new byte[1];
@@ -149,11 +148,6 @@ public class ConnectedThread extends Thread  {
             }
         } catch (IOException e) {
             Log.e(TAG, "데이터 보내기 실패!", e);
-//            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
-//            Bundle bundle = new Bundle();
-//            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
-//            writeErrorMsg.setData(bundle);
-//            BluetoothFragment.mBluetoothHandler.sendMessage(writeErrorMsg);
         }
 
     }

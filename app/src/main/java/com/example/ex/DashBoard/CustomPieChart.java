@@ -157,8 +157,8 @@ public class CustomPieChart extends PieView {
     @Override
     public void setPercentage(final float percentage) {
         super.setPercentage(percentage);
-        DashBoard.mPercentage = (int) (percentage / DashBoard.mMaxPercentage);
-        DashBoard.mAngle = (DashBoard.CIRCLE_DEGREES * DashBoard.mPercentage);
+        DashBoardActivity.mPercentage = (int) (percentage / DashBoardActivity.mMaxPercentage);
+        DashBoardActivity.mAngle = (DashBoardActivity.CIRCLE_DEGREES * DashBoardActivity.mPercentage);
         invalidate();
     }
 

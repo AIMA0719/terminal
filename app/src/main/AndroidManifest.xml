@@ -52,7 +52,7 @@
 
         </activity>
         
-        <activity android:name=".DashBoard.DashBoard"
+        <activity android:name=".DashBoard.DashBoardActivity"
             android:exported="false">
 
 

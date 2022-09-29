@@ -4,10 +4,6 @@ import static com.example.ex.Bluetooth.BluetoothFragment.device;
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 import static com.example.ex.Bluetooth.BluetoothFragment.mConnectedThread;
 
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -16,8 +12,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +19,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -43,11 +45,6 @@ public class MyDialogFragment extends DialogFragment {
     final String TAG = "Dialog_Fragment";
 
     public MyDialogFragment() {
-    }
-
-    public static MyDialogFragment getInstance() {
-        MyDialogFragment e = new MyDialogFragment();
-        return e;
     }
 
     @SuppressLint("SetTextI18n")

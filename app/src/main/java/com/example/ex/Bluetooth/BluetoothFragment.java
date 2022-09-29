@@ -48,17 +48,17 @@ import java.util.UUID;
 public class BluetoothFragment extends Fragment implements Serializable {
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
-    public static final int REQUEST_LOACTION = 2;
-    public static final int BT_MESSAGE_WRITE = 4;
-    public static final int BT_MESSAGE_READ = 5;
-    private static final int RESULT_OK = 7;
-    private static final int RESULT_CANCELED = 8;
+    public static final int REQUEST_LOCATION = 2;
+    public static final int BT_MESSAGE_WRITE = 3;
+    public static final int BT_MESSAGE_READ = 4;
+    private static final int RESULT_OK = 5;
+    private static final int RESULT_CANCELED = 6;
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
 
-    public BluetoothAdapter mBluetoothAdapter; //블루투스 어댑터 선언
+    public BluetoothAdapter mBluetoothAdapter;
     public static Handler mBluetoothHandler;
     public static BluetoothSocket mBluetoothSocket;
     public static ConnectedThread mConnectedThread;
@@ -100,7 +100,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         CheckScanDevice(); // 연결 가능한 디바이스 출력
 
         bluetooth_on.setOnClickListener(v -> {
-            if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
+            if (mBluetoothAdapter != null) { //블루투스 지원안하면...
                 if (!mBluetoothAdapter.isEnabled()) {
                     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {// 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
                         Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
@@ -186,9 +186,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
             String name = scan_list.get(position).getDevice();
             String[] address = name.split("\n");
 
-            Bundle bundle = new Bundle();
-            bundle.putString("이름", scan_list.get(position).getDevice());
-
+            //Bundle bundle = new Bundle();
+            //bundle.putString("이름", scan_list.get(position).getDevice());
 
             //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
             if(!MyItemRecyclerViewAdapter.Connection_flag){
@@ -230,9 +229,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         adapter.notifyDataSetChanged();
                     }
                     dialog.dismiss();
-
-                    //Intent intent = new Intent(getContext(), MainActivity.class); // 그냥 메인으로 보내서 업데이트 함..
-                    //startActivity(intent);
 
                     mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 2, -1,device_name)
                             .sendToTarget();
@@ -353,31 +349,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
 
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
-                for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    if(isConnected(bt)){
+                for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add
+                    if(isConnected(bt)){ // 연결 되어있는 Device 라면
                         paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 됨"));
                     }
-                    else {
+                    else { // 연결 되어있지 않은 Device 라면
                         paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
                     }
 
                     adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
                 }
 
-            } else {
-                Log.d(TAG, "CheckPairedDevice: 오류");
-            }
-        } else { //샤오미에선 여기 돔
-
-            pairedDevice = mBluetoothAdapter.getBondedDevices();
-            if (pairedDevice.size() > 0) { // 디바이스가 있으면
-                for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
-                    if(isConnected(bt)){
-                        paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
-                    }
-                    paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨")); // 저 new Customer을 그냥 Device로 바꿔야함.
-                    adapter.notifyDataSetChanged();
-                }
             } else {
                 Log.d(TAG, "CheckPairedDevice: 오류");
             }
@@ -410,9 +392,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
     } // 연결 가능한 디바이스 출력
 
 
-
     private final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
-        int cnt = 0;
+        int cnt = 0; // 몇개 찾았는지 count
 
         @SuppressLint("NotifyDataSetChanged")
         public void onReceive(Context context, Intent intent) {
@@ -442,19 +423,11 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     Log.v(TAG, "총 찾은 디바이스 개수 : " + cnt); // 블루투스가 꺼질때 동작한다.
                 }
 
-            } else {
-                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                    device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-                    if (device.getName() != null) {
-                        scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress(),"연결 안 됨"));
-                        adapter2.notifyDataSetChanged(); //갱신
-                        cnt += 1;
-                    }
-                }
+            }else {
+                Log.d(TAG, "onReceive: 폰이 안 좋다..");
             }
         }
-    }; // 브로드캐스트 리시버 정의(Device scan)
+    }; // 브로드캐스트 리시버 (Device scan)
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { //툴바랑 연결된 메뉴
@@ -468,7 +441,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         toolbar.inflateMenu(R.menu.fragment_menu);
 //        toolbar.setTitle("블루투스 연결 설정");
 
-        toolbar.setNavigationIcon(R.drawable.ic_baseline_keyboard_backspace_24);
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_keyboard_backspace_24); // 뒤로가기 버튼 누르면 동작
         toolbar.setNavigationOnClickListener(v -> {
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 return;
@@ -494,7 +467,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
         return super.onOptionsItemSelected(item);
 
-    } // 새로고침 버튼
+    } // 새로고침 버튼 잘 안 된다..
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -514,7 +487,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) { //권한 요청 하는 부분
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_LOACTION) {
+        if (requestCode == REQUEST_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {   // 권한요청이 허용된 경우
                         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -562,7 +535,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    } // 블루투스 연결 됐는지 체크하는 함수 브로드캐스트로도 할 수 있지만 이거 사용해봤다
+    } // 블루투스 연결 됐는지 체크하는 함수
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
         try {
@@ -574,6 +547,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
         }
         return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
-    } // 소켓 만들기 위한 메소드
+    } // 소켓 만들기 위한 함수
 
 }

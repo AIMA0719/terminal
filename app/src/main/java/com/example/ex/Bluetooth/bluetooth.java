@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,13 +21,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.Serializable;
+import com.example.ex.MainActivity.MainActivity;
+import com.example.ex.R;
+
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,20 +38,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import android.bluetooth.BluetoothSocket;
-import android.os.SystemClock;
-
-import com.example.ex.MainActivity.MainActivity;
-import com.example.ex.R;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 public class bluetooth extends AppCompatActivity {
 
-
-    public static final int BT_MESSAGE_READ = 3;
     TextView bluetooth_status, listtxt;
     Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
@@ -57,8 +49,7 @@ public class bluetooth extends AppCompatActivity {
     private static final int REQUEST_LOACTION = 2;
     private static final int BT_CONNECTING_STATUS = 4;
 
-
-    Handler mBluetoothHandler;
+    public Handler mBluetoothHandler;
     public BluetoothSocket mBluetoothSocket;
     public static ConnectedThread mConnectedThread;
 
