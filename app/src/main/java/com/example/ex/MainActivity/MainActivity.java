@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean bluetooth_flag = false;
     private Fragment AtCommandsFragment;
     private Fragment ObdPidsFragment;
+    public static int screenflag = 0;
 
     long backKeyPressedTime = 0;
 
@@ -310,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+
     }
 
     public void onRestart(){
@@ -321,9 +323,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        mConnectedThread.cancel();
-        mConnectedThread.interrupt();
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.S)
@@ -417,6 +416,7 @@ public class MainActivity extends AppCompatActivity {
                     FragmentTransaction ft1 = getSupportFragmentManager().beginTransaction();
                     ft1.replace(R.id.FirstFragment, bluetoothFragment);
                     ft1.commit();
+                    screenflag = 1;
                 } catch (Exception e) {
                     Log.d(TAG, "Error :" + e);
                 }
@@ -573,17 +573,23 @@ public class MainActivity extends AppCompatActivity {
         // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지났으면 Toast 출력
         // 2500 milliseconds = 2.5 seconds
 
-        if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
-            backKeyPressedTime = System.currentTimeMillis();
-            Toast.makeText(this, "한 번 더 누르시면 종료됩니다.", Toast.LENGTH_LONG).show();
-            return;
+        if(screenflag == 0){
+            if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
+                backKeyPressedTime = System.currentTimeMillis();
+                Toast.makeText(this, "한 번 더 누르시면 종료됩니다.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
+            // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지나지 않았으면 종료
+            if (System.currentTimeMillis() <= backKeyPressedTime + 1000) {
+                finish();
+                Log.e(TAG, "어플 종료!" );
+
+            }
+        }else if(screenflag == 1){
+
         }
-        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
-        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지나지 않았으면 종료
-        if (System.currentTimeMillis() <= backKeyPressedTime + 1000) {
-            Toast.makeText(this, "어플을 종료합니다.", Toast.LENGTH_LONG).show();
-            finish();
-            Log.d(TAG,"어플 종료");
-        }
+
+
     }
 }

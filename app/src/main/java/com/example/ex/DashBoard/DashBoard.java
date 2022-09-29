@@ -2,10 +2,7 @@ package com.example.ex.DashBoard;
 
 
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import com.example.ex.Bluetooth.BluetoothFragment;
+
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
@@ -16,8 +13,15 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.MainActivity.MainActivity;
 import com.example.ex.R;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -203,17 +207,28 @@ public class DashBoard extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         Log.e(TAG, "DashBoard 퍼즈" );
-//        setRun(false);
+        setRun(false);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         DashBoardThread.interrupt(); // 쓰레드 처리함
 
     }
 
     public void onDestroy(){
         super.onDestroy();
+        if(mBluetoothSocket != null){
+
         try {
+
             mBluetoothSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        }else {
+            Log.d(TAG, "DashBoard 종료합니다. " );
         }
     }
 

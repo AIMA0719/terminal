@@ -25,14 +25,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,7 +45,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public class BluetoothFragment extends Fragment implements Serializable, onPressedListener {
+public class BluetoothFragment extends Fragment implements Serializable {
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     public static final int REQUEST_LOACTION = 2;
@@ -77,14 +75,6 @@ public class BluetoothFragment extends Fragment implements Serializable, onPress
 
     Set<android.bluetooth.BluetoothDevice> pairedDevice; // 등록된 디바이스 받는 Set
 
-
-    public void onBackPressed(){
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction().remove(BluetoothFragment.this).commit();
-        fragmentManager.popBackStack();
-
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,20 +87,6 @@ public class BluetoothFragment extends Fragment implements Serializable, onPress
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
-
-            @Override
-
-            public void handleOnBackPressed() {
-
-                // Handle the back button event
-
-            }
-
-        };
-
-        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
     }
 
@@ -501,6 +477,7 @@ public class BluetoothFragment extends Fragment implements Serializable, onPress
                 mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                 Log.d(TAG, "디바이스 검색 취소");
             }
+            MainActivity.screenflag = 0;
             Intent intent = new Intent(getContext(),MainActivity.class);
             startActivity(intent);
         });
