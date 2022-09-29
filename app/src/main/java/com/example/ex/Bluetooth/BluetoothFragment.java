@@ -105,6 +105,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {// 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
                         Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
                         startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                        MyItemRecyclerViewAdapter.Connection_flag = false; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
 
                     } else {
                         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -112,6 +113,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         } else {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                             startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                            MyItemRecyclerViewAdapter.Connection_flag = false; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
 
                         }
                     }
@@ -130,12 +132,15 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
                     mBluetoothAdapter.disable(); //블루투스 비활성화
                     Toast.makeText(getContext(), "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
+                    MyItemRecyclerViewAdapter.Connection_flag = true; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
+
                 } else {
                     if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) { //권한 체크해주고
                         Toast.makeText(getContext(), "블루투스 권한이 없습니다.", Toast.LENGTH_SHORT).show();
 
                     } else {
                         mBluetoothAdapter.disable(); //블루투스 비활성화
+                        MyItemRecyclerViewAdapter.Connection_flag = true; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
                         Toast.makeText(getContext(), "블루투스를 비활성화 하였습니다.", Toast.LENGTH_SHORT).show();
                     }
                 }

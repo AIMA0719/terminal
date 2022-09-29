@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.Bluetooth.ConnectedThread;
 import com.example.ex.Bluetooth.MyDialogFragment;
+import com.example.ex.Bluetooth.MyItemRecyclerViewAdapter;
 import com.example.ex.DashBoard.DashBoardActivity;
 import com.example.ex.R;
 import com.example.ex.RoomDB.MainAdapter;
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 취소 했습니다", Toast.LENGTH_SHORT).show();
                         }
                         else {
+                            MyItemRecyclerViewAdapter.Connection_flag = false; // 이거 안 해주면 실패해도 연결 취소하시겠냐 뜸
                             Toast.makeText(MainActivity.this, "블루투스 연결에 실패 했습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -423,7 +425,6 @@ public class MainActivity extends AppCompatActivity {
 
                 String a = mTextFileManager.load();
 
-
                 if(a != null){
                     MainData data1 = new MainData();
                     data1.setText(a);
@@ -433,14 +434,13 @@ public class MainActivity extends AppCompatActivity {
 
                     editText.setText("");
 
+                    Toast.makeText(this, "파일 Load 완료!", Toast.LENGTH_SHORT).show();
+
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1);
                 }else {
                     Toast.makeText(this, "불러올 Log가 없습니다!", Toast.LENGTH_SHORT).show();
                 }
 
-//                database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
-//                dataList.clear(); // 어플 시작할때마다 리스트 초기화
-//                mTextFileManager.delete(); // 내부 저장소도 초기화
                 return true;
                 
             case R.id.delete_load:
@@ -449,10 +449,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "삭제할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
                 }
                 else {
-
+                    database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
+                    dataList.clear(); // List 삭제
                     mTextFileManager.delete();
-                    dataList.clear(); //리스트 초기화
-                    dataList.addAll(database.mainDao().getAll()); // DB에 add
 
                     adapter.notifyDataSetChanged(); //갱신
 
@@ -521,7 +520,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return null;
             }
-            Toast.makeText(context, "파일 Load 완료!", Toast.LENGTH_SHORT).show();
             return strTmp;
         }
 
