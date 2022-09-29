@@ -106,7 +106,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
             status = view.findViewById(R.id.bluetooth_boolean);
 
             itemView.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 if(pos != RecyclerView.NO_POSITION){
                     if(itemClickListener!=null){
                         itemClickListener.onItemClicked(pos,v);

@@ -41,7 +41,9 @@ public class ConnectedThread extends Thread  {
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+            Log.e(TAG, "ConnectedThread: 소켓 이 닫혀있습니다!" );
+        }
 
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
@@ -61,7 +63,7 @@ public class ConnectedThread extends Thread  {
                         readMessage = new String(mmBuffer, 0, temp, StandardCharsets.UTF_8).trim();
                         Data += readMessage;
                     } catch (Exception e) {
-                        Log.d(TAG, "run: 오류남");
+                        Log.d(TAG, "Data read 실패!");
                     }
 
                     if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
@@ -138,10 +140,10 @@ public class ConnectedThread extends Thread  {
                 writeMessage.sendToTarget();
             }
             else {
-                Log.e(TAG, "write: 소켓 연결 안 됨" );
+                Log.e(TAG, "소켓 연결 실패!" );
             }
         } catch (IOException e) {
-            Log.e(TAG, "데이터 보내기 오류!", e);
+            Log.e(TAG, "데이터 보내기 실패!", e);
 //            Message writeErrorMsg = BluetoothFragment.mBluetoothHandler.obtainMessage(BT_MESSAGE_READ);
 //            Bundle bundle = new Bundle();
 //            bundle.putString("toast", "다른기기에 데이터를 보낼 수 없습니다.");
@@ -152,12 +154,6 @@ public class ConnectedThread extends Thread  {
     }
 
     public void cancel() {
-        try {
-            BluetoothFragment.mBluetoothSocket.close();
-        } catch (IOException ignored) { }
-    }
-
-    public void disconnection(){
         try {
             if(mmInStream != null){
                 mmInStream.close();

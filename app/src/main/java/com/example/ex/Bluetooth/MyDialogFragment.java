@@ -94,7 +94,7 @@ public class MyDialogFragment extends DialogFragment {
                         Log.d(TAG, "소켓 생성 완료!");
                     } catch (IOException e) {
                         fail = true;
-                        Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "소켓 생성 실패!", Toast.LENGTH_SHORT).show();
                     }
                     // Establish the Bluetooth socket connection.
                     try {
@@ -112,7 +112,7 @@ public class MyDialogFragment extends DialogFragment {
                                     .sendToTarget();
                         } catch (IOException e2) {
                             //insert code to deal with this
-                            Toast.makeText(getContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "소켓 생성 실패!", Toast.LENGTH_SHORT).show();
                         }
                     }
                     if (!fail) {

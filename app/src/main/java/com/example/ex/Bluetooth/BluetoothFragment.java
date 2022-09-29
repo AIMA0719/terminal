@@ -160,9 +160,11 @@ public class BluetoothFragment extends Fragment implements Serializable {
             //if(paired_list.get(position).getStatus().equals("연결 안 됨")){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();  // 프래그먼트 다이얼로그 만들어서 써봄 일단 AlertDialog로 쓴다..
                 //myDialogFragment.setArguments(bundle);
+
             if(!MyItemRecyclerViewAdapter.Connection_flag){
-                //transaction.replace(R.id.SecondFragment, myDialogFragment);
                 Connection_onCreateDialog(address1[0],address1[1]);
+
+                //transaction.replace(R.id.SecondFragment, myDialogFragment);
                 //paired_list.remove(position);
                 //adapter.notifyDataSetChanged();
             }else {

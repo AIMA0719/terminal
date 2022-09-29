@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1);
                 }else {
-                    Toast.makeText(this, "저장할 Log가 없습니다!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "불러올 Log가 없습니다!", Toast.LENGTH_SHORT).show();
                 }
 
 //                database.mainDao().reset(database.mainDao().getAll()); //어플 시작할때마다 DB 초기화
