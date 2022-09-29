@@ -23,7 +23,7 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
     private Context context;
     private final List<Customer2> items;
     private static final String TAG = "adapter";
-    public static boolean Connection_flag = true;
+    public static boolean Connection_flag;
 
     public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
         void onItemClicked(int position,View view);
@@ -56,22 +56,34 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
         String content = item.getStatus(); // 바꾸고 싶은 부분의 Text 가져와서
         SpannableString spannableString = new SpannableString(content);  // SpannableString 객체에 넣어줌
 
+        String content1 = item.getDevice();
+        SpannableString spannableString1 = new SpannableString(content1);
+
         int start = content.indexOf(item.getStatus()); //바꾸고 싶은 부분 시작
         int end = start + item.getStatus().length(); //바꾸고 싶은 부분 끝
+
+        int start1 = content1.indexOf(item.getDevice()); //바꾸고 싶은 부분 시작
+        int end1 = start1 + item.getDevice().length(); //바꾸고 싶은 부분 끝
 
         spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#438bff")),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 색깔 바꿔주고
         spannableString.setSpan(new StyleSpan(Typeface.BOLD),start,end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 굵은 글씨로 바꿔 줌
 
-        holder.textView.setText(item.getDevice());
+        spannableString1.setSpan(new ForegroundColorSpan(Color.parseColor("#438bff")),start1,end1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 색깔 바꿔주고
+        spannableString1.setSpan(new StyleSpan(Typeface.BOLD),start1,end1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 굵은 글씨로 바꿔 줌
+
+
 
         if(Connection_flag){
             if(item.getStatus().equals("연결 안 됨")){
                 holder.status.setText(item.getStatus()); // 넣어줌
+                holder.textView.setText(item.getDevice());
             }else {
+                holder.textView.setText(spannableString1);
                 holder.status.setText(spannableString);
             }
         }else {
             holder.status.setText("연결 안 됨");
+            holder.textView.setText(item.getDevice());
         }
 
 

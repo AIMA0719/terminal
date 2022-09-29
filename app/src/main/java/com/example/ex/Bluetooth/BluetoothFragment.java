@@ -2,7 +2,6 @@ package com.example.ex.Bluetooth;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -20,7 +19,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -159,19 +157,17 @@ public class BluetoothFragment extends Fragment implements Serializable {
             //bundle.putString("이름", paired_list.get(position).getDevice());
 
             //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            if(paired_list.get(position).getStatus().equals("연결 안 됨")){
+            //if(paired_list.get(position).getStatus().equals("연결 안 됨")){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();  // 프래그먼트 다이얼로그 만들어서 써봄 일단 AlertDialog로 쓴다..
                 //myDialogFragment.setArguments(bundle);
-
+            if(!MyItemRecyclerViewAdapter.Connection_flag){
                 //transaction.replace(R.id.SecondFragment, myDialogFragment);
                 Connection_onCreateDialog(address1[0],address1[1]);
                 //paired_list.remove(position);
                 //adapter.notifyDataSetChanged();
-
             }else {
                 //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
                 //cancelDialogFragment.setArguments(bundle);
-
                 //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
                 DisConnection_onCreateDialog(address1[0],address1[1]);
 
@@ -192,15 +188,15 @@ public class BluetoothFragment extends Fragment implements Serializable {
             Bundle bundle = new Bundle();
             bundle.putString("이름", scan_list.get(position).getDevice());
 
+
             //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            if(scan_list.get(position).getStatus().equals("연결 안 됨")){
+            if(!MyItemRecyclerViewAdapter.Connection_flag){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();
                 //myDialogFragment.setArguments(bundle);
 
                 //transaction.replace(R.id.SecondFragment, myDialogFragment);
                 Connection_onCreateDialog(address[0],address[1]);
-            }
-            else {
+            } else {
                 //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
                 //cancelDialogFragment.setArguments(bundle);
 
@@ -215,7 +211,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     }
 
-    public Dialog DisConnection_onCreateDialog(String device_name,String device_address) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void DisConnection_onCreateDialog(String device_name, String device_address) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         //LayoutInflater inflater = requireActivity().getLayoutInflater();
 
@@ -225,10 +222,12 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     dialog.dismiss();
                 })
                 .setNegativeButton("확인",(dialog, which) -> {
-                    mConnectedThread.cancel();
-                    Log.e(TAG, "블루투스 연결 취소" );
-                    MyItemRecyclerViewAdapter.Connection_flag = false;
-                    adapter.notifyDataSetChanged();
+                    if(BluetoothFragment.mBluetoothSocket != null){
+                        mConnectedThread.cancel();
+                        Log.e(TAG, "블루투스 연결 취소" );
+                        MyItemRecyclerViewAdapter.Connection_flag = false;
+                        adapter.notifyDataSetChanged();
+                    }
                     dialog.dismiss();
 
                     //Intent intent = new Intent(getContext(), MainActivity.class); // 그냥 메인으로 보내서 업데이트 함..
@@ -236,13 +235,12 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
                     mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 2, -1,device_name)
                             .sendToTarget();
-
                 })
                 .create();
-        return builder.show();
+        builder.show();
     }
 
-    public Dialog Connection_onCreateDialog(String device_name,String device_address) {
+    public void Connection_onCreateDialog(String device_name, String device_address) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         //LayoutInflater inflater = requireActivity().getLayoutInflater();
 
@@ -315,7 +313,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     }
                 }.start())
                 .create();
-        return builder.show();
+        builder.show();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -352,7 +350,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public void CheckPairedDevice() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_DENIED) {
             pairedDevice = mBluetoothAdapter.getBondedDevices();
-            MyItemRecyclerViewAdapter.Connection_flag = true;
+
             if (pairedDevice.size() > 0) { // 디바이스가 있으면 작동함
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
                     if(isConnected(bt)){
@@ -361,13 +359,15 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     else {
                         paired_list.add(new MyItemRecyclerViewAdapter.Customer2(bt.getName() + "\n" + bt.getAddress(),"연결 안 됨"));
                     }
+
                     adapter.notifyDataSetChanged(); // 어댑터 항목에 변화가 있음을 알려줌
                 }
+
             } else {
                 Log.d(TAG, "CheckPairedDevice: 오류");
             }
         } else { //샤오미에선 여기 돔
-            MyItemRecyclerViewAdapter.Connection_flag = true;
+
             pairedDevice = mBluetoothAdapter.getBondedDevices();
             if (pairedDevice.size() > 0) { // 디바이스가 있으면
                 for (android.bluetooth.BluetoothDevice bt : pairedDevice) { // 체크해서 list에 add 해줘가지고 listview에 나타냄..
@@ -386,7 +386,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     @SuppressLint("NotifyDataSetChanged")
     public void CheckScanDevice() {
-//
+
 //        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 //        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 //        startActivity(discoverableIntent); // 300초동안 검색 가능상태로 만들거냐?
