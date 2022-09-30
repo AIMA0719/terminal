@@ -317,8 +317,8 @@ public class bluetooth extends AppCompatActivity {
                             mBluetoothHandler.obtainMessage(BT_CONNECTING_STATUS, -1, -1)
                                     .sendToTarget();
                         } catch (IOException e2) {
-                            //insert code to deal with this
-                            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_SHORT).show();
+                            //insert code to deal with thiset
+                            e2.printStackTrace();
                         }
                     }
                     if (!fail) {

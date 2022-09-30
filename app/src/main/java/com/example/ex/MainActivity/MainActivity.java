@@ -78,8 +78,13 @@ public class MainActivity extends AppCompatActivity {
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
 
-    long backKeyPressedTime = 0;
+    //Debug : 6897BB
+    //Info : 6A8759
+    //Warn : BBB529
+    //Error : FF6B68
+    //Assert : 9876AA
 
+    long backKeyPressedTime = 0;
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -559,15 +564,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
-        // 기존 뒤로 가기 버튼의 기능을 막기 위해 주석 처리 또는 삭제
+        //super.onBackPressed(); 기존 뒤로 가기 버튼의 기능을 막기 위해 주석 처리
+        // 1000 milliseconds = 1.0 seconds
 
-        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
-        // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지났으면 Toast 출력
-        // 2500 milliseconds = 2.5 seconds
-
-        if(screenflag == 0){
             if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
+                // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
+                // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지났으면 Toast 출력
                 backKeyPressedTime = System.currentTimeMillis();
                 Toast.makeText(this, "한 번 더 누르시면 종료됩니다.", Toast.LENGTH_LONG).show();
                 return;
@@ -579,10 +581,5 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "어플 종료!" );
 
             }
-        }else if(screenflag == 1){
-
         }
-
-
-    }
 }
