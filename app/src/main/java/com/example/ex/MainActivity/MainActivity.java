@@ -40,7 +40,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.Bluetooth.ConnectedThread;
-import com.example.ex.Bluetooth.MyDialogFragment;
 import com.example.ex.Bluetooth.MyItemRecyclerViewAdapter;
 import com.example.ex.DashBoard.DashBoardActivity;
 import com.example.ex.R;
@@ -61,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
+    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
     public EditText editText;
     public Button btAdd, btReset,AT,OBD;
     public RecyclerView recyclerView;
@@ -73,10 +73,11 @@ public class MainActivity extends AppCompatActivity {
     public String readdress = ""; // 핸들러로 받은 메세지 저장
     public String sText = ""; // editText 창에 입력한 메세지
     public boolean flag = false;
-    public boolean bluetooth_flag = false;
     private Fragment AtCommandsFragment; // AT 커맨드 프래그먼트
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
+    public static final int BT_CONNECTING_STATUS = 1;
+    public int index = 0;
 
     //Debug : 6897BB
     //Info : 6A8759
@@ -155,37 +156,45 @@ public class MainActivity extends AppCompatActivity {
                         readdress += msg.obj;
                         editText.setText("");
 
-                        if (readdress.contains(">")) {
-                            Log.d(TAG, "Response 메세지 전달 받음");
-                            String[] slicing_data = readdress.split(">");
-                            Log.d(TAG, "Response 메세지 : " + slicing_data[0]); // slicing_data[0] = ex) 0105 41 05 09 41 05 90
+                        if(msg.arg2 == -2){ //처음 디폴트 세팅일 때~
+                            String send = DefaultATCommandArray[index];
+                            mConnectedThread.write(send+"\r"); // write 함
+                            // index fal
+                        }
 
-                            if(readdress.equals(editText.getText()+"?")){ // 명령어 제외하고 입력
-                                Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readdress.contains("NO")){ // 데이터 없는 명령어 입력
-                                Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                            }else if(readdress.contains("ok")||(readdress.contains("OK"))){ // 초기 세팅
-                                Log.d(TAG, "AT Commands setting중");
-                            }
-                            else { // 명령어 제대로 된거 입력 하면
-                                if(!flag) {
-                                    MainData data1 = new MainData();
-                                    data1.setText("RX : "+slicing_data[0]);
-                                    database.mainDao().insert(data1);
-                                    dataList.add(data1);
-                                    try {
-                                        mTextFileManager.save("RX : "+ slicing_data[0]+"\n"); // File에 add , :: 는 구분 용
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                        if(msg.arg2 == -1){ // 처음이 아닐때~
+                            if (readdress.contains(">")) {
+                                Log.d(TAG, "Response 메세지 전달 받음");
+                                String[] slicing_data = readdress.split(">");
+                                Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
+
+                                if(readdress.equals(editText.getText()+"?")){ // 명령어 제외하고 입력
+                                    Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                }else if(readdress.contains("NO")){ // 데이터 없는 명령어 입력
+                                    Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                                }else if(readdress.contains("ok")||(readdress.contains("OK"))){ // 초기 세팅
+                                    Log.d(TAG, "AT Commands setting중");
+                                }
+                                else { // 명령어 제대로 된거 입력 하면
+                                    if(!flag) {
+                                        MainData data1 = new MainData();
+                                        data1.setText("RX : "+slicing_data[0]);
+                                        database.mainDao().insert(data1);
+                                        dataList.add(data1);
+                                        try {
+                                            mTextFileManager.save("RX : "+ slicing_data[0]+"\n"); // File에 add , :: 는 구분 용
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
-                            }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
 //                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
-                        } else {
-                            Log.d(TAG, "마지막 데이터가 아닙니다.");
+                            } else {
+                                Log.d(TAG, "마지막 데이터가 아닙니다.");
+                            }
                         }
 
                         adapter.notifyDataSetChanged(); // 갱신
@@ -194,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                         Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }
 
-                    if (msg.what == MyDialogFragment.BT_CONNECTING_STATUS) {
+                    if (msg.what == MainActivity.BT_CONNECTING_STATUS) {
                         if (msg.arg1 == 1) {
                             String[] name = msg.obj.toString().split("\n");
                             Toast.makeText(getApplicationContext(), name[0] + " 기기와 연결 되었습니다.", Toast.LENGTH_SHORT).show();

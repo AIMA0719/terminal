@@ -35,7 +35,7 @@ import java.util.UUID;
 
 public class MyDialogFragment extends DialogFragment {
 
-    public static final int BT_CONNECTING_STATUS = 1;
+
     public static final int BT_MESSAGE_READ = 2;
     public TextView name;
     public BluetoothAdapter mBluetoothAdapter;
@@ -105,7 +105,7 @@ public class MyDialogFragment extends DialogFragment {
                         try {
                             fail = true;
                             mBluetoothSocket.close();
-                            mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, -1, -1)
+                            mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, -1, -1)
                                     .sendToTarget();
                         } catch (IOException e2) {
                             //insert code to deal with this
@@ -116,7 +116,7 @@ public class MyDialogFragment extends DialogFragment {
                         mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                         mConnectedThread.start(); // 시작
 
-                        mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
+                        mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, 1, -1, getArguments().getString("이름"))
                                 .sendToTarget();
 
 

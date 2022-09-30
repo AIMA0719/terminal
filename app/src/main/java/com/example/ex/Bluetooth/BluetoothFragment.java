@@ -53,6 +53,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public static final int BT_MESSAGE_READ = 4;
     private static final int RESULT_OK = 5;
     private static final int RESULT_CANCELED = 6;
+    public static final int AT_COMMANDS_SETTING =7;
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
@@ -74,6 +75,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     private final MyItemRecyclerViewAdapter adapter2 = new MyItemRecyclerViewAdapter(scan_list, getContext());
 
     Set<android.bluetooth.BluetoothDevice> pairedDevice; // 등록된 디바이스 받는 Set
+
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -242,7 +244,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                     }
                     dialog.dismiss();
 
-                    mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 2, -1,device_name)
+                    mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, 2, -1,device_name)
                             .sendToTarget();
                 })
                 .create();
@@ -292,7 +294,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                             try {
                                 fail = true;
                                 mBluetoothSocket.close();
-                                mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, -1, -1)
+                                mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, -1, -1)
                                         .sendToTarget();
                             } catch (IOException e2) {
                                 //insert code to deal with this
@@ -303,13 +305,13 @@ public class BluetoothFragment extends Fragment implements Serializable {
                             mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                             mConnectedThread.start(); // 시작
 
-                            mBluetoothHandler.obtainMessage(MyDialogFragment.BT_CONNECTING_STATUS, 1, -1, device_name)
+                            mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, 1, -1, device_name)
                                     .sendToTarget();
 
 
                             if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
-                                mConnectedThread.write("atz"+"\r"); // 시작할때 AT 커맨드 설정위해 날려준다
-
+                                mConnectedThread.write("ATZ\r");
+                                ConnectedThread.first_connection = true;
                                 if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
                                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                                 }
