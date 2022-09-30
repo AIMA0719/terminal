@@ -3,9 +3,11 @@ package com.example.ex.DashBoard;
 
 import static com.example.ex.Bluetooth.BluetoothFragment.mBluetoothHandler;
 
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,10 +15,12 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import com.example.ex.Bluetooth.BluetoothFragment;
 import com.example.ex.MainActivity.MainActivity;
@@ -34,7 +38,7 @@ public class DashBoardActivity extends AppCompatActivity {
     public static final int CIRCLE_DEGREES = 360;
     public BluetoothSocket mBluetoothSocket;
     public BluetoothDevice device;
-    public String [] DashBoard_Data = {"0105","010c","010d","0142","0110"};
+    public String[] DashBoard_Data = {"0105", "010c", "010d", "0142", "0110"};
     public String Speed_data;
     public String Rpm_data;
     public String Tmp_data;
@@ -42,6 +46,7 @@ public class DashBoardActivity extends AppCompatActivity {
     public String Maf_data;
     public static Thread DashBoardThread;
     public boolean run = true;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,11 +62,18 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         setRun(true);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (BluetoothFragment.mBluetoothAdapter == null) {
+            Toast.makeText(this, "시뮬레이터와 연결 먼저 해주세요!", Toast.LENGTH_SHORT).show();
+        }
 
         Log.e(TAG, "대쉬보드에 들어옴");
+
     }
 
     @Override
@@ -202,6 +214,10 @@ public class DashBoardActivity extends AppCompatActivity {
             }
         });
         DashBoardThread.start();
+
+        if(!run){
+             Toast.makeText(this, "블루투스를 연결해 주세요!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onPause(){
@@ -220,9 +236,7 @@ public class DashBoardActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         if(mBluetoothSocket != null){
-
         try {
-
             mBluetoothSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

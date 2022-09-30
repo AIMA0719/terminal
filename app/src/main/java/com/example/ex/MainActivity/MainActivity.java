@@ -468,12 +468,7 @@ public class MainActivity extends AppCompatActivity {
                 String data = intent.getStringExtra("데이터");
                 Intent intent1 = new Intent(this, DashBoardActivity.class);
                 intent1.putExtra("기기이름",data);
-                if(bluetooth_flag){
-                    intent1.putExtra("블루투스연결","연결됨");
-                    Log.e(TAG, "onOptionsItemSelected: 넘어감?" );
-                }
                 startActivity(intent1);
-
                 return true;
 
             default:

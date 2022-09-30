@@ -58,7 +58,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
     final String TAG = "bluetooth_activity";
 
-    public BluetoothAdapter mBluetoothAdapter;
+    public static BluetoothAdapter mBluetoothAdapter;
     public static Handler mBluetoothHandler;
     public static BluetoothSocket mBluetoothSocket;
     public static ConnectedThread mConnectedThread;
@@ -102,7 +102,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         bluetooth_on.setOnClickListener(v -> {
             if (mBluetoothAdapter != null) { //블루투스 지원안하면...
                 if (!mBluetoothAdapter.isEnabled()) {
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {// 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 샤오미때매 만든건데 샤오미 탈락..
                         Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
                         startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
                         MyItemRecyclerViewAdapter.Connection_flag = false; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
@@ -151,67 +151,74 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         adapter.setOnItemClickListener((position, view2) -> { // 등록된 디바이스  클릭
 
-            mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.d(TAG, "디바이스 검색 취소");
+            if(mBluetoothAdapter.isEnabled()){
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+                Log.d(TAG, "디바이스 검색 취소");
 
-            String name1 = paired_list.get(position).getDevice();
-            String[] address1 = name1.split("\n");
+                String name1 = paired_list.get(position).getDevice();
+                String[] address1 = name1.split("\n");
 
-            //Bundle bundle = new Bundle(); //프래그먼트 <-> 프래그먼트 데이터 이동을 번들로 함
-            //bundle.putString("이름", paired_list.get(position).getDevice());
+                //Bundle bundle = new Bundle(); //프래그먼트 <-> 프래그먼트 데이터 이동을 번들로 함
+                //bundle.putString("이름", paired_list.get(position).getDevice());
 
-            //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            //if(paired_list.get(position).getStatus().equals("연결 안 됨")){
+                //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                //if(paired_list.get(position).getStatus().equals("연결 안 됨")){
                 //MyDialogFragment myDialogFragment = new MyDialogFragment();  // 프래그먼트 다이얼로그 만들어서 써봄 일단 AlertDialog로 쓴다..
                 //myDialogFragment.setArguments(bundle);
 
-            if(!MyItemRecyclerViewAdapter.Connection_flag){
-                Connection_onCreateDialog(address1[0],address1[1]);
+                if(!MyItemRecyclerViewAdapter.Connection_flag){
+                    Connection_onCreateDialog(address1[0],address1[1]);
 
-                //transaction.replace(R.id.SecondFragment, myDialogFragment);
-                //paired_list.remove(position);
-                //adapter.notifyDataSetChanged();
+                    //transaction.replace(R.id.SecondFragment, myDialogFragment);
+                    //paired_list.remove(position);
+                    //adapter.notifyDataSetChanged();
+                }else {
+                    //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
+                    //cancelDialogFragment.setArguments(bundle);
+                    //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
+                    DisConnection_onCreateDialog(address1[0],address1[1]);
+
+                }
+                //transaction.commit();
+                Log.d(TAG, "연결 시도한 블루투스 기기 : " + address1[0]);
             }else {
-                //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
-                //cancelDialogFragment.setArguments(bundle);
-                //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
-                DisConnection_onCreateDialog(address1[0],address1[1]);
-
+                Toast.makeText(getContext(), "블루투스 연결을 먼저 해주세요", Toast.LENGTH_SHORT).show();
             }
-            //transaction.commit();
-            Log.d(TAG, "연결 시도한 블루투스 기기 : " + address1[0]);
 
         }); // 등록된 디바이스  클릭
 
         adapter2.setOnItemClickListener((position, view2) -> { // 연결 가능한 디바이스 클릭
 
-            mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
-            Log.d(TAG, "디바이스 검색 취소");
+            if(mBluetoothAdapter.isEnabled()){
+                mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
+                Log.d(TAG, "디바이스 검색 취소");
 
-            String name = scan_list.get(position).getDevice();
-            String[] address = name.split("\n");
+                String name = scan_list.get(position).getDevice();
+                String[] address = name.split("\n");
 
-            //Bundle bundle = new Bundle();
-            //bundle.putString("이름", scan_list.get(position).getDevice());
+                //Bundle bundle = new Bundle();
+                //bundle.putString("이름", scan_list.get(position).getDevice());
 
-            //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-            if(!MyItemRecyclerViewAdapter.Connection_flag){
-                //MyDialogFragment myDialogFragment = new MyDialogFragment();
-                //myDialogFragment.setArguments(bundle);
+                //FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                if(!MyItemRecyclerViewAdapter.Connection_flag){
+                    //MyDialogFragment myDialogFragment = new MyDialogFragment();
+                    //myDialogFragment.setArguments(bundle);
 
-                //transaction.replace(R.id.SecondFragment, myDialogFragment);
-                Connection_onCreateDialog(address[0],address[1]);
-            } else {
-                //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
-                //cancelDialogFragment.setArguments(bundle);
+                    //transaction.replace(R.id.SecondFragment, myDialogFragment);
+                    Connection_onCreateDialog(address[0],address[1]);
+                } else {
+                    //CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
+                    //cancelDialogFragment.setArguments(bundle);
 
-                //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
-                DisConnection_onCreateDialog(address[0],address[1]);
+                    //transaction.replace(R.id.SecondFragment, cancelDialogFragment);
+                    DisConnection_onCreateDialog(address[0],address[1]);
 
+                }
+                //transaction.commit();
+                Log.d(TAG, "연결 시도한 블루투스 기기 : " + address[0]);
+            }else {
+                Toast.makeText(getContext(), "블루투스 연결을 먼저 해주세요", Toast.LENGTH_SHORT).show();
             }
-            //transaction.commit();
-            Log.d(TAG, "연결 시도한 블루투스 기기 : " + address[0]);
-
         }); // 연결 가능한 디바이스 클릭 이벤트
 
     }
