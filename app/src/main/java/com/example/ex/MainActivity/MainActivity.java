@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
-    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
+    public final String[] DefaultATCommandArray = new String[]{"ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
     public EditText editText;
     public Button btAdd, btReset,AT,OBD;
     public RecyclerView recyclerView;
@@ -156,44 +156,54 @@ public class MainActivity extends AppCompatActivity {
                         readdress += msg.obj;
                         editText.setText("");
 
-                        if(msg.arg2 == -2){ //처음 디폴트 세팅일 때~
-                            String send = DefaultATCommandArray[index];
-                            mConnectedThread.write(send+"\r"); // write 함
-                            // index fal
-                        }
-
-                        if(msg.arg2 == -1){ // 처음이 아닐때~
-                            if (readdress.contains(">")) {
-                                Log.d(TAG, "Response 메세지 전달 받음");
-                                String[] slicing_data = readdress.split(">");
-                                Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
-
-                                if(readdress.equals(editText.getText()+"?")){ // 명령어 제외하고 입력
-                                    Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                                }else if(readdress.contains("NO")){ // 데이터 없는 명령어 입력
-                                    Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                                }else if(readdress.contains("ok")||(readdress.contains("OK"))){ // 초기 세팅
-                                    Log.d(TAG, "AT Commands setting중");
+                        if(ConnectedThread.first_connection){
+                            if(readdress.equals("ATST64OK")){
+                            }else {
+                                if(index <=7){
+                                    String send = DefaultATCommandArray[index];
+                                    mConnectedThread.write(send+"\r"); // write 함
+                                    index += 1;
+                                } else {
+                                    ConnectedThread.first_connection = false;
+                                    Log.d(TAG, "Default AT command Setting OK");
+                                    mConnectedThread.write("0104\r"); // write 함 // 이상하게 첫 데이터는 0104SEARCHING...7E803410432 이런식으로 SEARCHING...이 나와서 그냥 한 번 쏴줌
+                                    Toast.makeText(MainActivity.this, "AT 커맨트 세팅 완료!", Toast.LENGTH_SHORT).show();
                                 }
-                                else { // 명령어 제대로 된거 입력 하면
-                                    if(!flag) {
-                                        MainData data1 = new MainData();
-                                        data1.setText("RX : "+slicing_data[0]);
-                                        database.mainDao().insert(data1);
-                                        dataList.add(data1);
-                                        try {
-                                            mTextFileManager.save("RX : "+ slicing_data[0]+"\n"); // File에 add , :: 는 구분 용
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
+                            }
+                        }else {
+                            if(msg.arg2 == -1){ // 처음이 아닐때~
+                                if (readdress.contains(">")) {
+                                    Log.d(TAG, "Response 메세지 전달 받음");
+                                    String[] slicing_data = readdress.split(">");
+                                    Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
+
+                                    if(readdress.contains("?")){ // 명령어 제외하고 입력
+                                        Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                    }else if(readdress.contains("NO DATA")){ // 데이터 없는 명령어 입력
+                                        Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                                    }else if(readdress.contains("ok")||(readdress.contains("OK"))){ // 초기 세팅
+                                        Toast.makeText(MainActivity.this, "AT 커맨드를 입력했습니다", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else { // 명령어 제대로 된거 입력 하면
+                                        if(!flag) {
+                                            MainData data1 = new MainData();
+                                            data1.setText("RX : "+slicing_data[0]);
+                                            database.mainDao().insert(data1);
+                                            dataList.add(data1);
+                                            try {
+                                                mTextFileManager.save("RX : "+ slicing_data[0]+"\n"); // File에 add , :: 는 구분 용
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
-                                }
 
 //                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
 //                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
 
-                            } else {
-                                Log.d(TAG, "마지막 데이터가 아닙니다.");
+                                } else {
+                                    Log.d(TAG, "마지막 데이터가 아닙니다.");
+                                }
                             }
                         }
 
@@ -232,6 +242,7 @@ public class MainActivity extends AppCompatActivity {
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { // 시뮬레이터랑 연결 되어있는 상태라면
                     if(mBluetoothSocket != null){
+
                         BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
                         Log.d(TAG, "Request 메세지 : " + sText);
 

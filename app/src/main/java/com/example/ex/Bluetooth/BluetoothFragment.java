@@ -53,7 +53,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
     public static final int BT_MESSAGE_READ = 4;
     private static final int RESULT_OK = 5;
     private static final int RESULT_CANCELED = 6;
-    public static final int AT_COMMANDS_SETTING =7;
     private static final UUID MY_UUID = UUID.fromString("0001101-0000-1000-8000-00805f9b34fb");
     public TextView bluetooth_status;
     public Button bluetooth_on, bluetooth_off, bluetooth_scan;
@@ -240,6 +239,8 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         mConnectedThread.cancel();
                         Log.e(TAG, "블루투스 연결 취소" );
                         MyItemRecyclerViewAdapter.Connection_flag = false;
+                        ConnectedThread.first_connection = false; // 초기 AT 커맨드 세팅 때문에..
+
                         adapter.notifyDataSetChanged();
                     }
                     dialog.dismiss();
@@ -305,13 +306,11 @@ public class BluetoothFragment extends Fragment implements Serializable {
                             mConnectedThread = new ConnectedThread(mBluetoothSocket, mBluetoothHandler);
                             mConnectedThread.start(); // 시작
 
-                            mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, 1, -1, device_name)
-                                    .sendToTarget();
-
-
                             if(isConnected(device)){ //연결 되면 메인 엑티비티로 이동
+                                mBluetoothHandler.obtainMessage(MainActivity.BT_CONNECTING_STATUS, 1, -1, device_name).sendToTarget();
+                                ConnectedThread.first_connection = true; // 초기 AT 커맨드 세팅 때문에..
                                 mConnectedThread.write("ATZ\r");
-                                ConnectedThread.first_connection = true;
+
                                 if (mBluetoothAdapter.isDiscovering()) { // 검색 중인가?
                                     mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                                 }

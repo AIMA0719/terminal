@@ -120,31 +120,30 @@ public class DashBoardActivity extends AppCompatActivity {
                     if(msg.what == BluetoothFragment.BT_MESSAGE_READ){
                         if(msg.obj != null){
                             String data = msg.obj.toString();
-                            String [] a = data.split(">");
 
-                            if(a[0].contains("010d")){ // 속도 = A
-                                int A = Integer.parseInt(a[0].substring(11,13),16);
+                            if(data.contains("010d")){ // 속도 = A
+                                int A = Integer.parseInt(data.substring(14,16),16);
                                 Speed_data = String.valueOf(A);
 
-                            }else if(a[0].contains("0105")){ // 냉각수 = A-40
-                                int A = Integer.parseInt(a[0].substring(11,13),16);
+                            }else if(data.contains("0105")){ // 냉각수 = A-40
+                                int A = Integer.parseInt(data.substring(14,16),16);
                                 Tmp_data = String.valueOf(A-40);
 
-                            }else if(a[0].contains("010c")){ // RPM = 256*A + B / 4
-                                String A = a[0].substring(11,13);
-                                String B = a[0].substring(14,16);
+                            }else if(data.contains("010c")){ // RPM = 256*A + B / 4
+                                String A = data.substring(14,16);
+                                String B = data.substring(16,18);
                                 int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 4;
                                 Rpm_data = String.valueOf(real_real);
 
-                            }else if(a[0].contains("0110")){ // MAF = 256*A + B / 100
-                                String A = a[0].substring(11,13);
-                                String B = a[0].substring(14,16);
+                            }else if(data.contains("0110")){ // MAF = 256*A + B / 100
+                                String A = data.substring(14,16);
+                                String B = data.substring(16,18);
                                 int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16) )/ 100;
                                 Maf_data = String.valueOf(real_real);
 
-                            }else if(a[0].contains("0142")){ // VOLT = 256*A + B / 1000
-                                String A = a[0].substring(11,13);
-                                String B = a[0].substring(14,16);
+                            }else if(data.contains("0142")){ // VOLT = 256*A + B / 1000
+                                String A = data.substring(14,16);
+                                String B = data.substring(16,18);
                                 int real_real = (Integer.parseInt(A,16)*256 + Integer.parseInt(B,16)) / 1000;
                                 Volt_data = String.valueOf(real_real);
                             }
