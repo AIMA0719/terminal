@@ -79,8 +79,9 @@ public class ConnectedThread extends Thread  {
                                 }
 
                             }else { // 처음 연결이 아닐 때
-                                if(Data.contains("NO DATA")){
-                                    Log.d(TAG, "데이터가 없습니다! : "+Data);
+                                if(Data.contains("NO DATA")){  // 데이터가 없으면
+                                    Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
+                                    message.sendToTarget();
                                 }
                                 else if (Data.contains("at")||(Data.contains("OBD")||(Data.contains("AT")))){
                                     Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //

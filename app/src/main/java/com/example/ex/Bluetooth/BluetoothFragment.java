@@ -31,6 +31,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -88,6 +89,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
+
 
     }
 
@@ -353,6 +355,9 @@ public class BluetoothFragment extends Fragment implements Serializable {
         listView_scan.setLayoutManager(layoutManager1);
         listView_scan.setAdapter(adapter2);
 
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), ((LinearLayoutManager) layoutManager).getOrientation()); // RecyclerView 구분 선 추가
+        listView_pairing.addItemDecoration(dividerItemDecoration); // 적용
+        listView_scan.addItemDecoration(dividerItemDecoration); // 적용
         return view;
     }
 
