@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -47,6 +48,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class BluetoothFragment extends Fragment implements Serializable {
+
 
     public static final int REQUEST_ENABLE_BT = 1; // 요청 코드
     public static final int REQUEST_LOCATION = 2;
@@ -90,6 +92,16 @@ public class BluetoothFragment extends Fragment implements Serializable {
         filter.addAction(BluetoothDevice.ACTION_FOUND);
         requireContext().registerReceiver(mDeviceDiscoverReceiver, filter);
 
+        MainActivity.screenflag = 1;
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent intent = new Intent(getContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
     }
 
@@ -409,7 +421,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
     } // 연결 가능한 디바이스 출력
 
-
     private final BroadcastReceiver mDeviceDiscoverReceiver = new BroadcastReceiver() {
         int cnt = 0; // 몇개 찾았는지 count
 
@@ -425,7 +436,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         Toast.makeText(context, "권한이 없습니다..", Toast.LENGTH_SHORT).show();
                     } else {
                         if (device.getName() != null) {
-                            if(!scan_list.contains(device.getName())){
+                            if(!scan_list.contains(device.getAddress())&&!paired_list.contains(device.getAddress())){
                                 if(isConnected(device)){
                                     scan_list.add(new MyItemRecyclerViewAdapter.Customer2(device.getName() + "\n" + device.getAddress(),"연결 됨"));
                                 }
@@ -566,5 +577,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
         }
         return device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
     } // 소켓 만들기 위한 함수
+
 
 }

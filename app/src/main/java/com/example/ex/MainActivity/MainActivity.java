@@ -721,8 +721,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed(); 기존 뒤로 가기 버튼의 기능을 막기 위해 주석 처리
-        // 1000 milliseconds = 1.0 seconds
+
+        if (screenflag == 1) { // BluetoothFragment 일 때
+            super.onBackPressed();
+        }
+        else if(screenflag == 0){ //main 일 때
+            // 1000 milliseconds = 1.0 seconds
 
             if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
                 // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
@@ -735,8 +739,9 @@ public class MainActivity extends AppCompatActivity {
             // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지나지 않았으면 종료
             if (System.currentTimeMillis() <= backKeyPressedTime + 1000) {
                 finish();
-                Log.e(TAG, "어플 종료!" );
+                Log.e(TAG, "어플 종료!");
 
             }
         }
+    }
 }
