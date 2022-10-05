@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -121,6 +120,10 @@ public class BluetoothFragment extends Fragment implements Serializable {
                         Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
                         startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
                         MyItemRecyclerViewAdapter.Connection_flag = false; // 이거 안 해주면 bluetooth off 하고 다시 on 했을 때 Device 클릭하면 연결 취소하겠냐 뜸
+
+                        //assert getFragmentManager() != null;  // 프래그먼트를 새로고침 할 때 씀
+                        //FragmentTransaction ft = getFragmentManager().beginTransaction();
+                        //ft.detach(this).attach(this).commit();
 
                     } else {
                         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -485,18 +488,18 @@ public class BluetoothFragment extends Fragment implements Serializable {
         });
     } // 뒤로가기 버튼
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.bluetooth_reset) {
-            Log.d(TAG, "블루투스 새로고침 클릭 됨");
-            CheckPairedDevice();
-            CheckScanDevice();
-            Toast.makeText(getContext(), "새로고침 클릭", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
-    } // 새로고침 버튼 잘 안 된다..
+    //@Override
+    //public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    //    if (item.getItemId() == R.id.bluetooth_reset) {
+    //        Log.d(TAG, "블루투스 새로고침 클릭 됨");
+    //        CheckPairedDevice();
+    //        CheckScanDevice();
+    //        Toast.makeText(getContext(), "새로고침 클릭", Toast.LENGTH_SHORT).show();
+    //        return true;
+    //    }
+    //    return super.onOptionsItemSelected(item);
+//
+    //} // onCreateOptionsMenu = true 메인 의 onCreateOptionsMenu를 false 해줘야 BluetoothFragment에서 ToolBar가 작동한다.
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
