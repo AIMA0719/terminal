@@ -66,7 +66,7 @@ public class ConnectedThread extends Thread  {
 
                         if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
 
-                            if(first_connection){ // 처음 연결 할 때, 나눠주는 이유는 초반 디폴트 AT 세팅 때문..
+                            if(first_connection){ // 처음 디폴트 AT 커맨드 설정 flag
 
                                 if (Data.contains("at") || (Data.contains("OBD") || (Data.contains("AT"))
                                         || (Data.contains("OK"))) ){ // 초기 AT Commands 세팅시

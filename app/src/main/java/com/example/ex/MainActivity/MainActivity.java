@@ -168,42 +168,101 @@ public class MainActivity extends AppCompatActivity {
                                     mConnectedThread.write("0104\r"); // 이상하게 첫 데이터는 0104SEARCHING...7E803410432 이런식으로 SEARCHING...이 나와서 그냥 한 번 쏴줌
                                     Toast.makeText(MainActivity.this, "AT 커맨트 세팅 완료!", Toast.LENGTH_SHORT).show();
                                 }
-                            }else {
-                                Log.e(TAG, "handleMessage: ㄴㅇㄹㄴㅇㄹ" );
                             }
                         }else {
                             if(msg.arg2 == -1){ // 처음이 아닐때~
                                 if (readdress.contains(">")) {
                                     Log.d(TAG, "Response 메세지 전달 받음");
                                     String[] slicing_data = readdress.split(">");
-                                    Log.d(TAG, "Response 메세지 : " + slicing_data[0]);
 
+                                    String PIDS = slicing_data[0].substring(0,2);
                                     String show_data = slicing_data[0].substring(sText.length()+1); //sText와 그앞에 빈칸 하나 제거하고 나타냄
+                                    Log.d(TAG, "Response 메세지 : " + show_data);
 
-                                    if(readdress.contains("?")){ // 명령어 제외하고 입력
-                                        Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                                    }else if(readdress.contains("NO DATA")){ // 데이터 없는 명령어 입력
-                                        Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
-                                    }else if(readdress.contains("OK")||(readdress.contains("at"))){ // 초기 세팅
-                                        Toast.makeText(MainActivity.this, "AT 커맨드 세팅", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else { // 명령어 제대로 된거 입력 하면
-                                        if(!flag) {
-                                            MainData data1 = new MainData();
-                                            data1.setText("RX : "+show_data);
-                                            database.mainDao().insert(data1);
-                                            dataList.add(data1);
-                                            try {
-                                                mTextFileManager.save("RX : "+ show_data+"\n"); // File에 add , :: 는 구분 용
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
+                                    switch (PIDS){ // 서비스 아이디에 따라 출력
+                                        case "01":
+                                            if(readdress.contains("?")){ // 명령어 제외하고 입력
+                                                Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                            }else if(readdress.contains("DATA")){ // 데이터 없는 명령어 입력
+                                                Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }
-                                        }
+                                            else { // 명령어 제대로 된거 입력 하면
+                                                if(!flag) {
+
+                                                    MainData data1 = new MainData();
+                                                    data1.setText("RX : "+show_data);
+                                                    database.mainDao().insert(data1);
+                                                    dataList.add(data1);
+                                                    try {
+                                                        mTextFileManager.save("RX : "+ show_data+"\n"); // File에 add , :: 는 구분 용
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                            break;
+
+                                        case "09":
+                                            if(slicing_data[0].startsWith("02", 2)){ // 0902 입력했을 때
+                                                if(readdress.contains("?")){ // 명령어 제외하고 입력
+                                                    Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                                }else if(readdress.contains("DATA")){ // 데이터 없는 명령어 입력
+                                                    Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                                                }
+                                                else { // 명령어 제대로 된거 입력 하면
+                                                    if (!flag) {
+
+                                                        MainData data1 = new MainData();
+                                                        data1.setText("RX : " + show_data);
+                                                        database.mainDao().insert(data1);
+                                                        dataList.add(data1);
+                                                        try {
+                                                            mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+                                            }else { // 0902 아닐때
+                                                if (!flag) {
+
+                                                    MainData data1 = new MainData();
+                                                    data1.setText("RX : " + show_data);
+                                                    database.mainDao().insert(data1);
+                                                    dataList.add(data1);
+                                                    try {
+                                                        mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        case "AT":
+                                        case "at":
+                                            Toast.makeText(MainActivity.this, "AT 커맨드를 입력하셨습니다.", Toast.LENGTH_SHORT).show();
+                                            break;
+                                        default:
+                                            if(show_data.contains("?")){ // 명령어 제외하고 입력
+                                                Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                            }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
+                                                Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                                            }else { // 명령어 제대로 된거 입력 하면
+                                                if(!flag) {
+
+                                                    MainData data1 = new MainData();
+                                                    data1.setText("RX : "+show_data);
+                                                    database.mainDao().insert(data1);
+                                                    dataList.add(data1);
+                                                    try {
+                                                        mTextFileManager.save("RX : "+ show_data+"\n"); // File에 add , :: 는 구분 용
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }
+                                            break;
                                     }
-
-//                        Log.e(TAG, "핸들 메세지 받은 후 dataList : "+dataList);
-//                        Log.e(TAG, "핸들 메세지 받은 후 DB 데이터 : "+database.mainDao().getAll());
-
                                 } else {
                                     Log.d(TAG, "마지막 데이터가 아닙니다.");
                                 }
