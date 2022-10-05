@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     //Error : FF6B68
     //Assert : 9876AA
 
-    long backKeyPressedTime = 0;
+    long backKeyPressedTime = 0; // 백버튼 변수
 
     @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();//장치가 블루투스 기능을 지원하는지 알아옴
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //BluetoothAdapter 인스턴스를 얻는다
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
@@ -177,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
 
                                     String PIDS = slicing_data[0].substring(0,2);
                                     String show_data = slicing_data[0].substring(sText.length()+1); //sText와 그앞에 빈칸 하나 제거하고 나타냄
-                                    Log.d(TAG, "Response 메세지 : " + show_data);
 
                                     switch (PIDS){ // 서비스 아이디에 따라 출력
                                         case "01":
@@ -188,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             else { // 명령어 제대로 된거 입력 하면
                                                 if(!flag) {
-
                                                     MainData data1 = new MainData();
                                                     data1.setText("RX : "+show_data);
                                                     database.mainDao().insert(data1);
@@ -198,18 +196,78 @@ public class MainActivity extends AppCompatActivity {
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
+                                                    Log.d(TAG, "Response 메세지 : " + show_data);
+                                                }
+                                            }
+                                            break;
+
+                                        case "03":
+                                            if(show_data.contains("?")){ // 명령어 제외하고 입력
+                                                Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
+                                            }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
+                                                Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
+                                            }else {
+                                                if (!flag) {
+
+                                                    MainData data1 = new MainData();
+                                                    data1.setText("RX (Error code) : " + show_data);
+                                                    database.mainDao().insert(data1);
+                                                    dataList.add(data1);
+                                                    try {
+                                                        mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    Log.d(TAG, "Response 메세지 : " + show_data);
                                                 }
                                             }
                                             break;
 
                                         case "09":
                                             if(slicing_data[0].startsWith("02", 2)){ // 0902 입력했을 때
-                                                if(readdress.contains("?")){ // 명령어 제외하고 입력
+                                                    if (!flag) {
+                                                        List<String> vinRawData = new ArrayList<>();
+                                                        List<Integer> vinData = new ArrayList<>();
+
+                                                        for(int i = 3;i< show_data.length();i+=2){
+                                                            if(i+2<=show_data.length()){
+                                                                vinRawData.add(show_data.substring(i,i+2));
+                                                            }
+                                                        }
+                                                        vinRawData.remove(8);
+                                                        vinRawData.remove(8);
+                                                        vinRawData.remove(16);
+                                                        vinRawData.remove(16);
+
+                                                        String a = "";
+
+                                                        for(int i = 0;i<vinRawData.size();i++){
+                                                            int HexToTen = Integer.parseInt(vinRawData.get(i),16); // 16진수를 10진수로 바꿈
+                                                            vinData.add(HexToTen);
+                                                            char ch = (char) Integer.parseInt(String.valueOf(vinData.get(i))); //10진수를 아스키코드로 바꿈
+                                                            a += ch;
+                                                        }
+
+                                                        MainData data1 = new MainData();
+                                                        data1.setText("RX (VIN) : " + a);
+                                                        database.mainDao().insert(data1);
+                                                        dataList.add(data1);
+                                                        try {
+                                                            mTextFileManager.save("RX : " + a + "\n"); // File에 add , :: 는 구분 용
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+
+                                                        }
+                                                    }
+                                                    Log.d(TAG, "Response 메세지 : " + show_data);
+
+                                            }else { // 0902 아닐때
+                                                if(show_data.contains("?")){ // 명령어 제외하고 입력
                                                     Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                                                }else if(readdress.contains("DATA")){ // 데이터 없는 명령어 입력
+                                                }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
                                                     Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                                 }
-                                                else { // 명령어 제대로 된거 입력 하면
+                                                else {
                                                     if (!flag) {
 
                                                         MainData data1 = new MainData();
@@ -221,19 +279,7 @@ public class MainActivity extends AppCompatActivity {
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
-                                                    }
-                                                }
-                                            }else { // 0902 아닐때
-                                                if (!flag) {
-
-                                                    MainData data1 = new MainData();
-                                                    data1.setText("RX : " + show_data);
-                                                    database.mainDao().insert(data1);
-                                                    dataList.add(data1);
-                                                    try {
-                                                        mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
+                                                        Log.d(TAG, "Response 메세지 : " + show_data);
                                                     }
                                                 }
                                             }
@@ -259,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
+                                                    Log.d(TAG, "Response 메세지 : " + show_data);
                                                 }
                                             }
                                             break;
@@ -454,6 +501,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "권한 오류", e);
             }
         }
+        Log.e(TAG, "CheckPermission: true " );
     }
 
     @Override
