@@ -701,7 +701,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void AtCommands() {
 
-        bluetoothFragment = new BluetoothFragment();
+        AtCommandsFragment = new AtCommandFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -711,11 +711,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void ObdPids() {
 
-        bluetoothFragment = new BluetoothFragment();
+        ObdPidsFragment = new ObdPidsFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.FirstFragment, bluetoothFragment);
+        fragmentTransaction.add(R.id.FirstFragment, ObdPidsFragment);
         fragmentTransaction.commit();
     }
 

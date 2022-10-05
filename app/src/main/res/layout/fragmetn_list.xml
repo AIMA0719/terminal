@@ -7,18 +7,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="16dp"
-        android:background="@color/white">
+        android:background="@color/white"
+        >
 
         <TextView
-            android:id="@+id/text_view"
-            android:layout_width="0dp"
+            android:id="@+id/PIDS"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:textSize="15sp"
             android:textColor="@color/black"
             android:background="@drawable/round_button" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/blabla">
+
+        </TextView>
 
     </LinearLayout>
 
