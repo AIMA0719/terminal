@@ -208,6 +208,33 @@ public class MainActivity extends AppCompatActivity {
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else {
                                                 if (!flag) {
+                                                    //String rawdata = show_data.replace("7E8",",");
+                                                    //String replaceData = rawdata.replace("7E9",",").trim();
+                                                    //String ErrorCode [] = replaceData.split(",");
+//
+                                                    //List<String> vinRawData = new ArrayList<>();
+                                                    //List<Integer> vinData = new ArrayList<>();
+//
+                                                    //StringBuilder ASCII = new StringBuilder();
+//
+                                                    //for(int i =1;i<ErrorCode.length;i++){
+                                                    //    for(int j = 0;j< ErrorCode[i].length();j+=2){
+                                                    //        if(j+2<=ErrorCode[i].length()){
+                                                    //            vinRawData.add(ErrorCode[i].substring(j,j+2));
+                                                    //        }
+                                                    //    }
+                                                    //}
+//
+                                                    //Log.e(TAG, "handleMessage: "+vinRawData );
+//
+                                                    //for(int i = 0;i<vinRawData.size();i++){
+                                                    //    int HexToTen = Integer.parseInt(vinRawData.get(i),16); // 16진수를 10진수로 바꿈
+                                                    //    vinData.add(HexToTen);
+                                                    //    char ch = (char) Integer.parseInt(String.valueOf(vinData.get(i))); //10진수를 아스키코드로 바꿈
+                                                    //    ASCII.append(ch);
+                                                    //}
+//
+                                                    //Log.e(TAG, "handleMessage: "+vinData );
 
                                                     MainData data1 = new MainData();
                                                     data1.setText("RX (Error code) : " + show_data);
@@ -239,21 +266,21 @@ public class MainActivity extends AppCompatActivity {
                                                         vinRawData.remove(16);
                                                         vinRawData.remove(16);
 
-                                                        String a = "";
+                                                        StringBuilder ASCII = new StringBuilder();
 
                                                         for(int i = 0;i<vinRawData.size();i++){
                                                             int HexToTen = Integer.parseInt(vinRawData.get(i),16); // 16진수를 10진수로 바꿈
                                                             vinData.add(HexToTen);
                                                             char ch = (char) Integer.parseInt(String.valueOf(vinData.get(i))); //10진수를 아스키코드로 바꿈
-                                                            a += ch;
+                                                            ASCII.append(ch);
                                                         }
 
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX (VIN) : " + a);
+                                                        data1.setText("RX (VIN) : " + ASCII);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
-                                                            mTextFileManager.save("RX : " + a + "\n"); // File에 add , :: 는 구분 용
+                                                            mTextFileManager.save("RX : " + ASCII + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
 
