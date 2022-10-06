@@ -226,16 +226,18 @@ public class MainActivity extends AppCompatActivity {
                                                     String [] replaceData = rawData2.split(",");
                                                     int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
 
+                                                    Log.e(TAG, "handleMessage: "+Intindex );
+
 
                                                     if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
                                                         for(int i=1;i<replaceData.length;i++){
                                                             if(i==1){
-                                                                for(int j=6;j<replaceData[i].length();j+=2){
+                                                                for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
                                                                         vinRawData.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
-                                                                for(int j=2;j<replaceData[i].length();j+=2){
+                                                                for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
                                                                         vinRawData.add(replaceData[i].substring(j,j+2));
                                                                 }
@@ -244,12 +246,12 @@ public class MainActivity extends AppCompatActivity {
                                                     }else {  // 유효 바이트가 짝 수라면
                                                         for(int i=1;i<replaceData.length;i++){
                                                             if(i==1){
-                                                                for(int j=8;j<replaceData[i].length();j+=2){
+                                                                for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
                                                                         vinRawData.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
-                                                                for(int j=2;j<replaceData[i].length();j+=2){
+                                                                for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
                                                                         vinRawData.add(replaceData[i].substring(j,j+2));
                                                                 }
@@ -260,15 +262,25 @@ public class MainActivity extends AppCompatActivity {
                                                     Log.e(TAG, "Raw 데이터 슬라이싱: "+vinRawData );
 //                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
 //                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
-                                                    Log.d(TAG, "Raw 데이터 : " + show_data);
-//                                                    List<String> data = Arrays.copyOfRange(vinRawData, 0, Intindex);
-//                                                    int startIdx = 2;
-//                                                    if (Intindex % 2 == 1){
-//                                                        startIdx = 1;
-//                                                    }
-//                                                    data = Arrays.copyOfRange(data, startIdx, data.length);
-//                                                    Log.e(TAG, "handleMessage: "+data);
-                                                    // list.subList() 사용해보자!
+
+                                                    List<String> data = vinRawData.subList(0,Intindex);
+
+                                                    int startIdx = 0; // 짝수면 43 부터 시작 아니면 그 뒤 06 부터 시작 [43, 06, 01, 00, 02, 00, 00, 43, 00, 82, 00, C1, 00, 00]
+                                                    if (Intindex % 2 == 1){
+                                                        startIdx = 1;
+                                                    }
+                                                    data = data.subList(startIdx,data.size());
+                                                    Log.e(TAG, "handleMessage: "+data);
+
+                                                    /*
+                                                        1. 먼저 데이터 부분만 나눠준다음
+
+                                                        2. 유효데이터를 10진수로 바꿔서 그걸 index
+
+                                                        3. 홀수면 첫번째 인덱스부터 파싱 짝수면 두번째 인덱스부터 파싱
+
+                                                        4. 맨 첫번째 비트(hex) 를 2진수로 치환 ex) 0 -> 0000
+                                                     */
 
                                                 }
                                             }
@@ -313,9 +325,8 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i=0;i<vinIntRawData.size();i++){
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
-                                                        //E8 10 14 49 02 01 4B 4D 48 7E8 21 44 47 34 31 55 42 45 7E8 22 55 30 31 33 36 35 36
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX (차대번호) : " + ASCII + "///"  +show_data);
+                                                        data1.setText("RX (차대번호) : " + ASCII);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
