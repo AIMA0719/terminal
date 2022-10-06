@@ -254,41 +254,41 @@ public class MainActivity extends AppCompatActivity {
                                             if(slicing_data[0].startsWith("02", 2)){ // 0902 입력했을 때
                                                     if (!flag) {
                                                         List<String> vinRawData = new ArrayList<>();
-                                                        List<Integer> vinData = new ArrayList<>();
+                                                        List<Integer> vinIntRawData = new ArrayList<>();
+                                                        List<Character> vinCharRawData = new ArrayList<>();
 
-                                                        for(int i = 3;i< show_data.length();i+=2){
-                                                            if(i+2<=show_data.length()){
-                                                                vinRawData.add(show_data.substring(i,i+2));
+                                                        String [] replaceData = show_data.split("7E8");
+                                                        for(int i=1;i<replaceData.length;i++){
+                                                            for(int j=2;j<replaceData[i].length();j+=2){
+                                                                if(j+2<= replaceData[i].length())
+                                                                vinRawData.add(replaceData[i].substring(j,j+2));
                                                             }
                                                         }
-                                                        vinRawData.remove(8); // 7E8을 없애주기 위함
-                                                        vinRawData.remove(8);
-                                                        vinRawData.remove(16);
-                                                        vinRawData.remove(16);
+
+                                                        for(int i=0;i<vinRawData.size();i++){
+                                                            vinIntRawData.add(Integer.parseInt(vinRawData.get(i),16));
+                                                            char ch = (char) Integer.parseInt(String.valueOf(vinIntRawData.get(i)));
+                                                            vinCharRawData.add(ch);
+                                                        }
 
                                                         StringBuilder ASCII = new StringBuilder();
 
-                                                        for(int i = 0;i<vinRawData.size();i++){
-                                                            int HexToTen = Integer.parseInt(vinRawData.get(i),16); // 16진수를 10진수로 바꿈
-                                                            vinData.add(HexToTen);
-                                                            char ch = (char) Integer.parseInt(String.valueOf(vinData.get(i))); //10진수를 아스키코드로 바꿈
-                                                            ASCII.append(ch);
+                                                        for(int i=0;i<vinIntRawData.size();i++){
+                                                            if(i>3)
+                                                            ASCII.append(vinCharRawData.get(i));
                                                         }
 
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX (VIN) : " + ASCII);
+                                                        data1.setText("RX (차대번호) : " + ASCII);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
                                                             mTextFileManager.save("RX : " + ASCII + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
-
                                                         }
-                                                        Log.d(TAG, "handleMessage: "+ ASCII);
+                                                        Log.d(TAG, "Response 메세지 : " + show_data);
                                                     }
-
-                                                    Log.d(TAG, "Response 메세지 : " + show_data);
 
                                             }else { // 0902 아닐때
                                                 if(show_data.contains("?")){ // 명령어 제외하고 입력
