@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             mBluetoothHandler = new Handler(Looper.getMainLooper()) {
 
+                @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void handleMessage(Message msg) { // 메시지 종류에 따라서
 
@@ -211,8 +212,10 @@ public class MainActivity extends AppCompatActivity {
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else {
                                                 if (!flag) {
-                                                    String rawdata = show_data.replace("7E8",",");
-                                                    String rawData1 = rawdata.replace("7E9",",");
+                                                    String [] SevenEchoEight_Data = show_data.split("7E9");
+//                                                    String [] SevenEcho_Data
+                                                    String rawdata = SevenEchoEight_Data[0].replace("7E8",",");
+                                                    String rawData1 = rawdata.replace("7E9",".");
                                                     String rawData2 = rawData1.replace("7EA",",");
 
                                                     List<String> vinRawData = new ArrayList<>();
@@ -221,41 +224,51 @@ public class MainActivity extends AppCompatActivity {
                                                     StringBuilder ASCII = new StringBuilder();
 
                                                     String [] replaceData = rawData2.split(",");
-                                                    for(int i=1;i<replaceData.length;i++){
-                                                        for(int j=2;j<replaceData[i].length();j+=2){
-                                                            if(j+2<= replaceData[i].length())
-                                                                vinRawData.add(replaceData[i].substring(j,j+2));
+                                                    int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
+
+
+                                                    if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
+                                                        for(int i=1;i<replaceData.length;i++){
+                                                            if(i==1){
+                                                                for(int j=6;j<replaceData[i].length();j+=2){
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
+                                                            }else {
+                                                                for(int j=2;j<replaceData[i].length();j+=2){
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
+                                                            }
+                                                        }
+                                                    }else {  // 유효 바이트가 짝 수라면
+                                                        for(int i=1;i<replaceData.length;i++){
+                                                            if(i==1){
+                                                                for(int j=8;j<replaceData[i].length();j+=2){
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
+                                                            }else {
+                                                                for(int j=2;j<replaceData[i].length();j+=2){
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
+                                                            }
                                                         }
                                                     }
 
-                                                    for(int i=0;i<vinRawData.size();i++){
-                                                        vinIntRawData.add(Integer.parseInt(vinRawData.get(i),16));
-
-                                                        char ch = (char) Integer.parseInt(String.valueOf(vinIntRawData.get(i)));
-                                                            if(vinIntRawData.get(i)!=null){
-                                                                vinCharRawData.add(ch);
-                                                            }
-                                                    }
-
-                                                    for(int i=0;i<vinIntRawData.size();i++){
-                                                            ASCII.append(vinCharRawData.get(i));
-                                                    }
-
                                                     Log.e(TAG, "Raw 데이터 슬라이싱: "+vinRawData );
-                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
-                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
-
-
-                                                    MainData data1 = new MainData();
-                                                    data1.setText("RX (고장 코드) : " + ASCII);
-                                                    database.mainDao().insert(data1);
-                                                    dataList.add(data1);
-                                                    try {
-                                                        mTextFileManager.save("RX : " + ASCII + "\n"); // File에 add , :: 는 구분 용
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
+//                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
+//                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
                                                     Log.d(TAG, "Raw 데이터 : " + show_data);
+//                                                    List<String> data = Arrays.copyOfRange(vinRawData, 0, Intindex);
+//                                                    int startIdx = 2;
+//                                                    if (Intindex % 2 == 1){
+//                                                        startIdx = 1;
+//                                                    }
+//                                                    data = Arrays.copyOfRange(data, startIdx, data.length);
+//                                                    Log.e(TAG, "handleMessage: "+data);
+                                                    // list.subList() 사용해보자!
 
                                                 }
                                             }
