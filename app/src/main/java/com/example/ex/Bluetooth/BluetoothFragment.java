@@ -96,6 +96,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) {
             @Override
             public void handleOnBackPressed() {
+                MainActivity.screenflag = 0;
                 Intent intent = new Intent(getContext(), MainActivity.class);
                 startActivity(intent);
             }
@@ -370,7 +371,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
         listView_scan.setLayoutManager(layoutManager1);
         listView_scan.setAdapter(adapter2);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), ((LinearLayoutManager) layoutManager).getOrientation()); // RecyclerView 구분 선 추가
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(requireContext(), ((LinearLayoutManager) layoutManager).getOrientation()); // RecyclerView 구분 선 추가
         listView_pairing.addItemDecoration(dividerItemDecoration); // 적용
         listView_scan.addItemDecoration(dividerItemDecoration); // 적용
         return view;
@@ -482,7 +483,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 mBluetoothAdapter.cancelDiscovery(); //검색 상태였으면 취소
                 Log.d(TAG, "디바이스 검색 취소");
             }
-            MainActivity.screenflag = 0;
+
             Intent intent = new Intent(getContext(),MainActivity.class);
             startActivity(intent);
         });

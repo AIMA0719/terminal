@@ -42,18 +42,12 @@
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_item.xml" value="0.3234375" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_item_list.xml" value="0.30885416666666665" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragment_obd_pids.xml" value="0.38645833333333335" />
+        <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/fragmetn_list.xml" value="0.38645833333333335" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/layout/list_row_main.xml" value="0.3234375" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/menu/fragment_menu.xml" value="0.44895833333333335" />
         <entry key="..\:/Users/Infocar/AndroidStudioProjects/terminal/app/src/main/res/menu/menu.xml" value="0.44895833333333335" />
         <entry key="..\:/Users/dkwkr/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_connect.xml" value="0.24947916666666667" />
         <entry key="..\:/Users/dkwkr/AndroidStudioProjects/terminal/app/src/main/res/layout/bluetooth_device.xml" value="0.11666666666666667" />
-        <entry key="..\:/terminal/app/src/main/res/layout/activity_main.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/bluetooth_device.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/fragment_at_command.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/fragment_bluetooth.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/fragment_obd_pids.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/fragmetn_list.xml" value="0.38645833333333335" />
-        <entry key="..\:/terminal/app/src/main/res/layout/list_row_main.xml" value="0.38645833333333335" />
       </map>
     </option>
   </component>

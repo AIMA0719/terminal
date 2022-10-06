@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="350dp"
+    android:layout_gravity="center"
     android:layout_height="match_parent"
     tools:context=".MainActivity.AtCommandFragment">
 
@@ -19,9 +20,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="AT 커맨드 리스트"
+                android:text="AT 커맨드"
                 android:layout_gravity="center"
-                android:textSize="20sp">
+                android:textSize="20sp"
+                android:textColor="@color/white">
             </TextView>
 
         </androidx.appcompat.widget.Toolbar>
@@ -42,8 +44,8 @@
             android:clickable="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            android:background="@color/black"
-            tools:listitem="@layout/fragmetn_list"
+            android:background="@color/white"
+            tools:listitem="@layout/fragment_list"
             android:id="@+id/AT_Commands">
 
 

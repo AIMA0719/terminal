@@ -13,18 +13,19 @@
         >
 
         <TextView
-            android:id="@+id/PIDS"
+            android:id="@+id/Commands"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="15sp"
-            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textColor="@color/colorPrimary"
             android:background="@drawable/round_button" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/blabla">
+            android:id="@+id/blabla"
+            android:textColor="@color/black">
 
         </TextView>
 

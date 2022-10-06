@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                                                                 vinRawData.add(show_data.substring(i,i+2));
                                                             }
                                                         }
-                                                        vinRawData.remove(8);
+                                                        vinRawData.remove(8); // 7E8을 없애주기 위함
                                                         vinRawData.remove(8);
                                                         vinRawData.remove(16);
                                                         vinRawData.remove(16);
@@ -285,7 +285,9 @@ public class MainActivity extends AppCompatActivity {
                                                             e.printStackTrace();
 
                                                         }
+                                                        Log.d(TAG, "handleMessage: "+ ASCII);
                                                     }
+
                                                     Log.d(TAG, "Response 메세지 : " + show_data);
 
                                             }else { // 0902 아닐때

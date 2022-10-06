@@ -1,7 +1,5 @@
 package com.example.ex.Bluetooth;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -14,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ex.R;
 
@@ -70,8 +70,6 @@ public class MyItemRecyclerViewAdapter extends RecyclerView.Adapter<MyItemRecycl
 
         spannableString1.setSpan(new ForegroundColorSpan(Color.parseColor("#438bff")),start1,end1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 색깔 바꿔주고
         spannableString1.setSpan(new StyleSpan(Typeface.BOLD),start1,end1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE); // 굵은 글씨로 바꿔 줌
-
-
 
         if(Connection_flag){
             if(item.getStatus().equals("연결 안 됨")){
