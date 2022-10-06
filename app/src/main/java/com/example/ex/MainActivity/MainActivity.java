@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     public BluetoothFragment bluetoothFragment;
     public TextFileManager mTextFileManager = new TextFileManager(this);
     public String readdress = ""; // 핸들러로 받은 메세지 저장
-    public String sText = ""; // editText 창에 입력한 메세지
+    public String sText; // editText 창에 입력한 메세지
     public boolean flag = false;
     private Fragment AtCommandsFragment; // AT 커맨드 프래그먼트
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                                     String[] slicing_data = readdress.split(">");
 
                                     String PIDS = slicing_data[0].substring(0,2);
-                                    String show_data = slicing_data[0].substring(sText.length()+1); //sText와 그앞에 빈칸 하나 제거하고 나타냄
+                                    String show_data = slicing_data[0]; //sText와 그앞에 빈칸 하나 제거하고 나타냄
 
                                     switch (PIDS){ // 서비스 아이디에 따라 출력
                                         case "01":
@@ -283,6 +283,8 @@ public class MainActivity extends AppCompatActivity {
                                                         List<Character> vinCharRawData = new ArrayList<>();
                                                         StringBuilder ASCII = new StringBuilder();
 
+//                                                        show_data = "09027E810144902014B4D487E821444734315542457E82255303133363536"; 우리 차량 차대번호
+
                                                         String [] replaceData = show_data.split("7E8");
                                                         for(int i=1;i<replaceData.length;i++){
 
@@ -299,7 +301,6 @@ public class MainActivity extends AppCompatActivity {
                                                             }
                                                         }
 
-
                                                         for(int i=0;i<vinRawData.size();i++){
                                                             vinIntRawData.add(Integer.parseInt(vinRawData.get(i),16));
 
@@ -312,9 +313,9 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i=0;i<vinIntRawData.size();i++){
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
-
+                                                        //E8 10 14 49 02 01 4B 4D 48 7E8 21 44 47 34 31 55 42 45 7E8 22 55 30 31 33 36 35 36
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX (차대번호) : " + ASCII);
+                                                        data1.setText("RX (차대번호) : " + ASCII + "///"  +show_data);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
