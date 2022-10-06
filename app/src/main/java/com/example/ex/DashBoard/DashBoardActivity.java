@@ -69,7 +69,7 @@ public class DashBoardActivity extends AppCompatActivity {
             return;
         }
         if (BluetoothFragment.mBluetoothAdapter == null) {
-            Toast.makeText(this, "시뮬레이터와 연결 먼저 해주세요!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "스캐너와 먼저 연결 해주세요!", Toast.LENGTH_SHORT).show();
         }
 
         Log.e(TAG, "대쉬보드에 들어옴");
@@ -215,7 +215,7 @@ public class DashBoardActivity extends AppCompatActivity {
         DashBoardThread.start();
 
         if(!run){
-             Toast.makeText(this, "블루투스를 연결해 주세요!", Toast.LENGTH_SHORT).show();
+             Toast.makeText(this, "스캐너를 먼저 연결 해주세요!", Toast.LENGTH_SHORT).show();
         }
     }
 

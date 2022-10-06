@@ -202,52 +202,64 @@ public class MainActivity extends AppCompatActivity {
                                             break;
 
                                         case "03":
+                                        case "07":
+                                        case "0A":
+                                        case "0a":
                                             if(show_data.contains("?")){ // 명령어 제외하고 입력
                                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
                                             }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else {
                                                 if (!flag) {
-                                                    //String rawdata = show_data.replace("7E8",",");
-                                                    //String replaceData = rawdata.replace("7E9",",").trim();
-                                                    //String ErrorCode [] = replaceData.split(",");
-//
-                                                    //List<String> vinRawData = new ArrayList<>();
-                                                    //List<Integer> vinData = new ArrayList<>();
-//
-                                                    //StringBuilder ASCII = new StringBuilder();
-//
-                                                    //for(int i =1;i<ErrorCode.length;i++){
-                                                    //    for(int j = 0;j< ErrorCode[i].length();j+=2){
-                                                    //        if(j+2<=ErrorCode[i].length()){
-                                                    //            vinRawData.add(ErrorCode[i].substring(j,j+2));
-                                                    //        }
-                                                    //    }
-                                                    //}
-//
-                                                    //Log.e(TAG, "handleMessage: "+vinRawData );
-//
-                                                    //for(int i = 0;i<vinRawData.size();i++){
-                                                    //    int HexToTen = Integer.parseInt(vinRawData.get(i),16); // 16진수를 10진수로 바꿈
-                                                    //    vinData.add(HexToTen);
-                                                    //    char ch = (char) Integer.parseInt(String.valueOf(vinData.get(i))); //10진수를 아스키코드로 바꿈
-                                                    //    ASCII.append(ch);
-                                                    //}
-//
-                                                    //Log.e(TAG, "handleMessage: "+vinData );
+                                                    String rawdata = show_data.replace("7E8",",");
+                                                    String rawData1 = rawdata.replace("7E9",",");
+                                                    String rawData2 = rawData1.replace("7EA",",");
+
+                                                    List<String> vinRawData = new ArrayList<>();
+                                                    List<Integer> vinIntRawData = new ArrayList<>();
+                                                    List<Character> vinCharRawData = new ArrayList<>();
+                                                    StringBuilder ASCII = new StringBuilder();
+
+                                                    String [] replaceData = rawData2.split(",");
+                                                    for(int i=1;i<replaceData.length;i++){
+                                                        for(int j=2;j<replaceData[i].length();j+=2){
+                                                            if(j+2<= replaceData[i].length())
+                                                                vinRawData.add(replaceData[i].substring(j,j+2));
+                                                        }
+                                                    }
+
+                                                    for(int i=0;i<vinRawData.size();i++){
+                                                        vinIntRawData.add(Integer.parseInt(vinRawData.get(i),16));
+
+                                                        char ch = (char) Integer.parseInt(String.valueOf(vinIntRawData.get(i)));
+                                                            if(vinIntRawData.get(i)!=null){
+                                                                vinCharRawData.add(ch);
+                                                            }
+                                                    }
+
+                                                    for(int i=0;i<vinIntRawData.size();i++){
+                                                            ASCII.append(vinCharRawData.get(i));
+                                                    }
+
+                                                    Log.e(TAG, "Raw 데이터 슬라이싱: "+vinRawData );
+                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
+                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
+
 
                                                     MainData data1 = new MainData();
-                                                    data1.setText("RX (Error code) : " + show_data);
+                                                    data1.setText("RX (고장 코드) : " + ASCII);
                                                     database.mainDao().insert(data1);
                                                     dataList.add(data1);
                                                     try {
-                                                        mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
+                                                        mTextFileManager.save("RX : " + ASCII + "\n"); // File에 add , :: 는 구분 용
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
-                                                    Log.d(TAG, "Response 메세지 : " + show_data);
+                                                    Log.d(TAG, "Raw 데이터 : " + show_data);
+
                                                 }
                                             }
+
                                             break;
 
                                         case "09":
@@ -256,25 +268,35 @@ public class MainActivity extends AppCompatActivity {
                                                         List<String> vinRawData = new ArrayList<>();
                                                         List<Integer> vinIntRawData = new ArrayList<>();
                                                         List<Character> vinCharRawData = new ArrayList<>();
+                                                        StringBuilder ASCII = new StringBuilder();
 
                                                         String [] replaceData = show_data.split("7E8");
                                                         for(int i=1;i<replaceData.length;i++){
-                                                            for(int j=2;j<replaceData[i].length();j+=2){
-                                                                if(j+2<= replaceData[i].length())
-                                                                vinRawData.add(replaceData[i].substring(j,j+2));
+
+                                                            if(i==1){
+                                                                for(int j=10;j<replaceData[1].length();j+=2){ //앞에 유효 바이트 멀티라인 본인 0902 요청의 응답인 4902 다 빼면 인덱스 10부터시작
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
+                                                            } else {
+                                                                for(int j=2;j<replaceData[i].length();j+=2){
+                                                                    if(j+2<= replaceData[i].length())
+                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                }
                                                             }
                                                         }
 
+
                                                         for(int i=0;i<vinRawData.size();i++){
                                                             vinIntRawData.add(Integer.parseInt(vinRawData.get(i),16));
+
                                                             char ch = (char) Integer.parseInt(String.valueOf(vinIntRawData.get(i)));
-                                                            vinCharRawData.add(ch);
+                                                            if(vinIntRawData.get(i)!=null){
+                                                                vinCharRawData.add(ch);
+                                                            }
                                                         }
 
-                                                        StringBuilder ASCII = new StringBuilder();
-
                                                         for(int i=0;i<vinIntRawData.size();i++){
-                                                            if(i>3)
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
 
@@ -287,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
-                                                        Log.d(TAG, "Response 메세지 : " + show_data);
+                                                        Log.d(TAG, "Raw 데이터 : " + show_data);
                                                     }
 
                                             }else { // 0902 아닐때
@@ -380,7 +402,6 @@ public class MainActivity extends AppCompatActivity {
             if (!sText.equals("")) {
                 if (BluetoothFragment.device != null) { // 시뮬레이터랑 연결 되어있는 상태라면
                     if(mBluetoothSocket != null){
-
                         BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
                         Log.d(TAG, "Request 메세지 : " + sText);
 
@@ -420,6 +441,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     Log.d(TAG, "블루투스 기기랑 연결이 안 되어있는 상태입니다.");
+                    Toast.makeText(this, "스캐너를 먼저 연결 해주세요!", Toast.LENGTH_SHORT).show();
                 }
             }
             //Log.d(TAG,"현재 포커스 : " + getCurrentFocus());
@@ -470,13 +492,12 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         flag = true;
-        Log.e(TAG, "MainActivity 퍼즈" );
+        Log.e(TAG, "MainActivity 퍼즈" ); //화면이 꺼지면
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
     }
 
     public void onRestart(){
