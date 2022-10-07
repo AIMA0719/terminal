@@ -157,9 +157,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                         }
 
-                        //ArrayList<String> bullhang = new ArrayList<>();
-                        //bullhang.add(msg.obj.toString());
-                        //Log.e(TAG, "handleMessage: "+bullhang );
                         readdress += msg.obj;
                         editText.setText("");
 
@@ -197,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
                                             break;
 
                                         case "03":
+                                        case "07":
+                                        case "0A":
+                                        case "0a":
                                             if(show_data.contains("?")){ // 명령어 제외하고 입력
                                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
                                             }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
@@ -208,13 +208,15 @@ public class MainActivity extends AppCompatActivity {
                                                     String rawData1 = rawdata.replace("7E9",".");
                                                     String rawData2 = rawData1.replace("7EA",",");
 
+                                                    Log.e(TAG, "handleMessage: "+ SevenEchoEight_Data[1] );
+
                                                     List<String> errorDataList = new ArrayList<>();
                                                     List<String> mergeList = new ArrayList<>();
 
                                                     String [] replaceData = rawData2.split(",");
                                                     int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
 
-                                                    Log.d(TAG, "IntIndex: "+Intindex );
+                                                    Log.e(TAG, "handleMessage: "+Intindex );
 
                                                     if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
                                                         for(int i=1;i<replaceData.length;i++){
@@ -246,60 +248,67 @@ public class MainActivity extends AppCompatActivity {
                                                         }
                                                     }
 
+                                                    Log.e(TAG, "Raw 데이터 슬라이싱: "+errorDataList );
+//                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
+//                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
+
                                                     List<String> rawDataList = errorDataList.subList(0,Intindex);
 
-                                                    Log.d(TAG, "7E8의 유효 데이터들만 모아놓은 list : "+rawDataList );
-
-                                                    int startIdx = 0; // 짝수면 43 부터 시작 아니면 그 뒤 인덱스 부터
+                                                    int startIdx = 0; // 짝수면 43 부터 시작 아니면 그 뒤 06 부터 시작 [43, 06, 01, 00, 02, 00, 00, 43, 00, 82, 00, C1, 00, 00]
                                                     if (Intindex % 2 == 1){
                                                         startIdx = 1;
                                                     }
                                                     rawDataList = rawDataList.subList(startIdx,rawDataList.size());
-
-                                                    Log.d(TAG, "위에 리스트 슬라이싱: "+rawDataList );
+                                                    Log.e(TAG, "handleMessage: "+rawDataList);
 
                                                     for(int i=0;i+1<rawDataList.size();i+=2){
                                                         if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
-                                                        mergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
+                                                            mergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
                                                     }
-
-                                                    Log.d(TAG, "위 리스트 인덱스 2개씩 합침: "+mergeList );
 
                                                     for(int i=0;i<mergeList.size();i++){
                                                         int firstIndex = Integer.parseInt(mergeList.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
-                                                        String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex)));
+                                                        String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
 
                                                         String start = BinaryFirstIndex.substring(0,2);
                                                         String end = BinaryFirstIndex.substring(2,4);
 
-                                                        String a = CheckBinary(start,end);
-
-                                                        String newData = a+mergeList.get(i).substring(1,4);
-                                                        mergeList.add(newData);
-
-                                                        MainData data1 = new MainData();
-                                                        data1.setText("RX "+(i+1)+"번째 고장코드 : "+ mergeList.get(i));
-                                                        database.mainDao().insert(data1);
-                                                        dataList.add(data1);
-                                                        try {
-                                                            mTextFileManager.save("RX (고장코드):" + mergeList + "\n"); // File에 add , :: 는 구분 용
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
+                                                        switch (start){
+                                                            case "00":
+                                                                start = "P";
+                                                                break;
+                                                            case "01":
+                                                                start = "C";
+                                                                break;
+                                                            case "10":
+                                                                start = "B";
+                                                                break;
+                                                            case "11":
+                                                                start = "U";
+                                                                break;
                                                         }
+
+                                                        switch (end) {
+                                                            case "00":
+                                                                end = "0";
+                                                                break;
+                                                            case "01":
+                                                                end = "1";
+                                                                break;
+                                                            case "10":
+                                                                end = "2";
+                                                                break;
+                                                            case "11":
+                                                                end = "3";
+                                                                break;
+                                                        }
+                                                        String aaa = start + end + mergeList.get(i).substring(1,4);
+                                                        mergeList.set(i,aaa);
                                                     }
 
-                                                    int firstIndex1 = Integer.parseInt(SevenEchoEight_Data[1].substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
-                                                    String BinaryFirstIndex1 = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex1))); //10진수를 format함수로 0 채워서 4자리 맟줌
+                                                    // 이제 7E9로 날라온 P0101 만 파싱해서 머지리스트에 넣어주면 댐
 
-                                                    String start1 = BinaryFirstIndex1.substring(0,2);
-                                                    String end1 = BinaryFirstIndex1.substring(2,4);
-                                                    String b = CheckBinary(start1,end1);
-
-                                                    mergeList.add(b);
-
-                                                    Log.d(TAG, "출력된 데이터 :" + mergeList);
-
-
+                                                    Log.e(TAG, "handleMessage: "+mergeList );
 
 
                                                 }
@@ -530,44 +539,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Error :" + e);
             }
         });
+
+
+
     }
 
-    public String CheckBinary(String start,String end){
-
-        switch (start){
-            case "00":
-                start = "P";
-                break;
-            case "01":
-                start = "C";
-                break;
-            case "10":
-                start = "B";
-                break;
-            case "11":
-                start = "U";
-                break;
-        }
-
-        switch (end) {
-            case "00":
-                end = "0";
-                break;
-            case "01":
-                end = "1";
-                break;
-            case "10":
-                end = "2";
-                break;
-            case "11":
-                end = "3";
-                break;
-        }
-
-        String a = start+end;
-
-        return a;
-    }
 
     @Override
     public void onPause(){
@@ -711,7 +687,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 return true;
-                
+
             case R.id.delete_load:
 
                 if(mTextFileManager.load() == null){
@@ -773,13 +749,13 @@ public class MainActivity extends AppCompatActivity {
                 StringBuilder buffer = new StringBuilder();
                 byte[] dataBuffer = new byte[1024];
                 int n = 0;
-                
+
                 while ((n=fis.read(dataBuffer))!=-1){
                     buffer.append(new String(dataBuffer));
                 }
                 strTmp = buffer.toString();
                 fis.close();
-                
+
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
