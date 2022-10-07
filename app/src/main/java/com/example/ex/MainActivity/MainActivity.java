@@ -306,7 +306,42 @@ public class MainActivity extends AppCompatActivity {
                                                         mergeList.set(i,aaa);
                                                     }
 
-                                                    // 이제 7E9로 날라온 P0101 만 파싱해서 머지리스트에 넣어주면 댐
+
+                                                    int firstIndex1 = Integer.parseInt(SevenEchoEight_Data[1].substring(4,6),16); // 앞에 따와서 16진수 -> 10진수
+                                                    String BinaryFirstIndex1 = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex1))); //10진수를 format함수로 0 채워서 4자리 맟줌
+
+                                                    String start1 = BinaryFirstIndex1.substring(0,2);
+                                                    String end1 = BinaryFirstIndex1.substring(2,4);
+
+                                                    switch (start1){
+                                                        case "00":
+                                                            start1 = "P";
+                                                            break;
+                                                        case "01":
+                                                            start1 = "C";
+                                                            break;
+                                                        case "10":
+                                                            start1 = "B";
+                                                            break;
+                                                        case "11":
+                                                            start1 = "U";
+                                                            break;
+                                                    }
+
+                                                    switch (end1) {
+                                                        case "00":
+                                                            end1 = "0";
+                                                            break;
+                                                        case "01":
+                                                            end1 = "1";
+                                                            break;
+                                                        case "10":
+                                                            end1 = "2";
+                                                            break;
+                                                        case "11":
+                                                            end1 = "3";
+                                                            break;
+                                                    }
 
                                                     Log.e(TAG, "handleMessage: "+mergeList );
 
