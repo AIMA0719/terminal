@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     public BluetoothAdapter bluetoothAdapter;
     private static final String TAG = "activity_main";
-    public final String[] DefaultATCommandArray = new String[]{"ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
+    public final String[] DefaultATCommandArray = new String[]{"ATZ","ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
     public EditText editText;
     public Button btAdd, btReset,AT,OBD;
     public RecyclerView recyclerView;
@@ -77,7 +77,9 @@ public class MainActivity extends AppCompatActivity {
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
     public static final int BT_CONNECTING_STATUS = 1;
+    public static final int AT_COMMANDS_SETTING = 2;
     public int index = 0;
+    public String show_data = "";
 
     //Debug : 6897BB
     //Info : 6A8759
@@ -145,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             mBluetoothHandler = new Handler(Looper.getMainLooper()) {
 
+                @SuppressLint("DefaultLocale")
                 @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void handleMessage(Message msg) { // 메시지 종류에 따라서
@@ -157,27 +160,15 @@ public class MainActivity extends AppCompatActivity {
                         readdress += msg.obj;
                         editText.setText("");
 
-                        if(ConnectedThread.first_connection){ // 처음 AT 커맨드 연결시
-                            if(!readdress.equals("ATST64OK")){
-                                if(index <=7){
-                                    String send = DefaultATCommandArray[index];
-                                    mConnectedThread.write(send+"\r"); // write 함
-                                    index += 1;
-                                } else {
-                                    ConnectedThread.first_connection = false;
-                                    Log.d(TAG, "Default AT command Setting OK");
-                                    mConnectedThread.write("0104\r"); // 이상하게 첫 데이터는 0104SEARCHING...7E803410432 이런식으로 SEARCHING...이 나와서 그냥 한 번 쏴줌
-                                    Toast.makeText(MainActivity.this, "AT 커맨트 세팅 완료!", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }else {
-                            if(msg.arg2 == -1){ // 처음이 아닐때~
+                            if(msg.arg2 == -1){
                                 if (readdress.contains(">")) {
                                     Log.d(TAG, "Response 메세지 전달 받음");
                                     String[] slicing_data = readdress.split(">");
 
                                     String PIDS = slicing_data[0].substring(0,2);
-                                    String show_data = slicing_data[0]; //sText와 그앞에 빈칸 하나 제거하고 나타냄
+                                    if(sText!=null){
+                                        show_data = slicing_data[0].replaceAll(sText,""); //0105 7E8410542942 마냥 앞에 0105하고 널 하나 없얘주기위함
+                                    }
 
                                     switch (PIDS){ // 서비스 아이디에 따라 출력
                                         case "01":
@@ -189,15 +180,15 @@ public class MainActivity extends AppCompatActivity {
                                             else { // 명령어 제대로 된거 입력 하면
                                                 if(!flag) {
                                                     MainData data1 = new MainData();
-                                                    data1.setText("RX : "+show_data);
+                                                    data1.setText("RX :"+show_data);
                                                     database.mainDao().insert(data1);
                                                     dataList.add(data1);
                                                     try {
-                                                        mTextFileManager.save("RX : "+ show_data+"\n"); // File에 add , :: 는 구분 용
+                                                        mTextFileManager.save("RX :"+ show_data+"\n"); // File에 add , :: 는 구분 용
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
-                                                    Log.d(TAG, "Response 메세지 : " + show_data);
+                                                    Log.d(TAG, "출력된 데이터 :" + show_data);
                                                 }
                                             }
                                             break;
@@ -212,14 +203,15 @@ public class MainActivity extends AppCompatActivity {
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else {
                                                 if (!flag) {
-                                                    String [] SevenEchoEight_Data = show_data.split("7E9");
-//                                                    String [] SevenEcho_Data
+                                                    String [] SevenEchoEight_Data = show_data.split("7E9"); // 7E8 헤더만 작업
                                                     String rawdata = SevenEchoEight_Data[0].replace("7E8",",");
                                                     String rawData1 = rawdata.replace("7E9",".");
                                                     String rawData2 = rawData1.replace("7EA",",");
 
-                                                    List<String> vinRawData = new ArrayList<>();
-                                                    List<Integer> vinIntRawData = new ArrayList<>();
+                                                    Log.e(TAG, "handleMessage: "+ SevenEchoEight_Data[1] );
+
+                                                    List<String> errorDataList = new ArrayList<>();
+                                                    List<String> mergeList = new ArrayList<>();
                                                     List<Character> vinCharRawData = new ArrayList<>();
                                                     StringBuilder ASCII = new StringBuilder();
 
@@ -234,12 +226,12 @@ public class MainActivity extends AppCompatActivity {
                                                             if(i==1){
                                                                 for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
                                                                 for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
@@ -248,39 +240,45 @@ public class MainActivity extends AppCompatActivity {
                                                             if(i==1){
                                                                 for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
                                                                 for(int j=4;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
                                                     }
 
-                                                    Log.e(TAG, "Raw 데이터 슬라이싱: "+vinRawData );
+                                                    Log.e(TAG, "Raw 데이터 슬라이싱: "+errorDataList );
 //                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
 //                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
 
-                                                    List<String> data = vinRawData.subList(0,Intindex);
+                                                    List<String> rawDataList = errorDataList.subList(0,Intindex);
 
                                                     int startIdx = 0; // 짝수면 43 부터 시작 아니면 그 뒤 06 부터 시작 [43, 06, 01, 00, 02, 00, 00, 43, 00, 82, 00, C1, 00, 00]
                                                     if (Intindex % 2 == 1){
                                                         startIdx = 1;
                                                     }
-                                                    data = data.subList(startIdx,data.size());
-                                                    Log.e(TAG, "handleMessage: "+data);
+                                                    rawDataList = rawDataList.subList(startIdx,rawDataList.size());
+                                                    Log.e(TAG, "handleMessage: "+rawDataList);
 
-                                                    /*
-                                                        1. 먼저 데이터 부분만 나눠준다음
+                                                    for(int i=0;i+1<rawDataList.size();i+=2){
+                                                        mergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
+                                                    }
 
-                                                        2. 유효데이터를 10진수로 바꿔서 그걸 index
 
-                                                        3. 홀수면 첫번째 인덱스부터 파싱 짝수면 두번째 인덱스부터 파싱
 
-                                                        4. 맨 첫번째 비트(hex) 를 2진수로 치환 ex) 0 -> 0000
-                                                     */
+                                                    for(int i=0;i<mergeList.size();i++){
+                                                        int firstIndex = Integer.parseInt(mergeList.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+                                                        String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
+
+                                                        //mergeList.set(Integer.parseInt(mergeList.get(i).substring(0,1)),);
+                                                    }
+
+                                                    Log.e(TAG, "handleMessage: "+mergeList );
+
 
                                                 }
                                             }
@@ -295,9 +293,10 @@ public class MainActivity extends AppCompatActivity {
                                                         List<Character> vinCharRawData = new ArrayList<>();
                                                         StringBuilder ASCII = new StringBuilder();
 
-//                                                        show_data = "09027E810144902014B4D487E821444734315542457E82255303133363536"; 우리 차량 차대번호
+//                                                        showData = "09027E810144902014B4D487E821444734315542457E82255303133363536"; 법인차량 차대번호 rawData
 
-                                                        String [] replaceData = show_data.split("7E8");
+                                                        String [] replaceData = show_data.split("7E8"); // 차대번호에서 7E9이런거 나오는건 배제하고 작업함...
+
                                                         for(int i=1;i<replaceData.length;i++){
 
                                                             if(i==1){
@@ -326,15 +325,15 @@ public class MainActivity extends AppCompatActivity {
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX (차대번호) : " + ASCII);
+                                                        data1.setText("RX (차대번호) :" + ASCII);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
-                                                            mTextFileManager.save("RX : " + ASCII + "\n"); // File에 add , :: 는 구분 용
+                                                            mTextFileManager.save("RX :" + ASCII + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
-                                                        Log.d(TAG, "Raw 데이터 : " + show_data);
+                                                        Log.d(TAG, "출력된 데이터 :" + ASCII);
                                                     }
 
                                             }else { // 0902 아닐때
@@ -347,11 +346,11 @@ public class MainActivity extends AppCompatActivity {
                                                     if (!flag) {
 
                                                         MainData data1 = new MainData();
-                                                        data1.setText("RX : " + show_data);
+                                                        data1.setText("RX :" + show_data);
                                                         database.mainDao().insert(data1);
                                                         dataList.add(data1);
                                                         try {
-                                                            mTextFileManager.save("RX : " + show_data + "\n"); // File에 add , :: 는 구분 용
+                                                            mTextFileManager.save("RX :" + show_data + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
@@ -373,11 +372,11 @@ public class MainActivity extends AppCompatActivity {
                                                 if(!flag) {
 
                                                     MainData data1 = new MainData();
-                                                    data1.setText("RX : "+show_data);
+                                                    data1.setText("RX :"+show_data);
                                                     database.mainDao().insert(data1);
                                                     dataList.add(data1);
                                                     try {
-                                                        mTextFileManager.save("RX : "+ show_data+"\n"); // File에 add , :: 는 구분 용
+                                                        mTextFileManager.save("RX :"+ show_data+"\n"); // File에 add , :: 는 구분 용
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
@@ -389,7 +388,6 @@ public class MainActivity extends AppCompatActivity {
                                 } else {
                                     Log.d(TAG, "마지막 데이터가 아닙니다.");
                                 }
-                            }
                         }
 
                         adapter.notifyDataSetChanged(); // 갱신
@@ -511,7 +509,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
     }
+
 
     @Override
     public void onPause(){

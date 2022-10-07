@@ -23,7 +23,8 @@ public class ConnectedThread extends Thread  {
     public static String Data = "";
     public final String TAG = "ConnectedThread";
     public static boolean first_connection;
-    public int index =0;
+    public final String[] DefaultATCommandArray = new String[]{"ATE1","ATD0","ATSP0","ATH1","ATM0","ATS0","ATAT1","ATST64"};
+
 
     public ConnectedThread(BluetoothSocket socket, Handler handler) {
         mBluetoothSocket = socket;
@@ -50,6 +51,7 @@ public class ConnectedThread extends Thread  {
         if(mBluetoothSocket != null){
             mmBuffer = new byte[1024];
             int bytes;
+            int index = 0;
 
             while (true) {
                 try {
@@ -63,20 +65,19 @@ public class ConnectedThread extends Thread  {
                             Log.d(TAG, "Data read 실패!");
                         }
 
-
                         if (Data.contains(">")) { // > 뒤에 계속 추가되는거 방지용 초기화
 
-                            if(first_connection){ // 처음 디폴트 AT 커맨드 설정 flag
+                            if(first_connection){ // 처음 디폴트 AT 커맨드 설정
 
-                                if (Data.contains("at") || (Data.contains("OBD") || (Data.contains("AT"))
-                                        || (Data.contains("OK"))) ){ // 초기 AT Commands 세팅시
-                                    Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data);
-                                    message.sendToTarget();
-                                    Log.e(TAG, "Setting 된 AT command : "+Data );
-
+                                if(index<DefaultATCommandArray.length){
+                                    write(DefaultATCommandArray[index] + "\r");  // 하나씩 호출하고 받으면 또 다음 인덱스 호출하고..
+                                    index += 1;
                                 }else {
-                                    Log.e(TAG, "Check: " +Data);
+                                    write("0105\r"); // 이걸 보내는 이유는 AT 세팅 완료 후 처음에만 Request 할 때
+                                    // 0105SEARCHING...7E8034105C47E9034105C4> 이 SEARCHING...이 뜨고 Response 속도가 1초정도 느려서 더미데이터처럼 없얘기 위함...
+                                    first_connection = false; // 다 설정하면 flag false로..
                                 }
+                                Log.e(TAG, "세팅한 AT 커맨드 : " + Data);
 
                             }else { // 처음 연결이 아닐 때
                                 if(Data.contains("NO DATA")){  // 데이터가 없으면
@@ -86,7 +87,7 @@ public class ConnectedThread extends Thread  {
                                 else if (Data.contains("at")||(Data.contains("OBD")||(Data.contains("AT")))){
                                     Message message = BluetoothFragment.mBluetoothHandler.obtainMessage(BluetoothFragment.BT_MESSAGE_READ, mmBuffer.length, -1, Data); //
                                     message.sendToTarget();
-                                    Log.d(TAG, "ConnectedThread 에서 AT 커맨드 세팅함 : "+Data);
+
                                 }
                                 else { // 일반 명령어 입력시
                                     Log.d(TAG, "Request 메세지 전달 받음");
