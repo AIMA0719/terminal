@@ -196,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
                                         case "03":
                                             String [] SevenEchoEight_Data_03 = show_data.split("7E9"); // 7E8 첫번째 두번째 랑 7E9,7EA 이렇게 나눔
                                             String [] replaceData_03 = SevenEchoEight_Data_03[0].split("7E8"); // 7E8 첫번째랑 두번째 나눔
-                                            String [] replaceData1_03 = SevenEchoEight_Data_03[1].split("7EA"); // 7E9랑 7EA랑 나눔
 
                                             List<String> SevenEchoEightPart_03 = new ArrayList<>();// 7E8 작업 리스트
                                             List<String> SevenEchoNinePart_03 = new ArrayList<>();// 7E9 작업 리스트
@@ -244,18 +243,19 @@ public class MainActivity extends AppCompatActivity {
                                             //-----------7E8
 
                                             //------------7E9
-                                            int Intindex1 = Integer.parseInt(replaceData1_03[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                            int Intindex1 = Integer.parseInt(SevenEchoEight_Data_03[1].substring(4,5),16); // 유효 바이트가 어디까지 인지
                                             // 064702 0102 D600
+
                                             if(Intindex1 % 2 == 1){
-                                                for(int i =8;i<replaceData1_03[0].length();i+=2){
-                                                    if(i+2<replaceData1_03[0].length())
-                                                        SevenEchoNinePart_03.add(replaceData1_03[0].substring(i,i+2));
+                                                for(int i =8;i<SevenEchoEight_Data_03[1].length();i+=2){
+                                                    if(i+2<=SevenEchoEight_Data_03[1].length())
+                                                        SevenEchoNinePart_03.add(SevenEchoEight_Data_03[1].substring(i,i+2));
                                                 }
                                             }
                                             else {
-                                                for(int i =6;i<replaceData1_03[0].length();i+=2){
-                                                    if(i+2<replaceData1_03[0].length())
-                                                        SevenEchoNinePart_03.add(replaceData1_03[0].substring(i,i+2));
+                                                for(int i =6;i<SevenEchoEight_Data_03[1].length();i+=2){
+                                                    if(i+2<=SevenEchoEight_Data_03[1].length())
+                                                        SevenEchoNinePart_03.add(SevenEchoEight_Data_03[1].substring(i,i+2));
                                                 }
                                             }
 
@@ -273,52 +273,12 @@ public class MainActivity extends AppCompatActivity {
                                                 String start = BinaryFirstIndex.substring(0,2);
                                                 String end = BinaryFirstIndex.substring(2,4);
 
-                                                switch (start){
-                                                    case "00":
-                                                        start = "P";
-                                                        break;
-                                                    case "01":
-                                                        start = "C";
-                                                        break;
-                                                    case "10":
-                                                        start = "B";
-                                                        break;
-                                                    case "11":
-                                                        start = "U";
-                                                        break;
-                                                }
-
-                                                switch (end) {
-                                                    case "00":
-                                                        end = "0";
-                                                        break;
-                                                    case "01":
-                                                        end = "1";
-                                                        break;
-                                                    case "10":
-                                                        end = "2";
-                                                        break;
-                                                    case "11":
-                                                        end = "3";
-                                                        break;
-                                                }
-                                                String Chilepal_data = start + end + MergeList_03.get(i).substring(1,4);
+                                                String Chilepal_data = Listgagong(start,end) + MergeList_03.get(i).substring(1,4);
                                                 MergeList_03.set(i,Chilepal_data);
 
                                             }
-                                            //MergeList_03 가공
 
-                                            // 리사이클러뷰에 띄워줌
-                                            MainData mainData = new MainData();
-                                            mainData.setText("RX (현재 고장 코드) : " + MergeList_03);
-                                            database.mainDao().insert(mainData);
-                                            dataList.add(mainData);
-                                            try {
-                                                mTextFileManager.save("RX :" + MergeList_03 + "\n"); // File에 add , :: 는 구분 용
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                            // 리사이클러뷰에 띄워줌
+                                            AddList(MergeList_03);
 
                                             break;
                                         case "07":
@@ -383,13 +343,13 @@ public class MainActivity extends AppCompatActivity {
                                                     // 064702 0102 D600
                                                     if(intindex1_07 % 2 == 1){
                                                         for(int i =8;i<replacedata1_07[0].length();i+=2){
-                                                            if(i+2<replacedata1_07[0].length())
+                                                            if(i+2<=replacedata1_07[0].length())
                                                                 sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
                                                         }
                                                     }
                                                     else {
                                                         for(int i =6;i<replacedata1_07[0].length();i+=2){
-                                                            if(i+2<replacedata1_07[0].length())
+                                                            if(i+2<=replacedata1_07[0].length())
                                                                 sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
                                                         }
                                                     }
@@ -427,53 +387,12 @@ public class MainActivity extends AppCompatActivity {
                                                         String start = BinaryFirstIndex.substring(0,2);
                                                         String end = BinaryFirstIndex.substring(2,4);
 
-                                                        switch (start){
-                                                            case "00":
-                                                                start = "P";
-                                                                break;
-                                                            case "01":
-                                                                start = "C";
-                                                                break;
-                                                            case "10":
-                                                                start = "B";
-                                                                break;
-                                                            case "11":
-                                                                start = "U";
-                                                                break;
-                                                        }
 
-                                                        switch (end) {
-                                                            case "00":
-                                                                end = "0";
-                                                                break;
-                                                            case "01":
-                                                                end = "1";
-                                                                break;
-                                                            case "10":
-                                                                end = "2";
-                                                                break;
-                                                            case "11":
-                                                                end = "3";
-                                                                break;
-                                                        }
-                                                        String Chilepal_data = start + end + mergelist_07.get(i).substring(1,4);
+                                                        String Chilepal_data = Listgagong(start,end) + mergelist_07.get(i).substring(1,4);
                                                         mergelist_07.set(i,Chilepal_data);
 
                                                     }
-                                                    //MergeList_03 가공
-
-                                                    // 리사이클러뷰에 띄워줌
-                                                    MainData data = new MainData();
-                                                    data.setText("RX (임시 고장 코드) : " + mergelist_07);
-                                                    database.mainDao().insert(data);
-                                                    dataList.add(data);
-                                                    try {
-                                                        mTextFileManager.save("RX :" + mergelist_07 + "\n"); // File에 add , :: 는 구분 용
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    // 리사이클러뷰에 띄워줌
-
+                                                    AddList((mergelist_07));
                                                 }
                                             }
 
@@ -566,52 +485,12 @@ public class MainActivity extends AppCompatActivity {
                                                 String start = BinaryFirstIndex.substring(0,2);
                                                 String end = BinaryFirstIndex.substring(2,4);
 
-                                                switch (start){
-                                                    case "00":
-                                                        start = "P";
-                                                        break;
-                                                    case "01":
-                                                        start = "C";
-                                                        break;
-                                                    case "10":
-                                                        start = "B";
-                                                        break;
-                                                    case "11":
-                                                        start = "U";
-                                                        break;
-                                                }
-
-                                                switch (end) {
-                                                    case "00":
-                                                        end = "0";
-                                                        break;
-                                                    case "01":
-                                                        end = "1";
-                                                        break;
-                                                    case "10":
-                                                        end = "2";
-                                                        break;
-                                                    case "11":
-                                                        end = "3";
-                                                        break;
-                                                }
-                                                String Chilepal_data = start + end + MergeList_0a.get(i).substring(1,4);
+                                                String Chilepal_data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
                                                 MergeList_0a.set(i,Chilepal_data);
 
                                             }
-                                            //MergeList_03 가공
 
-                                            // 리사이클러뷰에 띄워줌
-                                            MainData data = new MainData();
-                                            data.setText("RX (과거 고장 코드) : " + MergeList_0a);
-                                            database.mainDao().insert(data);
-                                            dataList.add(data);
-                                            try {
-                                                mTextFileManager.save("RX :" + MergeList_0a + "\n"); // File에 add , :: 는 구분 용
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                            // 리사이클러뷰에 띄워줌
+                                            AddList(MergeList_0a);
 
                                             break;
                                         case "AT":
@@ -763,11 +642,52 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Error :" + e);
             }
         });
-
-
-
     }
 
+    public void AddList(List list){
+        MainData data = new MainData();
+        data.setText("RX :" + list);
+        database.mainDao().insert(data);
+        dataList.add(data);
+        try {
+            mTextFileManager.save("RX :" + list + "\n"); // File에 add , :: 는 구분 용
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String Listgagong(String start,String end){
+        switch (start){
+            case "00":
+                start = "P";
+                break;
+            case "01":
+                start = "C";
+                break;
+            case "10":
+                start = "B";
+                break;
+            case "11":
+                start = "U";
+                break;
+        }
+
+        switch (end) {
+            case "00":
+                end = "0";
+                break;
+            case "01":
+                end = "1";
+                break;
+            case "10":
+                end = "2";
+                break;
+            case "11":
+                end = "3";
+                break;
+        }
+        return start + end;
+    }
 
     @Override
     public void onPause(){
