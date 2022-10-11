@@ -204,31 +204,28 @@ public class MainActivity extends AppCompatActivity {
                                             }else {
                                                 if (!flag) {
                                                     String [] SevenEchoEight_Data = show_data.split("7E9"); // 7E8 헤더만 작업
-                                                    String rawdata = SevenEchoEight_Data[0].replace("7E8",",");
-                                                    String rawData1 = rawdata.replace("7E9",".");
-                                                    String rawData2 = rawData1.replace("7EA",",");
+                                                    String [] replaceData = SevenEchoEight_Data[0].split("7E8");
+                                                    String [] replaceData1 = SevenEchoEight_Data[1].split("7EA");
 
-                                                    Log.e(TAG, "handleMessage: "+ SevenEchoEight_Data[1] );
-
-                                                    List<String> errorDataList = new ArrayList<>();
+                                                    List<String> SevenEchoEightPart = new ArrayList<>();
+                                                    List<String> SevenEchoNinePart = new ArrayList<>();
+                                                    List<String> SevenEchoAPart = new ArrayList<>();
                                                     List<String> mergeList = new ArrayList<>();
 
-                                                    String [] replaceData = rawData2.split(",");
-                                                    int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
 
-                                                    Log.e(TAG, "handleMessage: "+Intindex );
+                                                    int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
 
                                                     if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
                                                         for(int i=1;i<replaceData.length;i++){
                                                             if(i==1){
                                                                 for(int j=8;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
+                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
                                                                 for(int j=2;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
+                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
@@ -237,29 +234,29 @@ public class MainActivity extends AppCompatActivity {
                                                             if(i==1){
                                                                 for(int j=8;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
+                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }else {
                                                                 for(int j=2;j<replaceData[i].length();j+=2){
                                                                     if(j+2<= replaceData[i].length())
-                                                                        errorDataList.add(replaceData[i].substring(j,j+2));
+                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
                                                     }
 
-                                                    Log.e(TAG, "Raw 데이터 슬라이싱: "+errorDataList );
+                                                    Log.e(TAG, "7E8 부분 2바이트로 나눈 리스트 : "+SevenEchoEightPart );
 //                                                    Log.e(TAG, "슬라이싱한 Raw 데이터 10진수로: "+vinIntRawData );
 //                                                    Log.e(TAG, "10진수를 아스키 코드로 "+vinCharRawData );
 
-                                                    List<String> rawDataList = errorDataList.subList(0,Intindex);
+                                                    List<String> rawDataList = SevenEchoEightPart.subList(0,Intindex);
 
                                                     int startIdx = 0; // 짝수면 43 부터 시작 아니면 그 뒤 06 부터 시작 [43, 06, 01, 00, 02, 00, 00, 43, 00, 82, 00, C1, 00, 00]
                                                     if (Intindex % 2 == 1){
                                                         startIdx = 1;
                                                     }
                                                     rawDataList = rawDataList.subList(startIdx,rawDataList.size());
-                                                    Log.e(TAG, "handleMessage: "+rawDataList);
+                                                    Log.e(TAG, "위 리스트 인덱스까지로 슬라이싱 : "+rawDataList);
 
                                                     for(int i=0;i+1<rawDataList.size();i+=2){
                                                         if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
@@ -302,12 +299,27 @@ public class MainActivity extends AppCompatActivity {
                                                                 end = "3";
                                                                 break;
                                                         }
-                                                        String aaa = start + end + mergeList.get(i).substring(1,4);
-                                                        mergeList.set(i,aaa);
+                                                        String Chilepal_data = start + end + mergeList.get(i).substring(1,4);
+                                                        mergeList.set(i,Chilepal_data);
+
                                                     }
 
+                                                    int Intindex1 = Integer.parseInt(replaceData1[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                                    // 064702 0102 D600
+                                                    if(Intindex1 % 2 == 1){
+                                                        for(int i =8;i<replaceData1[0].length();i++){
+                                                            SevenEchoNinePart.add(replaceData1[0].substring(i,i+4));
+                                                        }
+                                                    }
+                                                    else {
+                                                        for(int i =6;i<replaceData1[0].length();i+=4){
+                                                            SevenEchoNinePart.add(replaceData1[0].substring(i,i+4));
+                                                        }
+                                                    }
+                                                    Log.e(TAG, "handleMessage: "+ SevenEchoNinePart );
 
-                                                    int firstIndex1 = Integer.parseInt(SevenEchoEight_Data[1].substring(4,6),16); // 앞에 따와서 16진수 -> 10진수
+
+                                                    int firstIndex1 = Integer.parseInt(SevenEchoEight_Data[1].substring(6,7),16); // 앞에 따와서 16진수 -> 10진수
                                                     String BinaryFirstIndex1 = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex1))); //10진수를 format함수로 0 채워서 4자리 맟줌
 
                                                     String start1 = BinaryFirstIndex1.substring(0,2);
@@ -343,9 +355,21 @@ public class MainActivity extends AppCompatActivity {
                                                             break;
                                                     }
 
-                                                    Log.e(TAG, "handleMessage: "+mergeList );
+                                                    String Chilegu_data = start1 + end1 + SevenEchoEight_Data[1].substring(7,10);
+                                                    mergeList.add(Chilegu_data);
 
+                                                    MainData data1 = new MainData();
+                                                    data1.setText("RX (현재 고장 코드) : " + mergeList);
+                                                    database.mainDao().insert(data1);
+                                                    dataList.add(data1);
+                                                    try {
+                                                        mTextFileManager.save("RX :" + mergeList + "\n"); // File에 add , :: 는 구분 용
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
 
+                                                    Log.e(TAG, "show_data: " + show_data );
+                                                    Log.e(TAG, "mergelist: " + mergeList );
                                                 }
                                             }
 
