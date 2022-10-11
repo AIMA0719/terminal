@@ -194,109 +194,234 @@ public class MainActivity extends AppCompatActivity {
                                             break;
 
                                         case "03":
+                                            String [] SevenEchoEight_Data_03 = show_data.split("7E9"); // 7E8 첫번째 두번째 랑 7E9,7EA 이렇게 나눔
+                                            String [] replaceData_03 = SevenEchoEight_Data_03[0].split("7E8"); // 7E8 첫번째랑 두번째 나눔
+                                            String [] replaceData1_03 = SevenEchoEight_Data_03[1].split("7EA"); // 7E9랑 7EA랑 나눔
+
+                                            List<String> SevenEchoEightPart_03 = new ArrayList<>();// 7E8 작업 리스트
+                                            List<String> SevenEchoNinePart_03 = new ArrayList<>();// 7E9 작업 리스트
+                                            List<String> MergeList_03 = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
+
+                                            //-----------7E8
+                                            int Intindex = Integer.parseInt(replaceData_03[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
+
+                                            if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
+                                                for(int i = 1; i< replaceData_03.length; i++){
+                                                    if(i==1){
+                                                        for(int j = 8; j< replaceData_03[i].length(); j+=2){
+                                                            if(j+2<= replaceData_03[i].length())
+                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
+                                                        }
+                                                    }else {
+                                                        for(int j = 2; j< replaceData_03[i].length(); j+=2){
+                                                            if(j+2<= replaceData_03[i].length())
+                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
+                                                        }
+                                                    }
+                                                }
+                                            }else {  // 유효 바이트가 짝 수라면
+                                                for(int i = 1; i< replaceData_03.length; i++){
+                                                    if(i==1){
+                                                        for(int j = 8; j< replaceData_03[i].length(); j+=2){
+                                                            if(j+2<= replaceData_03[i].length())
+                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
+                                                        }
+                                                    }else {
+                                                        for(int j = 2; j< replaceData_03[i].length(); j+=2){
+                                                            if(j+2<= replaceData_03[i].length())
+                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            List<String> rawDataList = SevenEchoEightPart_03.subList(0,Intindex);
+
+                                            for(int i=0;i+1<rawDataList.size();i+=2){
+                                                if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
+                                                    MergeList_03.add(rawDataList.get(i) +rawDataList.get(i+1));
+                                            }
+                                            //-----------7E8
+
+                                            //------------7E9
+                                            int Intindex1 = Integer.parseInt(replaceData1_03[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                            // 064702 0102 D600
+                                            if(Intindex1 % 2 == 1){
+                                                for(int i =8;i<replaceData1_03[0].length();i+=2){
+                                                    if(i+2<replaceData1_03[0].length())
+                                                        SevenEchoNinePart_03.add(replaceData1_03[0].substring(i,i+2));
+                                                }
+                                            }
+                                            else {
+                                                for(int i =6;i<replaceData1_03[0].length();i+=2){
+                                                    if(i+2<replaceData1_03[0].length())
+                                                        SevenEchoNinePart_03.add(replaceData1_03[0].substring(i,i+2));
+                                                }
+                                            }
+
+                                            for(int i=0;i+1<SevenEchoNinePart_03.size();i+=2){
+                                                if(!(SevenEchoNinePart_03.get(i) + SevenEchoNinePart_03.get(i + 1)).equals("0000"))
+                                                    MergeList_03.add(SevenEchoNinePart_03.get(i) +SevenEchoNinePart_03.get(i+1));
+                                            }
+                                            //------------7E9
+
+                                            //MergeList_03 가공
+                                            for(int i=0;i<MergeList_03.size();i++){
+                                                int firstIndex = Integer.parseInt(MergeList_03.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+                                                String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
+
+                                                String start = BinaryFirstIndex.substring(0,2);
+                                                String end = BinaryFirstIndex.substring(2,4);
+
+                                                switch (start){
+                                                    case "00":
+                                                        start = "P";
+                                                        break;
+                                                    case "01":
+                                                        start = "C";
+                                                        break;
+                                                    case "10":
+                                                        start = "B";
+                                                        break;
+                                                    case "11":
+                                                        start = "U";
+                                                        break;
+                                                }
+
+                                                switch (end) {
+                                                    case "00":
+                                                        end = "0";
+                                                        break;
+                                                    case "01":
+                                                        end = "1";
+                                                        break;
+                                                    case "10":
+                                                        end = "2";
+                                                        break;
+                                                    case "11":
+                                                        end = "3";
+                                                        break;
+                                                }
+                                                String Chilepal_data = start + end + MergeList_03.get(i).substring(1,4);
+                                                MergeList_03.set(i,Chilepal_data);
+
+                                            }
+                                            //MergeList_03 가공
+
+                                            // 리사이클러뷰에 띄워줌
+                                            MainData mainData = new MainData();
+                                            mainData.setText("RX (현재 고장 코드) : " + MergeList_03);
+                                            database.mainDao().insert(mainData);
+                                            dataList.add(mainData);
+                                            try {
+                                                mTextFileManager.save("RX :" + MergeList_03 + "\n"); // File에 add , :: 는 구분 용
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                            // 리사이클러뷰에 띄워줌
+
+                                            break;
                                         case "07":
-                                        case "0A":
-                                        case "0a":
                                             if(show_data.contains("?")){ // 명령어 제외하고 입력
                                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
                                             }else if(show_data.contains("DATA")){ // 데이터 없는 명령어 입력
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else {
                                                 if (!flag) {
-                                                    String [] SevenEchoEight_Data = show_data.split("7E9"); // 7E8 헤더만 작업
-                                                    String [] replaceData = SevenEchoEight_Data[0].split("7E8"); // 7E9
-                                                    String [] replaceData1 = SevenEchoEight_Data[1].split("7EA"); // 7EA
+                                                    String [] sevenEchoEightData_07 = show_data.split("7E9"); // 7E8 첫번째 두번째 랑 7E9,7EA 이렇게 나눔
+                                                    String [] replacedata_07 = sevenEchoEightData_07[0].split("7E8"); // 7E8 첫번째랑 두번째 나눔
+                                                    String [] replacedata1_07 = sevenEchoEightData_07[1].split("7EA"); // 7E9랑 7EA랑 나눔
 
-                                                    List<String> SevenEchoEightPart = new ArrayList<>();// 7E8 작업 리스트
-                                                    List<String> SevenEchoNinePart = new ArrayList<>();// 7E9 작업 리스트
-                                                    List<String> SevenEchoAPart = new ArrayList<>();// 7EA 작업 리스트
-                                                    List<String> mergeList = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
+                                                    List<String> sevenEchoEightPart_07 = new ArrayList<>();// 7E8 작업 리스트
+                                                    List<String> sevenEchoNinePart_07 = new ArrayList<>();// 7E9 작업 리스트
+                                                    List<String> sevenEchoAPart_07 = new ArrayList<>();// 7EA 작업 리스트
+                                                    List<String> mergelist_07 = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
 
                                                     //-----------7E8
-                                                    int Intindex = Integer.parseInt(replaceData[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
+                                                    int intindex_07 = Integer.parseInt(replacedata_07[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
 
-                                                    if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
-                                                        for(int i=1;i<replaceData.length;i++){
+                                                    if(intindex_07%2 == 1){ //유효 바이트가 홀 수라면
+                                                        for(int i=1;i<replacedata_07.length;i++){
                                                             if(i==1){
-                                                                for(int j=8;j<replaceData[i].length();j+=2){
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=8;j<replacedata_07[i].length();j+=2){
+                                                                    if(j+2<= replacedata_07[i].length())
+                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
                                                                 }
                                                             }else {
-                                                                for(int j=2;j<replaceData[i].length();j+=2){
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=2;j<replacedata_07[i].length();j+=2){
+                                                                    if(j+2<= replacedata_07[i].length())
+                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
                                                     }else {  // 유효 바이트가 짝 수라면
-                                                        for(int i=1;i<replaceData.length;i++){
+                                                        for(int i=1;i<replacedata_07.length;i++){
                                                             if(i==1){
-                                                                for(int j=8;j<replaceData[i].length();j+=2){
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=8;j<replacedata_07[i].length();j+=2){
+                                                                    if(j+2<= replacedata_07[i].length())
+                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
                                                                 }
                                                             }else {
-                                                                for(int j=2;j<replaceData[i].length();j+=2){
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        SevenEchoEightPart.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=2;j<replacedata_07[i].length();j+=2){
+                                                                    if(j+2<= replacedata_07[i].length())
+                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
                                                     }
 
-                                                    List<String> rawDataList = SevenEchoEightPart.subList(0,Intindex);
+                                                    List<String> rawdatalist_07 = sevenEchoEightPart_07.subList(0,intindex_07);
 
-                                                    for(int i=0;i+1<rawDataList.size();i+=2){
-                                                        if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
-                                                            mergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
+                                                    for(int i=0;i+1<rawdatalist_07.size();i+=2){
+                                                        if(!(rawdatalist_07.get(i) + rawdatalist_07.get(i + 1)).equals("0000"))
+                                                            mergelist_07.add(rawdatalist_07.get(i) +rawdatalist_07.get(i+1));
                                                     }
                                                     //-----------7E8
 
                                                     //------------7E9
-                                                    int Intindex1 = Integer.parseInt(replaceData1[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                                    int intindex1_07 = Integer.parseInt(replacedata1_07[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
                                                     // 064702 0102 D600
-                                                    if(Intindex1 % 2 == 1){
-                                                        for(int i =8;i<replaceData1[0].length();i+=2){
-                                                            if(i+2<replaceData1[0].length())
-                                                                SevenEchoNinePart.add(replaceData1[0].substring(i,i+2));
+                                                    if(intindex1_07 % 2 == 1){
+                                                        for(int i =8;i<replacedata1_07[0].length();i+=2){
+                                                            if(i+2<replacedata1_07[0].length())
+                                                                sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
                                                         }
                                                     }
                                                     else {
-                                                        for(int i =6;i<replaceData1[0].length();i+=2){
-                                                            if(i+2<replaceData1[0].length())
-                                                                SevenEchoNinePart.add(replaceData1[0].substring(i,i+2));
+                                                        for(int i =6;i<replacedata1_07[0].length();i+=2){
+                                                            if(i+2<replacedata1_07[0].length())
+                                                                sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
                                                         }
                                                     }
 
-                                                    for(int i=0;i+1<SevenEchoNinePart.size();i+=2){
-                                                        if(!(SevenEchoNinePart.get(i) + SevenEchoNinePart.get(i + 1)).equals("0000"))
-                                                            mergeList.add(SevenEchoNinePart.get(i) +SevenEchoNinePart.get(i+1));
+                                                    for(int i=0;i+1<sevenEchoNinePart_07.size();i+=2){
+                                                        if(!(sevenEchoNinePart_07.get(i) + sevenEchoNinePart_07.get(i + 1)).equals("0000"))
+                                                            mergelist_07.add(sevenEchoNinePart_07.get(i) +sevenEchoNinePart_07.get(i+1));
                                                     }
                                                     //------------7E9
 
                                                     //------------7EA
-                                                    int Intindex2 = Integer.parseInt(replaceData1[1].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                                    int Intindex2_07 = Integer.parseInt(replacedata1_07[1].substring(4,5),16); // 유효 바이트가 어디까지 인지
 
-                                                    if(Intindex2 % 2 == 1){
-                                                        for(int i =8;i<replaceData1[1].length();i+=4){
-                                                            if(i+4<=replaceData1[1].length())
-                                                                SevenEchoAPart.add(replaceData1[1].substring(i,i+4));
+                                                    if(Intindex2_07 % 2 == 1){
+                                                        for(int i =8;i<replacedata1_07[1].length();i+=4){
+                                                            if(i+4<=replacedata1_07[1].length())
+                                                                sevenEchoAPart_07.add(replacedata1_07[1].substring(i,i+4));
                                                         }
                                                     }
                                                     else {
-                                                        for(int i =6;i<replaceData1[1].length();i+=4){
-                                                            if(i+4<=replaceData1[1].length())
-                                                                SevenEchoAPart.add(replaceData1[1].substring(i,i+4));
+                                                        for(int i =6;i<replacedata1_07[1].length();i+=4){
+                                                            if(i+4<=replacedata1_07[1].length())
+                                                                sevenEchoAPart_07.add(replacedata1_07[1].substring(i,i+4));
                                                         }
                                                     }
-                                                    if(!(SevenEchoAPart.get(0).equals("0000")))
-                                                        mergeList.add(SevenEchoAPart.get(0));
+                                                    if(!(sevenEchoAPart_07.get(0).equals("0000")))
+                                                        mergelist_07.add(sevenEchoAPart_07.get(0));
                                                     //------------7EA
 
-                                                    //MergeList 가공
-                                                    for(int i=0;i<mergeList.size();i++){
-                                                        int firstIndex = Integer.parseInt(mergeList.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+                                                    //MergeList_03 가공
+                                                    for(int i=0;i<mergelist_07.size();i++){
+                                                        int firstIndex = Integer.parseInt(mergelist_07.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
                                                         String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
 
                                                         String start = BinaryFirstIndex.substring(0,2);
@@ -331,19 +456,19 @@ public class MainActivity extends AppCompatActivity {
                                                                 end = "3";
                                                                 break;
                                                         }
-                                                        String Chilepal_data = start + end + mergeList.get(i).substring(1,4);
-                                                        mergeList.set(i,Chilepal_data);
+                                                        String Chilepal_data = start + end + mergelist_07.get(i).substring(1,4);
+                                                        mergelist_07.set(i,Chilepal_data);
 
                                                     }
-                                                    //MergeList 가공
+                                                    //MergeList_03 가공
 
                                                     // 리사이클러뷰에 띄워줌
-                                                    MainData data1 = new MainData();
-                                                    data1.setText("RX (현재 고장 코드) : " + mergeList);
-                                                    database.mainDao().insert(data1);
-                                                    dataList.add(data1);
+                                                    MainData data = new MainData();
+                                                    data.setText("RX (임시 고장 코드) : " + mergelist_07);
+                                                    database.mainDao().insert(data);
+                                                    dataList.add(data);
                                                     try {
-                                                        mTextFileManager.save("RX :" + mergeList + "\n"); // File에 add , :: 는 구분 용
+                                                        mTextFileManager.save("RX :" + mergelist_07 + "\n"); // File에 add , :: 는 구분 용
                                                     } catch (IOException e) {
                                                         e.printStackTrace();
                                                     }
@@ -364,19 +489,19 @@ public class MainActivity extends AppCompatActivity {
 
 //                                                        showData = "09027E810144902014B4D487E821444734315542457E82255303133363536"; 법인차량 차대번호 rawData
 
-                                                        String [] replaceData = show_data.split("7E8"); // 차대번호에서 7E9이런거 나오는건 배제하고 작업함...
+                                                        String [] replacedata = show_data.split("7E8"); // 차대번호에서 7E9이런거 나오는건 배제하고 작업함...
 
-                                                        for(int i=1;i<replaceData.length;i++){
+                                                        for(int i=1;i<replacedata.length;i++){
 
                                                             if(i==1){
-                                                                for(int j=10;j<replaceData[1].length();j+=2){ //앞에 유효 바이트 멀티라인 본인 0902 요청의 응답인 4902 다 빼면 인덱스 10부터시작
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=10;j<replacedata[1].length();j+=2){ //앞에 유효 바이트 멀티라인 본인 0902 요청의 응답인 4902 다 빼면 인덱스 10부터시작
+                                                                    if(j+2<= replacedata[i].length())
+                                                                        vinRawData.add(replacedata[i].substring(j,j+2));
                                                                 }
                                                             } else {
-                                                                for(int j=2;j<replaceData[i].length();j+=2){
-                                                                    if(j+2<= replaceData[i].length())
-                                                                        vinRawData.add(replaceData[i].substring(j,j+2));
+                                                                for(int j=2;j<replacedata[i].length();j+=2){
+                                                                    if(j+2<= replacedata[i].length())
+                                                                        vinRawData.add(replacedata[i].substring(j,j+2));
                                                                 }
                                                             }
                                                         }
@@ -393,10 +518,11 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i=0;i<vinIntRawData.size();i++){
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
-                                                        MainData data1 = new MainData();
-                                                        data1.setText("RX (차대번호) :" + ASCII);
-                                                        database.mainDao().insert(data1);
-                                                        dataList.add(data1);
+
+                                                        MainData data = new MainData();
+                                                        data.setText("RX (차대번호) :" + ASCII);
+                                                        database.mainDao().insert(data);
+                                                        dataList.add(data);
                                                         try {
                                                             mTextFileManager.save("RX :" + ASCII + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
@@ -414,10 +540,10 @@ public class MainActivity extends AppCompatActivity {
                                                 else {
                                                     if (!flag) {
 
-                                                        MainData data1 = new MainData();
-                                                        data1.setText("RX :" + show_data);
-                                                        database.mainDao().insert(data1);
-                                                        dataList.add(data1);
+                                                        MainData data = new MainData();
+                                                        data.setText("RX :" + show_data);
+                                                        database.mainDao().insert(data);
+                                                        dataList.add(data);
                                                         try {
                                                             mTextFileManager.save("RX :" + show_data + "\n"); // File에 add , :: 는 구분 용
                                                         } catch (IOException e) {
@@ -427,6 +553,66 @@ public class MainActivity extends AppCompatActivity {
                                                     }
                                                 }
                                             }
+                                            break;
+                                        case "0A":
+                                        case "0a":
+                                            List<String> MergeList_0a = new ArrayList<>();
+                                            MergeList_0a.add(show_data.substring(10)); // 1234 다
+
+                                            for(int i=0;i<MergeList_0a.size();i++){
+                                                int firstIndex = Integer.parseInt(MergeList_0a.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+                                                String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
+
+                                                String start = BinaryFirstIndex.substring(0,2);
+                                                String end = BinaryFirstIndex.substring(2,4);
+
+                                                switch (start){
+                                                    case "00":
+                                                        start = "P";
+                                                        break;
+                                                    case "01":
+                                                        start = "C";
+                                                        break;
+                                                    case "10":
+                                                        start = "B";
+                                                        break;
+                                                    case "11":
+                                                        start = "U";
+                                                        break;
+                                                }
+
+                                                switch (end) {
+                                                    case "00":
+                                                        end = "0";
+                                                        break;
+                                                    case "01":
+                                                        end = "1";
+                                                        break;
+                                                    case "10":
+                                                        end = "2";
+                                                        break;
+                                                    case "11":
+                                                        end = "3";
+                                                        break;
+                                                }
+                                                String Chilepal_data = start + end + MergeList_0a.get(i).substring(1,4);
+                                                MergeList_0a.set(i,Chilepal_data);
+
+                                            }
+                                            //MergeList_03 가공
+
+                                            // 리사이클러뷰에 띄워줌
+                                            MainData data = new MainData();
+                                            data.setText("RX (과거 고장 코드) : " + MergeList_0a);
+                                            database.mainDao().insert(data);
+                                            dataList.add(data);
+                                            try {
+                                                mTextFileManager.save("RX :" + MergeList_0a + "\n"); // File에 add , :: 는 구분 용
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                            // 리사이클러뷰에 띄워줌
+
                                             break;
                                         case "AT":
                                         case "at":
@@ -440,10 +626,10 @@ public class MainActivity extends AppCompatActivity {
                                             }else { // 명령어 제대로 된거 입력 하면
                                                 if(!flag) {
 
-                                                    MainData data1 = new MainData();
-                                                    data1.setText("RX :"+show_data);
-                                                    database.mainDao().insert(data1);
-                                                    dataList.add(data1);
+                                                    MainData mainData1 = new MainData();
+                                                    mainData1.setText("RX :"+show_data);
+                                                    database.mainDao().insert(mainData1);
+                                                    dataList.add(mainData1);
                                                     try {
                                                         mTextFileManager.save("RX :"+ show_data+"\n"); // File에 add , :: 는 구분 용
                                                     } catch (IOException e) {
