@@ -179,15 +179,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             else { // 명령어 제대로 된거 입력 하면
                                                 if(!flag) {
-                                                    MainData data1 = new MainData();
-                                                    data1.setText("RX :"+show_data);
-                                                    database.mainDao().insert(data1);
-                                                    dataList.add(data1);
-                                                    try {
-                                                        mTextFileManager.save("RX :"+ show_data+"\n"); // File에 add , :: 는 구분 용
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                    RecyclerView_Add(new StringBuilder(show_data));
                                                     Log.d(TAG, "출력된 데이터 :" + show_data);
                                                 }
                                             }
@@ -438,15 +430,7 @@ public class MainActivity extends AppCompatActivity {
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
 
-                                                        MainData data = new MainData();
-                                                        data.setText("RX (차대번호) :" + ASCII);
-                                                        database.mainDao().insert(data);
-                                                        dataList.add(data);
-                                                        try {
-                                                            mTextFileManager.save("RX :" + ASCII + "\n"); // File에 add , :: 는 구분 용
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        }
+                                                        RecyclerView_Add(new StringBuilder(ASCII));
                                                         Log.d(TAG, "출력된 데이터 :" + ASCII);
                                                     }
 
@@ -459,15 +443,7 @@ public class MainActivity extends AppCompatActivity {
                                                 else {
                                                     if (!flag) {
 
-                                                        MainData data = new MainData();
-                                                        data.setText("RX :" + show_data);
-                                                        database.mainDao().insert(data);
-                                                        dataList.add(data);
-                                                        try {
-                                                            mTextFileManager.save("RX :" + show_data + "\n"); // File에 add , :: 는 구분 용
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        }
+                                                        RecyclerView_Add(new StringBuilder(show_data));
                                                         Log.d(TAG, "Response 메세지 : " + show_data);
                                                     }
                                                 }
@@ -504,16 +480,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }else { // 명령어 제대로 된거 입력 하면
                                                 if(!flag) {
-
-                                                    MainData mainData1 = new MainData();
-                                                    mainData1.setText("RX :"+show_data);
-                                                    database.mainDao().insert(mainData1);
-                                                    dataList.add(mainData1);
-                                                    try {
-                                                        mTextFileManager.save("RX :"+ show_data+"\n"); // File에 add , :: 는 구분 용
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                    RecyclerView_Add(new StringBuilder(show_data));
                                                     Log.d(TAG, "Response 메세지 : " + show_data);
                                                 }
                                             }
@@ -562,17 +529,7 @@ public class MainActivity extends AppCompatActivity {
                         BluetoothFragment.mConnectedThread.write(sText+"\r"); // write 함
                         Log.d(TAG, "Request 메세지 : " + sText);
 
-                        MainData data = new MainData();
-                        data.setText("TX : "+sText);
-                        database.mainDao().insert(data); //DB에 add
-                        dataList.add(data); //List에 add
-//                    dataList.addAll(database.mainDao().getAll());
-
-                        try {
-                            mTextFileManager.save("TX : "+sText+"\n" ); // 내부 저장소에 add
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        RecyclerView_Add(new StringBuilder(sText));
 
                         editText.setText("");// editText 초기화
                         adapter.notifyDataSetChanged(); //갱신
@@ -585,16 +542,9 @@ public class MainActivity extends AppCompatActivity {
 
 
                 } else { //기기랑 연결 안 되어있는 상태
-                    MainData data = new MainData();
-                    data.setText(sText);
-
-                    dataList.clear(); //리스트 초기화
-                    dataList.add(data); // 리스트에 추가
-                    adapter.notifyDataSetChanged(); //갱신
+                    RecyclerView_Add(new StringBuilder(sText));
                     editText.setText("");
                     Log.d(TAG, "Request 메세지 : " + sText);
-
-//                    database.mainDao().insert(data); // 연결 안 됐으면 DB에 넣을필욘 없다
 
                     Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     Log.d(TAG, "블루투스 기기랑 연결이 안 되어있는 상태입니다.");
@@ -608,10 +558,6 @@ public class MainActivity extends AppCompatActivity {
         btReset.setOnClickListener(v -> { // Terminal clear 버튼눌렀을때 동작
             database.mainDao().reset(database.mainDao().getAll()); // DB 삭제
             dataList.clear(); // List 삭제
-
-//            Log.e(TAG, "리셋버튼 누른 후 MainRecyclerview : "+dataList);
-//            Log.e(TAG, "리셋버튼 누른 후 DB 데이터 : "+database.mainDao().getAll());
-//            Log.e(TAG,"리셋버튼 누른 후 File : "+ mTextFileManager.load()); 이건 따로 기능으로 냅두려고 여기에 안 넣었다.
 
             adapter.notifyDataSetChanged(); // 리사이클러뷰의 리스트를 업데이트 하는 함수중 하난데 리스트의 크기와 아이템이 둘 다 변경되는 경우 사용
             Toast.makeText(this, "창을 클리어 했습니다.", Toast.LENGTH_SHORT).show();
@@ -642,6 +588,18 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Error :" + e);
             }
         });
+    }
+
+    public void RecyclerView_Add(StringBuilder text) {
+        MainData data = new MainData();
+        data.setText("RX (차대번호) :" + text);
+        database.mainDao().insert(data);
+        dataList.add(data);
+        try {
+            mTextFileManager.save("RX :" + text + "\n"); // File에 add , :: 는 구분 용
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void AddList(List list){
