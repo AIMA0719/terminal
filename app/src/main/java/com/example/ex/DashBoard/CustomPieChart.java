@@ -19,7 +19,7 @@ import az.plainpie.annotation.ColorInt;
 
 public class CustomPieChart extends PieView {
 
-    private static final String DEFAULT_PERCENTAGE_TEXT = "0%";
+    //private static final String DEFAULT_PERCENTAGE_TEXT = "0%";
     private static final int DEFAULT_PERCENTAGE_SIZE = 35;
     private static final int DEFAULT_INNER_CIRCLE_PADDING = 15;
     private static final int CIRCLE_DEGREES = 360;
@@ -101,9 +101,9 @@ public class CustomPieChart extends PieView {
     private void setPercentageText() {
         if (mPercentage != 0) {
             int roundedPercentage = (int) (mPercentage * mMaxPercentage);
-            mPercentageTextView.setText(Integer.toString(roundedPercentage) + "%");
+            mPercentageTextView.setText(roundedPercentage);
         } else {
-            mPercentageTextView.setText(DEFAULT_PERCENTAGE_TEXT);
+            mPercentageTextView.setText("대기 중");
         }
     }
 
