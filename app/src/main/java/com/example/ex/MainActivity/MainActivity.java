@@ -70,15 +70,12 @@ public class MainActivity extends AppCompatActivity {
     public TextView list_item;
     public BluetoothFragment bluetoothFragment;
     public TextFileManager mTextFileManager = new TextFileManager(this);
-    public String readdress = ""; // 핸들러로 받은 메세지 저장
     public String sText; // editText 창에 입력한 메세지
     public boolean flag = false;
     private Fragment AtCommandsFragment; // AT 커맨드 프래그먼트
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
     public static final int BT_CONNECTING_STATUS = 1;
-    public static final int AT_COMMANDS_SETTING = 2;
-    public int index = 0;
     public String show_data = "";
 
     //Debug : 6897BB
@@ -156,14 +153,12 @@ public class MainActivity extends AppCompatActivity {
                         if (msg.obj == null) {
                             Log.d(TAG, "메인엑티비티 에서 받은 데이터가 없습니다.");
                         }
-
-                        readdress += msg.obj;
                         editText.setText("");
 
                             if(msg.arg2 == -1){
-                                if (readdress.contains(">")) {
+                                if (msg.obj.toString().contains(">")) {
                                     Log.d(TAG, "Response 메세지 전달 받음");
-                                    String[] slicing_data = readdress.split(">");
+                                    String[] slicing_data = msg.obj.toString().split(">");
 
                                     String PIDS = slicing_data[0].substring(0,2);
                                     if(sText!=null){
@@ -172,9 +167,9 @@ public class MainActivity extends AppCompatActivity {
 
                                     switch (PIDS){ // 서비스 아이디에 따라 출력
                                         case "01":
-                                            if(readdress.contains("?")){ // 명령어 제외하고 입력
+                                            if(msg.obj.toString().contains("?")){ // 명령어 제외하고 입력
                                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
-                                            }else if(readdress.contains("DATA")){ // 데이터 없는 명령어 입력
+                                            }else if(msg.obj.toString().contains("DATA")){ // 데이터 없는 명령어 입력
                                                 Toast.makeText(MainActivity.this, "데이터가 존재하지 않습니다!", Toast.LENGTH_SHORT).show();
                                             }
                                             else { // 명령어 제대로 된거 입력 하면
@@ -188,92 +183,18 @@ public class MainActivity extends AppCompatActivity {
                                         case "03":
                                             String [] SevenEchoEight_Data_03 = show_data.split("7E9"); // 7E8 첫번째 두번째 랑 7E9,7EA 이렇게 나눔
                                             String [] replaceData_03 = SevenEchoEight_Data_03[0].split("7E8"); // 7E8 첫번째랑 두번째 나눔
-
                                             List<String> SevenEchoEightPart_03 = new ArrayList<>();// 7E8 작업 리스트
                                             List<String> SevenEchoNinePart_03 = new ArrayList<>();// 7E9 작업 리스트
-                                            List<String> MergeList_03 = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
 
                                             //-----------7E8
                                             int Intindex = Integer.parseInt(replaceData_03[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
-
-                                            if(Intindex%2 == 1){ //유효 바이트가 홀 수라면
-                                                for(int i = 1; i< replaceData_03.length; i++){
-                                                    if(i==1){
-                                                        for(int j = 8; j< replaceData_03[i].length(); j+=2){
-                                                            if(j+2<= replaceData_03[i].length())
-                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
-                                                        }
-                                                    }else {
-                                                        for(int j = 2; j< replaceData_03[i].length(); j+=2){
-                                                            if(j+2<= replaceData_03[i].length())
-                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
-                                                        }
-                                                    }
-                                                }
-                                            }else {  // 유효 바이트가 짝 수라면
-                                                for(int i = 1; i< replaceData_03.length; i++){
-                                                    if(i==1){
-                                                        for(int j = 8; j< replaceData_03[i].length(); j+=2){
-                                                            if(j+2<= replaceData_03[i].length())
-                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
-                                                        }
-                                                    }else {
-                                                        for(int j = 2; j< replaceData_03[i].length(); j+=2){
-                                                            if(j+2<= replaceData_03[i].length())
-                                                                SevenEchoEightPart_03.add(replaceData_03[i].substring(j,j+2));
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            List<String> rawDataList = SevenEchoEightPart_03.subList(0,Intindex);
-
-                                            for(int i=0;i+1<rawDataList.size();i+=2){
-                                                if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
-                                                    MergeList_03.add(rawDataList.get(i) +rawDataList.get(i+1));
-                                            }
-                                            //-----------7E8
+                                            ListSlicing(Intindex,SevenEchoEightPart_03,replaceData_03,"7E8");
 
                                             //------------7E9
                                             int Intindex1 = Integer.parseInt(SevenEchoEight_Data_03[1].substring(4,5),16); // 유효 바이트가 어디까지 인지
-                                            // 064702 0102 D600
-
-                                            if(Intindex1 % 2 == 1){
-                                                for(int i =8;i<SevenEchoEight_Data_03[1].length();i+=2){
-                                                    if(i+2<=SevenEchoEight_Data_03[1].length())
-                                                        SevenEchoNinePart_03.add(SevenEchoEight_Data_03[1].substring(i,i+2));
-                                                }
-                                            }
-                                            else {
-                                                for(int i =6;i<SevenEchoEight_Data_03[1].length();i+=2){
-                                                    if(i+2<=SevenEchoEight_Data_03[1].length())
-                                                        SevenEchoNinePart_03.add(SevenEchoEight_Data_03[1].substring(i,i+2));
-                                                }
-                                            }
-
-                                            for(int i=0;i+1<SevenEchoNinePart_03.size();i+=2){
-                                                if(!(SevenEchoNinePart_03.get(i) + SevenEchoNinePart_03.get(i + 1)).equals("0000"))
-                                                    MergeList_03.add(SevenEchoNinePart_03.get(i) +SevenEchoNinePart_03.get(i+1));
-                                            }
-                                            //------------7E9
-
-                                            //MergeList_03 가공
-                                            for(int i=0;i<MergeList_03.size();i++){
-                                                int firstIndex = Integer.parseInt(MergeList_03.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
-                                                String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
-
-                                                String start = BinaryFirstIndex.substring(0,2);
-                                                String end = BinaryFirstIndex.substring(2,4);
-
-                                                String Chilepal_data = Listgagong(start,end) + MergeList_03.get(i).substring(1,4);
-                                                MergeList_03.set(i,Chilepal_data);
-                                                String last = MergeList_03.get(i);
-                                                RecyclerView_Add(new StringBuilder(last+" (현재 고장 코드)"));
-                                            }
-
-
-
+                                            ListSlicing(Intindex1,SevenEchoNinePart_03,SevenEchoEight_Data_03,"7E9");
                                             break;
+
                                         case "07":
                                             if(show_data.contains("?")){ // 명령어 제외하고 입력
                                                 Toast.makeText(MainActivity.this, "유효하지 않는 명령어 입니다!", Toast.LENGTH_SHORT).show();
@@ -288,104 +209,39 @@ public class MainActivity extends AppCompatActivity {
                                                     List<String> sevenEchoEightPart_07 = new ArrayList<>();// 7E8 작업 리스트
                                                     List<String> sevenEchoNinePart_07 = new ArrayList<>();// 7E9 작업 리스트
                                                     List<String> sevenEchoAPart_07 = new ArrayList<>();// 7EA 작업 리스트
-                                                    List<String> mergelist_07 = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
 
                                                     //-----------7E8
                                                     int intindex_07 = Integer.parseInt(replacedata_07[1].substring(2,4),16); // 유효 바이트가 어디까지 인지
-
-                                                    if(intindex_07%2 == 1){ //유효 바이트가 홀 수라면
-                                                        for(int i=1;i<replacedata_07.length;i++){
-                                                            if(i==1){
-                                                                for(int j=8;j<replacedata_07[i].length();j+=2){
-                                                                    if(j+2<= replacedata_07[i].length())
-                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
-                                                                }
-                                                            }else {
-                                                                for(int j=2;j<replacedata_07[i].length();j+=2){
-                                                                    if(j+2<= replacedata_07[i].length())
-                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
-                                                                }
-                                                            }
-                                                        }
-                                                    }else {  // 유효 바이트가 짝 수라면
-                                                        for(int i=1;i<replacedata_07.length;i++){
-                                                            if(i==1){
-                                                                for(int j=8;j<replacedata_07[i].length();j+=2){
-                                                                    if(j+2<= replacedata_07[i].length())
-                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
-                                                                }
-                                                            }else {
-                                                                for(int j=2;j<replacedata_07[i].length();j+=2){
-                                                                    if(j+2<= replacedata_07[i].length())
-                                                                        sevenEchoEightPart_07.add(replacedata_07[i].substring(j,j+2));
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-                                                    List<String> rawdatalist_07 = sevenEchoEightPart_07.subList(0,intindex_07);
-
-                                                    for(int i=0;i+1<rawdatalist_07.size();i+=2){
-                                                        if(!(rawdatalist_07.get(i) + rawdatalist_07.get(i + 1)).equals("0000"))
-                                                            mergelist_07.add(rawdatalist_07.get(i) +rawdatalist_07.get(i+1));
-                                                    }
-                                                    //-----------7E8
+                                                    ListSlicing(intindex_07,sevenEchoEightPart_07,replacedata_07,"7E8");
 
                                                     //------------7E9
                                                     int intindex1_07 = Integer.parseInt(replacedata1_07[0].substring(4,5),16); // 유효 바이트가 어디까지 인지
-                                                    // 064702 0102 D600
-                                                    if(intindex1_07 % 2 == 1){
-                                                        for(int i =8;i<replacedata1_07[0].length();i+=2){
-                                                            if(i+2<=replacedata1_07[0].length())
-                                                                sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
-                                                        }
-                                                    }
-                                                    else {
-                                                        for(int i =6;i<replacedata1_07[0].length();i+=2){
-                                                            if(i+2<=replacedata1_07[0].length())
-                                                                sevenEchoNinePart_07.add(replacedata1_07[0].substring(i,i+2));
-                                                        }
-                                                    }
-
-                                                    for(int i=0;i+1<sevenEchoNinePart_07.size();i+=2){
-                                                        if(!(sevenEchoNinePart_07.get(i) + sevenEchoNinePart_07.get(i + 1)).equals("0000"))
-                                                            mergelist_07.add(sevenEchoNinePart_07.get(i) +sevenEchoNinePart_07.get(i+1));
-                                                    }
-                                                    //------------7E9
+                                                    ListSlicing(intindex1_07,sevenEchoNinePart_07,replacedata1_07,"7E9");
 
                                                     //------------7EA
                                                     int Intindex2_07 = Integer.parseInt(replacedata1_07[1].substring(4,5),16); // 유효 바이트가 어디까지 인지
+                                                    ListSlicing(Intindex2_07,sevenEchoAPart_07,replacedata1_07,"7EA");
 
-                                                    if(Intindex2_07 % 2 == 1){
-                                                        for(int i =8;i<replacedata1_07[1].length();i+=4){
-                                                            if(i+4<=replacedata1_07[1].length())
-                                                                sevenEchoAPart_07.add(replacedata1_07[1].substring(i,i+4));
-                                                        }
-                                                    }
-                                                    else {
-                                                        for(int i =6;i<replacedata1_07[1].length();i+=4){
-                                                            if(i+4<=replacedata1_07[1].length())
-                                                                sevenEchoAPart_07.add(replacedata1_07[1].substring(i,i+4));
-                                                        }
-                                                    }
-                                                    if(!(sevenEchoAPart_07.get(0).equals("0000")))
-                                                        mergelist_07.add(sevenEchoAPart_07.get(0));
-                                                    //------------7EA
-
-                                                    for(int i=0;i<mergelist_07.size();i++){
-                                                        int firstIndex = Integer.parseInt(mergelist_07.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
-                                                        String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
-
-                                                        String start = BinaryFirstIndex.substring(0,2);
-                                                        String end = BinaryFirstIndex.substring(2,4);
-
-
-                                                        String Chilepal_data = Listgagong(start,end) + mergelist_07.get(i).substring(1,4);
-                                                        mergelist_07.set(i,Chilepal_data);
-                                                        String last1 = mergelist_07.get(i);
-                                                        RecyclerView_Add(new StringBuilder(last1 + " (임시 고장 코드)"));
-                                                    }
                                                 }
+                                            }
+                                            break;
+
+                                        case "0A":
+                                        case "0a":
+                                            List<String> MergeList_0a = new ArrayList<>();
+                                            MergeList_0a.add(show_data.substring(10)); // 7E8 4A 01 12 34 중에서 1234만 빼옴
+
+                                            for(int i=0;i<MergeList_0a.size();i++){
+                                                int firstIndex = Integer.parseInt(MergeList_0a.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+                                                String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //0채워줌 ex) 10 -> 0010
+
+                                                String start = BinaryFirstIndex.substring(0,2);
+                                                String end = BinaryFirstIndex.substring(2,4);
+
+                                                String Data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
+                                                MergeList_0a.set(i,Data);
+                                                String last2 = MergeList_0a.get(i);
+                                                RecyclerView_Add(new StringBuilder(last2+" (과거 고장 코드)"));
                                             }
 
                                             break;
@@ -441,32 +297,13 @@ public class MainActivity extends AppCompatActivity {
                                                 }
                                                 else {
                                                     if (!flag) {
-
                                                         RecyclerView_Add(new StringBuilder(show_data));
                                                         Log.d(TAG, "Response 메세지 : " + show_data);
                                                     }
                                                 }
                                             }
                                             break;
-                                        case "0A":
-                                        case "0a":
-                                            List<String> MergeList_0a = new ArrayList<>();
-                                            MergeList_0a.add(show_data.substring(10)); // 1234 다
 
-                                            for(int i=0;i<MergeList_0a.size();i++){
-                                                int firstIndex = Integer.parseInt(MergeList_0a.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
-                                                String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
-
-                                                String start = BinaryFirstIndex.substring(0,2);
-                                                String end = BinaryFirstIndex.substring(2,4);
-
-                                                String Chilepal_data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
-                                                MergeList_0a.set(i,Chilepal_data);
-                                                String last2 = MergeList_0a.get(i);
-                                                RecyclerView_Add(new StringBuilder(last2+" (과거 고장 코드)"));
-                                            }
-
-                                            break;
                                         case "AT":
                                         case "at":
                                             Toast.makeText(MainActivity.this, "AT 커맨드를 입력하셨습니다.", Toast.LENGTH_SHORT).show();
@@ -490,8 +327,6 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         adapter.notifyDataSetChanged(); // 갱신
-
-                        readdress = ""; // 초기화 시켜줌
                         Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }
 
@@ -586,6 +421,117 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "Error :" + e);
             }
         });
+    }
+
+    public void ListSlicing(int index, List<String> list, String [] strings, String flag){
+        List<String> MergeList = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
+
+        if(flag.equals("7E8")){
+            if(index%2 == 1){ //유효 바이트가 홀 수라면
+                for(int i = 1; i< strings.length; i++){
+                    if(i==1){
+                        for(int j = 8; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }else {
+                        for(int j = 2; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }
+                }
+            }else {  // 유효 바이트가 짝 수라면
+                for(int i = 1; i< strings.length; i++){
+                    if(i==1){
+                        for(int j = 8; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }else {
+                        for(int j = 2; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }
+                }
+            }
+
+            List<String> rawDataList = list.subList(0,index);
+
+            for(int i=0;i+1<rawDataList.size();i+=2){
+                if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
+                    MergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
+            }
+
+
+        }else if(flag.equals("7E9")){
+            if(index%2 == 1){ //유효 바이트가 홀 수라면
+                for(int i = 1; i< strings.length; i++){
+                    if(i==1){
+                        for(int j = 6; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }else {
+                        for(int j = 2; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }
+                }
+            }else {  // 유효 바이트가 짝 수라면
+                for(int i = 1; i< strings.length; i++){
+                    if(i==1){
+                        for(int j = 6; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }else {
+                        for(int j = 2; j< strings[i].length(); j+=2){
+                            if(j+2<= strings[i].length())
+                                list.add(strings[i].substring(j,j+2));
+                        }
+                    }
+                }
+            }
+
+            for(int i=0;i+1<list.size();i+=2){
+                if(!(list.get(i) + list.get(i + 1)).equals("0000"))
+                    MergeList.add(list.get(i) +list.get(i+1));
+            }
+        }else if(flag.equals("7EA")){
+            if(index % 2 == 1){
+                for(int i =8;i<strings[1].length();i+=4){
+                    if(i+4<=strings[1].length())
+                        list.add(strings[1].substring(i,i+4));
+                }
+            }
+            else {
+                for(int i =6;i<strings[1].length();i+=4){
+                    if(i+4<=strings[1].length())
+                        list.add(strings[1].substring(i,i+4));
+                }
+            }
+            if(!(list.get(0).equals("0000")))
+                MergeList.add(list.get(0));
+        }
+
+        //Mergelist 가공
+        for(int i=0;i<MergeList.size();i++){
+            int firstIndex = Integer.parseInt(MergeList.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
+            @SuppressLint("DefaultLocale") String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
+
+            String start = BinaryFirstIndex.substring(0,2);
+            String end = BinaryFirstIndex.substring(2,4);
+
+            String Data = Listgagong(start,end) + MergeList.get(i).substring(1,4);
+            MergeList.set(i,Data);
+            String last = MergeList.get(i);
+
+            RecyclerView_Add(new StringBuilder(last+" (현재 고장 코드)"));
+        }
+
     }
 
     public void RecyclerView_Add(StringBuilder text) {
