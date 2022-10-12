@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private Fragment ObdPidsFragment; // OBD PIDS 프래그먼트
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
     public static final int BT_CONNECTING_STATUS = 1;
-    public static final int AT_COMMANDS_SETTING = 2;
-    public int index = 0;
     public String show_data = "";
 
     //Debug : 6897BB
@@ -266,11 +264,8 @@ public class MainActivity extends AppCompatActivity {
                                                 String end = BinaryFirstIndex.substring(2,4);
 
                                                 String Chilepal_data = Listgagong(start,end) + MergeList_03.get(i).substring(1,4);
-                                                MergeList_03.set(i,Chilepal_data);
-
+                                                RecyclerView_Add(new StringBuilder(Chilepal_data));
                                             }
-
-                                            AddList(MergeList_03);
 
                                             break;
                                         case "07":
@@ -381,10 +376,9 @@ public class MainActivity extends AppCompatActivity {
 
 
                                                         String Chilepal_data = Listgagong(start,end) + mergelist_07.get(i).substring(1,4);
-                                                        mergelist_07.set(i,Chilepal_data);
+                                                        RecyclerView_Add(new StringBuilder(Chilepal_data));
 
                                                     }
-                                                    AddList((mergelist_07));
                                                 }
                                             }
 
@@ -462,11 +456,10 @@ public class MainActivity extends AppCompatActivity {
                                                 String end = BinaryFirstIndex.substring(2,4);
 
                                                 String Chilepal_data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
-                                                MergeList_0a.set(i,Chilepal_data);
+                                                RecyclerView_Add(new StringBuilder(Chilepal_data));
 
                                             }
 
-                                            AddList(MergeList_0a);
 
                                             break;
                                         case "AT":
@@ -592,7 +585,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void RecyclerView_Add(StringBuilder text) {
         MainData data = new MainData();
-        data.setText("RX (차대번호) :" + text);
+        data.setText("RX : " + text);
         database.mainDao().insert(data);
         dataList.add(data);
         try {
@@ -602,17 +595,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void AddList(List list){
-        MainData data = new MainData();
-        data.setText("RX :" + list);
-        database.mainDao().insert(data);
-        dataList.add(data);
-        try {
-            mTextFileManager.save("RX :" + list + "\n"); // File에 add , :: 는 구분 용
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     public String Listgagong(String start,String end){
         switch (start){
