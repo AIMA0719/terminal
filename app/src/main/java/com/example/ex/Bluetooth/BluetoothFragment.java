@@ -245,7 +245,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
     @SuppressLint("NotifyDataSetChanged")
     public void DisConnection_onCreateDialog(String device_name, String device_address) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        //LayoutInflater inflater = requireActivity().getLayoutInflater();
 
         builder.setTitle("블루투스 연결 설정")
                 .setMessage(device_name+" 기기와 \n연결 취소 하시겠습니까?")
@@ -272,7 +271,6 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
     public void Connection_onCreateDialog(String device_name, String device_address) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        //LayoutInflater inflater = requireActivity().getLayoutInflater();
 
         builder.setTitle("블루투스 연결 설정")
                 .setMessage(device_name+" 기기와\n연결 하시겠습니까?")
@@ -365,13 +363,13 @@ public class BluetoothFragment extends Fragment implements Serializable {
 
         listView_pairing.setHasFixedSize(true);
         listView_scan.setHasFixedSize(true);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         RecyclerView.LayoutManager layoutManager1 = new LinearLayoutManager(getContext());
         listView_pairing.setLayoutManager(layoutManager);
         listView_scan.setLayoutManager(layoutManager1);
         listView_scan.setAdapter(adapter2);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(requireContext(), ((LinearLayoutManager) layoutManager).getOrientation()); // RecyclerView 구분 선 추가
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(requireContext(), layoutManager.getOrientation()); // RecyclerView 구분 선 추가
         listView_pairing.addItemDecoration(dividerItemDecoration); // 적용
         listView_scan.addItemDecoration(dividerItemDecoration); // 적용
         return view;
@@ -460,7 +458,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
                 Log.d(TAG, "onReceive: 폰이 안 좋다..");
             }
         }
-    }; // 브로드캐스트 리시버 (Device scan)
+    };
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) { //툴바랑 연결된 메뉴
@@ -575,7 +573,7 @@ public class BluetoothFragment extends Fragment implements Serializable {
             final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", UUID.class);
             return (BluetoothSocket) m.invoke(device, MY_UUID);
         } catch (Exception e) {
-            Log.e(TAG, "Could not create Insecure RFComm Connection", e);
+            Log.e(TAG, "소켓 생성 실패", e);
         }
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
         }

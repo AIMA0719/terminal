@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                                                 String start = BinaryFirstIndex.substring(0,2);
                                                 String end = BinaryFirstIndex.substring(2,4);
 
-                                                String Data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
+                                                String Data = ObdPidsChange(start,end)  + MergeList_0a.get(i).substring(1,4);
                                                 MergeList_0a.set(i,Data);
                                                 String last2 = MergeList_0a.get(i);
                                                 RecyclerView_Add(new StringBuilder(last2+" (과거 고장 코드)"));
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
 //                                                        showData = "09027E810144902014B4D487E821444734315542457E82255303133363536"; 법인차량 차대번호 rawData
 
-                                                        String [] replacedata = show_data.split("7E8"); // 차대번호에서 7E9이런거 나오는건 배제하고 작업함...
+                                                        String [] replacedata = show_data.split("7E8"); // 차대번호에서 7E9이런거 나오는건 배제하고 작업함... 나중에 로직수정 필요
 
                                                         for(int i=1;i<replacedata.length;i++){
 
@@ -373,7 +373,6 @@ public class MainActivity extends AppCompatActivity {
                         Objects.requireNonNull(recyclerView.getLayoutManager()).scrollToPosition(dataList.size() - 1); // 리사이클러뷰의 focus 맨 마지막에 입력했던걸로 맞춰줌
                     }
 
-
                 } else { //기기랑 연결 안 되어있는 상태
                     RecyclerView_Add(new StringBuilder(sText));
                     editText.setText("");
@@ -426,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
     public void ListSlicing(int index, List<String> list, String [] strings, String flag){
         List<String> MergeList = new ArrayList<>();// 위 3개 합쳐서 맨앞꺼 바꾼뒤 다시 넣어주는 리스트
 
-        if(flag.equals("7E8")){
+        if(flag.equals("7E8")){ // 7E8일때
             if(index%2 == 1){ //유효 바이트가 홀 수라면
                 for(int i = 1; i< strings.length; i++){
                     if(i==1){
@@ -457,15 +456,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            List<String> rawDataList = list.subList(0,index);
+            List<String> rawDataList = list.subList(0,index); // ex) 총 index가 14인데 유효데이터가 10이면 10까지 슬라이싱 함
 
-            for(int i=0;i+1<rawDataList.size();i+=2){
+            for(int i=0;i+1<rawDataList.size();i+=2){ // 0000은 제거해줌 더미데이터 인 것 같다
                 if(!(rawDataList.get(i) + rawDataList.get(i + 1)).equals("0000"))
                     MergeList.add(rawDataList.get(i) +rawDataList.get(i+1));
             }
 
 
-        }else if(flag.equals("7E9")){
+        }else if(flag.equals("7E9")){ // 7E9일때
             if(index%2 == 1){ //유효 바이트가 홀 수라면
                 for(int i = 1; i< strings.length; i++){
                     if(i==1){
@@ -496,11 +495,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            for(int i=0;i+1<list.size();i+=2){
+            for(int i=0;i+1<list.size();i+=2){ //더미데이터 삭제
                 if(!(list.get(i) + list.get(i + 1)).equals("0000"))
                     MergeList.add(list.get(i) +list.get(i+1));
             }
-        }else if(flag.equals("7EA")){
+
+        }else if(flag.equals("7EA")){ // 7EA일때
             if(index % 2 == 1){
                 for(int i =8;i<strings[1].length();i+=4){
                     if(i+4<=strings[1].length())
@@ -513,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                         list.add(strings[1].substring(i,i+4));
                 }
             }
-            if(!(list.get(0).equals("0000")))
+            if(!(list.get(0).equals("0000"))) //더미데이터 빼고 넣음
                 MergeList.add(list.get(0));
         }
 
@@ -525,11 +525,11 @@ public class MainActivity extends AppCompatActivity {
             String start = BinaryFirstIndex.substring(0,2);
             String end = BinaryFirstIndex.substring(2,4);
 
-            String Data = Listgagong(start,end) + MergeList.get(i).substring(1,4);
+            String Data = ObdPidsChange(start,end) + MergeList.get(i).substring(1,4);
             MergeList.set(i,Data);
             String last = MergeList.get(i);
 
-            RecyclerView_Add(new StringBuilder(last+" (현재 고장 코드)"));
+            RecyclerView_Add(new StringBuilder(last));
         }
 
     }
@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public String Listgagong(String start,String end){
+    public String ObdPidsChange(String start, String end){
         switch (start){
             case "00":
                 start = "P";
