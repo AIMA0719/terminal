@@ -267,10 +267,11 @@ public class MainActivity extends AppCompatActivity {
 
                                                 String Chilepal_data = Listgagong(start,end) + MergeList_03.get(i).substring(1,4);
                                                 MergeList_03.set(i,Chilepal_data);
-
+                                                String last = MergeList_03.get(i);
+                                                RecyclerView_Add(new StringBuilder(last+" (현재 고장 코드)"));
                                             }
 
-                                            AddList(MergeList_03);
+
 
                                             break;
                                         case "07":
@@ -371,7 +372,6 @@ public class MainActivity extends AppCompatActivity {
                                                         mergelist_07.add(sevenEchoAPart_07.get(0));
                                                     //------------7EA
 
-                                                    //MergeList_03 가공
                                                     for(int i=0;i<mergelist_07.size();i++){
                                                         int firstIndex = Integer.parseInt(mergelist_07.get(i).substring(0,1),16); // 앞에 따와서 16진수 -> 10진수
                                                         String BinaryFirstIndex = String.format("%04d",Integer.parseInt(Integer.toBinaryString(firstIndex))); //10진수를 format함수로 0 채워서 4자리 맟줌
@@ -382,9 +382,9 @@ public class MainActivity extends AppCompatActivity {
 
                                                         String Chilepal_data = Listgagong(start,end) + mergelist_07.get(i).substring(1,4);
                                                         mergelist_07.set(i,Chilepal_data);
-
+                                                        String last1 = mergelist_07.get(i);
+                                                        RecyclerView_Add(new StringBuilder(last1 + " (임시 고장 코드)"));
                                                     }
-                                                    AddList((mergelist_07));
                                                 }
                                             }
 
@@ -429,8 +429,7 @@ public class MainActivity extends AppCompatActivity {
                                                         for(int i=0;i<vinIntRawData.size();i++){
                                                             ASCII.append(vinCharRawData.get(i));
                                                         }
-
-                                                        RecyclerView_Add(new StringBuilder(ASCII));
+                                                        RecyclerView_Add(new StringBuilder(ASCII+" (차대번호)"));
                                                         Log.d(TAG, "출력된 데이터 :" + ASCII);
                                                     }
 
@@ -463,10 +462,9 @@ public class MainActivity extends AppCompatActivity {
 
                                                 String Chilepal_data = Listgagong(start,end)  + MergeList_0a.get(i).substring(1,4);
                                                 MergeList_0a.set(i,Chilepal_data);
-
+                                                String last2 = MergeList_0a.get(i);
+                                                RecyclerView_Add(new StringBuilder(last2+" (과거 고장 코드)"));
                                             }
-
-                                            AddList(MergeList_0a);
 
                                             break;
                                         case "AT":
@@ -592,23 +590,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void RecyclerView_Add(StringBuilder text) {
         MainData data = new MainData();
-        data.setText("RX (차대번호) :" + text);
+        data.setText("RX : " + text);
         database.mainDao().insert(data);
         dataList.add(data);
         try {
-            mTextFileManager.save("RX :" + text + "\n"); // File에 add , :: 는 구분 용
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void AddList(List list){
-        MainData data = new MainData();
-        data.setText("RX :" + list);
-        database.mainDao().insert(data);
-        dataList.add(data);
-        try {
-            mTextFileManager.save("RX :" + list + "\n"); // File에 add , :: 는 구분 용
+            mTextFileManager.save("RX " + text + "\n"); // File에 add , :: 는 구분 용
         } catch (IOException e) {
             e.printStackTrace();
         }
