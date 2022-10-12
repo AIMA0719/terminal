@@ -1,0 +1,916 @@
+[33mcommit 2a992e2758d2abfaf32adebd8843f629ac89e26a[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 12 10:11:50 2022 +0900
+
+    10/12
+
+[33mcommit ffdac3835a0174e63f79db1728362a54ebf1c83a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 11 17:56:00 2022 +0900
+
+    10/11 DTC작업
+
+[33mcommit 544e4f877db973d29a7cd0946894533f14116545[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 11 17:45:24 2022 +0900
+
+    10/11 DTC
+
+[33mcommit 1b133f45f39be586795079330e64176c16980f7e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 11 16:52:25 2022 +0900
+
+    10/11 고장코드
+
+[33mcommit bf81264fbcd61e4d6985362ba401d52fb4bc7060[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 11 16:05:06 2022 +0900
+
+    10/11 03,07
+
+[33mcommit 13a708ac45de797173ce919a2ffbe8eb345459df[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 11 15:29:35 2022 +0900
+
+    10/11
+
+[33mcommit fd994f2d7fe0c074c4fc933b7fd3f0d57c4e6382[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Oct 7 16:59:11 2022 +0900
+
+    10/07 1111
+
+[33mcommit 3e29cf02bb3b295d0fe32d3d5975c88c0db53627[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Oct 7 16:45:20 2022 +0900
+
+    10/07 1730
+
+[33mcommit 5d8471bbf3a59cdccdc27434b17a012c85c97e66[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Oct 7 16:31:50 2022 +0900
+
+    10/07 1700
+
+[33mcommit 795fbb4e504c8de906f241d2665b1ec17cc93d1e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Oct 7 13:32:37 2022 +0900
+
+    10/07
+
+[33mcommit 9e93d6fd27b2a212ab763a70dbfbf4f7d539b844[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 17:59:35 2022 +0900
+
+    10/06 1800
+
+[33mcommit 64a3288a204c4646b78f6544e1f968ce2ec11d43[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 17:47:02 2022 +0900
+
+    10/06 차대번호 파싱 완료
+
+[33mcommit acb367a39d05bf80054cc51fd8b395b7f80381da[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 17:03:35 2022 +0900
+
+    10/06 고장코드
+
+[33mcommit 1dc0bcb0761cd1d56442bc6a711652dec2d1ee8f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 15:54:34 2022 +0900
+
+    10/06 차대번호,고장코드 파싱
+
+[33mcommit 235db6983c8cd61b5330538e749535ccc704bcd1[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 13:52:05 2022 +0900
+
+    10/06 VIN
+
+[33mcommit 150871f61758c7891ac72a378679295fddb00c05[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Oct 6 13:10:29 2022 +0900
+
+    10/06
+
+[33mcommit 59f2a0816311f49294b81a4093abc2de0b8fc58f[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Wed Oct 5 21:14:09 2022 +0900
+
+    list
+
+[33mcommit cbf23f876936fd4496d68e8ce808cffcad6890b8[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 5 17:58:31 2022 +0900
+
+    10/05
+
+[33mcommit ceaf5ce0bdaa3e346b4f6ad94f762e67ab1e6a1d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 5 17:36:35 2022 +0900
+
+    백버튼
+
+[33mcommit ccd49b93fbb5b785909ff1b4ceb6000e2f37d1ff[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 5 15:35:15 2022 +0900
+
+    Error code
+
+[33mcommit f04acca9104950129a8420daa706698d57946bca[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 5 14:06:59 2022 +0900
+
+    03, 09
+
+[33mcommit 5019c59b56d65d1998a618eb3377a811b763ed82[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Oct 5 10:39:30 2022 +0900
+
+    another service id
+
+[33mcommit d1ea86e5eaa50ea2dc974e844e91afe2f440c04f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 4 17:44:04 2022 +0900
+
+    구분선 추가 및 데이터 파싱 변경
+
+[33mcommit 85e1ac6d75c8b7c68e75280d33970bc2da131f56[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Oct 4 14:46:03 2022 +0900
+
+    10/04
+
+[33mcommit 22fb4f4f0bc3c70d992a6c78456525d682deb942[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 30 18:01:37 2022 +0900
+
+    09/30 indexCheck
+
+[33mcommit fd9e3c3ae3a608ee5bbffe05375197dd1e67866c[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 30 11:47:47 2022 +0900
+
+    09/30 log color change
+
+[33mcommit 6bb259ebe90e86df1bd2b20f85680d6cca8c6909[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 30 09:30:52 2022 +0900
+
+    09/30
+
+[33mcommit ed293871f54d25cdc2890142354af8e57e45739f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 18:02:09 2022 +0900
+
+    09/29 1800
+
+[33mcommit 6c93e12493adf8a9fe29c7d6829acc30e6a03455[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 17:31:18 2022 +0900
+
+    09/29 1730
+
+[33mcommit ad5abfc25a2a0c76e05b7c7af5dc277527406aa1[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 17:06:23 2022 +0900
+
+    09/29 1700
+
+[33mcommit f0c28f1129836113ec6f595baf4795891b82861f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 15:25:41 2022 +0900
+
+    09/29 flag
+
+[33mcommit 61f0c76b7de0a07672895c5c954b74e819615210[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 14:26:01 2022 +0900
+
+    09/29 back
+
+[33mcommit 3d4f5500d0389b8dc97a1450fd73b5d9d147dfb8[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 10:36:01 2022 +0900
+
+    09/29 1030
+
+[33mcommit db86b7c61578f7c6f60100a61d16ab32d1490f1c[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 29 10:17:18 2022 +0900
+
+    09/29 1000
+
+[33mcommit 5ab986455207d5d492f31db8bdc7beb141b33a5d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 28 17:49:45 2022 +0900
+
+    09/28 1800
+
+[33mcommit c2369e4a58dffb238c66e6f2d73704d3e11ba66f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 28 13:56:21 2022 +0900
+
+    09/28 1400
+
+[33mcommit 6a945e7c9bbab16788e842b0975a58e0975d29cc[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 28 11:13:25 2022 +0900
+
+    09/28 dialog
+
+[33mcommit 250ca26fe12d0ba4893c4a01bf7c2a1260d56a37[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 28 10:17:05 2022 +0900
+
+    09/28 permission
+
+[33mcommit d951cfa58d656871693d5c1b96a47f6ddaa0436d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 17:04:37 2022 +0900
+
+    09/27 1700
+
+[33mcommit 717601f58d3b7680c3f48615c1c99cabf7a4d89f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 16:10:10 2022 +0900
+
+    09/27 bluetooth
+
+[33mcommit d9a54ce14342b3713a0bab89412b9b50fe2764ab[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 15:54:18 2022 +0900
+
+    09/27 no..
+
+[33mcommit a9806c6dcb040a7719793e884b8f8fe1ba8f7bff[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 15:11:12 2022 +0900
+
+    09/27 BluetoothFragment
+
+[33mcommit b83b0fb2746db8c461cc602fd1f6cecd2c6a16e6[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 13:50:51 2022 +0900
+
+    09/27 adapter
+
+[33mcommit 94d4e46666543520b9f5da642f7f7033070accc4[m
+Author: Jay <77438297+AIMA0719@users.noreply.github.com>
+Date:   Tue Sep 27 10:55:33 2022 +0900
+
+    Update README.md
+
+[33mcommit 315efd7cb48c044c3acce0a53bad5acc0351f412[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 27 10:49:08 2022 +0900
+
+    09/27 File
+
+[33mcommit 4214251f56f8db954c53b2159495ba254959c938[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Mon Sep 26 21:56:17 2022 +0900
+
+    0926/list
+
+[33mcommit d5f585be93cd7241be3983f5682057e17b56fe87[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 26 18:02:04 2022 +0900
+
+    09/26 18:00
+
+[33mcommit 27243cf4167de2f9b134159f3f57fe889d20d661[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 26 16:27:17 2022 +0900
+
+    09/26 BluetoothFragment
+
+[33mcommit 0cc465a236f976fadc713b92c9a6cfe84418ff4a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 26 15:37:08 2022 +0900
+
+    09/26 DashBoard
+
+[33mcommit 4bc23f845e189d4bc93173ed8aa6b774b9dacaee[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 26 12:30:19 2022 +0900
+
+    09/26 버그수정
+
+[33mcommit 87b4ab406ab7bd2cd85ae19a7ae5ec68ed5b216f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 26 10:59:47 2022 +0900
+
+    percentage
+
+[33mcommit 2600de3768411e18c597fbbcdf5997ae25473790[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 17:30:01 2022 +0900
+
+    2022/0922 1750
+
+[33mcommit ae769254cbd79ccd7e55073f12abb630e6e2a915[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 16:38:34 2022 +0900
+
+    2022/0922 1640
+
+[33mcommit 85b5d48c7ccef34dce89f796c576ce81c11ad003[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 15:55:03 2022 +0900
+
+    2022/0922 1600
+
+[33mcommit 42e86aaf051c55fc804454c40045e2674371b940[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 15:26:24 2022 +0900
+
+    2022/0922 Dash Board1
+
+[33mcommit 13d73655f9011f9b45399738bea40d0d4313c58e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 15:23:29 2022 +0900
+
+    2022/0922 Dash Board
+
+[33mcommit dc11e0a6a43346ec1f591e3adb9331b523ba5656[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 12:01:06 2022 +0900
+
+    2022/0922 Dash Board
+
+[33mcommit bd230e494df3edff4435d903f0d923b27a6cbc72[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 11:01:16 2022 +0900
+
+    2022/0922 Dash Board
+
+[33mcommit 489aa90f09689072ce26a09cc34b4137b0d6084e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 10:45:29 2022 +0900
+
+    2022/0922 Dash Board
+
+[33mcommit ccaf402de4b518e306a97abc08c25bb03d43f197[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 22 09:30:59 2022 +0900
+
+    2022/0922
+
+[33mcommit f805c6a884727cef68781d634cce5258bfd7abf4[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 18:01:59 2022 +0900
+
+    2022/0920
+
+[33mcommit 35d6f2728b58b97eae8cbcdea7503e52210491f5[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 16:17:03 2022 +0900
+
+    2022/0920
+
+[33mcommit 31011eaa877bdef41885c30bb67e65e908a3aa94[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 16:05:28 2022 +0900
+
+    0920/1600
+
+[33mcommit eead23e89da10c57bc76a2da6cae3a6581e088b5[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 15:38:23 2022 +0900
+
+    0920/1530
+
+[33mcommit d2afbc786bcc0f66e5de355efa4cf269206c5c20[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 14:31:49 2022 +0900
+
+    0920/1430
+
+[33mcommit c47406103cb64eb343d86089114f2106f7de42e0[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 11:53:02 2022 +0900
+
+    0920/1200
+
+[33mcommit d63450f6073476087455a8190293d8852172d988[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 11:25:00 2022 +0900
+
+    0920/1120
+
+[33mcommit 3e2ee93a6ffecd8cbb836e90b94bb14e22e115be[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 10:46:37 2022 +0900
+
+    0920
+
+[33mcommit f932554c14cea53e5a29e77251f87163650afba5[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 20 09:44:11 2022 +0900
+
+    0920
+
+[33mcommit d75ae7e913ab30f3291b796a489297cc535ad748[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 19 18:01:46 2022 +0900
+
+    0919
+
+[33mcommit d839fc3d6ae8788b35c485fb946abdd8dea5dcb3[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 19 16:53:13 2022 +0900
+
+    0919
+
+[33mcommit 5fbfe68149a91088b4c76bdf49da2ff9a7b3d602[m
+Merge: 6b048e5 d5884ec
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 19 16:11:19 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 6b048e56cc6f88226047c0cbc94dc613c4a650e5[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 19 16:11:12 2022 +0900
+
+    월요일 Graph
+
+[33mcommit d5884ece14316a292a61b6643a83c02997871b64[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Mon Sep 19 13:54:23 2022 +0900
+
+    Update README.md
+
+[33mcommit 8aae793ec392332b32e88eed14b1295cb581386a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 19 11:36:01 2022 +0900
+
+    월요일 Dialog_fragment
+
+[33mcommit d292b0411dcb830c84a186bee1287253cf5fa83f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 16 12:37:44 2022 +0900
+
+    금요일 Dialog
+
+[33mcommit b42b93feccafc8a42226c2cbbf4b9e26edc701f7[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 16 11:50:41 2022 +0900
+
+    금요일 Dialog
+
+[33mcommit bee5fd90520a17d64f2d736a0114b37cd335f192[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 16 10:10:33 2022 +0900
+
+    금요일
+
+[33mcommit b6f37450d41d45f1591beb4f14e06c16600585ff[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Thu Sep 15 23:15:25 2022 +0900
+
+    목요일
+
+[33mcommit 132f3da8560d84cca273146bca9cd507a74bee84[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 18:00:14 2022 +0900
+
+    목요일
+
+[33mcommit 012d9b1c6df4052edee5bd7c9e57325a0f1f3df7[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 17:12:00 2022 +0900
+
+    목요일
+
+[33mcommit 2433d3efe12b3ab6d6166b11dcff20b3d82a5497[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 14:53:03 2022 +0900
+
+    file
+
+[33mcommit 118d590fc4dc6d5bf24f68b2fe7838d40f38bef0[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 13:03:42 2022 +0900
+
+    Bluetooth Connection done
+
+[33mcommit 9eac012964b31774461242d1c6265470defe9c0b[m
+Merge: 4611100 b0aac8c
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 11:54:14 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 46111007611e9d837cbfed2d5c7b46c20040b2ba[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 11:54:09 2022 +0900
+
+    Bluetooth Connection done
+
+[33mcommit b0aac8c31e34db46a63d4045647fea27de7304db[m
+Merge: 98f58ef f0ba900
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 11:13:16 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+    
+    # Conflicts:
+    #       app/src/main/java/com/example/ex/DB/MainAdapter.java
+    #       app/src/main/java/com/example/ex/MainActivity.java
+
+[33mcommit 98f58efbec08fd073e8790a50d2915bfaeaba767[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 15 11:13:05 2022 +0900
+
+    목요일
+
+[33mcommit f0ba90032d6fd11b1ab7503fe6c0ae500c19314b[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 18:09:57 2022 +0900
+
+    수요일
+
+[33mcommit 7762ac8bd95ea07541d50d2b515a1f085ade5964[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 16:48:53 2022 +0900
+
+    수요일
+
+[33mcommit 7eeac04f8aa86fff9d056c009a1a9e080ee53e65[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 14:33:47 2022 +0900
+
+    수요일
+
+[33mcommit 792387ca93329cb1ecf8567a529ef9b087ef1eea[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 14:02:42 2022 +0900
+
+    수요일
+
+[33mcommit 3ed767eb4be66b2af6aff7f8e70324e218080416[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 11:47:56 2022 +0900
+
+    수요일 오전12
+
+[33mcommit 190f931938bf5372b2d1eae547b2b6bbb03cc878[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 11:21:47 2022 +0900
+
+    수요일 오전11
+
+[33mcommit 1f1502785c805dda58536c906d46315ada5dbfa3[m
+Merge: 75ac606 d0f1c31
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 10:33:49 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 75ac606377d9770854629823db09e8b6657f6915[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 10:33:21 2022 +0900
+
+    수요일 오전10시30
+
+[33mcommit 5d7103be0f65900876cd08ff020a276a44459e55[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 14 10:13:52 2022 +0900
+
+    수요일 오전10시
+
+[33mcommit 77ec038949903b423054d3915388a6c87ff6fd2f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 13 18:07:43 2022 +0900
+
+    화요일 6시..
+
+[33mcommit d0f1c31f860a76c5eec5eaee479b5d7fb603eecd[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Tue Sep 13 15:49:55 2022 +0900
+
+    Update README.md
+
+[33mcommit e46afade93d9b9f2862534eec9131880d064a6bc[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 13 15:09:42 2022 +0900
+
+    read 실패..
+
+[33mcommit e75c3a03b25281cfbe748da7cb930f1cf059ed4d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 13 11:04:35 2022 +0900
+
+    0913
+
+[33mcommit 26532c5a7390110da8eaa897d4b2ebf576ebc86c[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 8 17:02:20 2022 +0900
+
+    0908/
+
+[33mcommit 07a8caf6f6de1624f4ff0e6e7d6b57037a59cc0a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 8 15:44:06 2022 +0900
+
+    0908/1540
+
+[33mcommit 5e9cfccdd187c08bcdca28e7a4f9f9bdf7f06183[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Sep 8 11:16:20 2022 +0900
+
+    0908/1116
+
+[33mcommit ee33ca7f77a7b8ad9ee17ea9127af24a2717be93[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 7 17:59:50 2022 +0900
+
+    read 막혔다.
+
+[33mcommit c132fba9e7ad18875463f31a4735e2a1bad20ace[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Sep 7 11:43:23 2022 +0900
+
+    BluetoothFragment clean
+
+[33mcommit 46a6008599e60564a5f98b8c5a9ad7c752ec76ed[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 6 18:29:21 2022 +0900
+
+    Connection done
+
+[33mcommit f98adb94eab91037b9b3f1ef29ca20e1afcf3587[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 6 17:30:28 2022 +0900
+
+    Connection done
+
+[33mcommit cf66723e3fbc35e3a0c8a8944cdbd25e150ac2e1[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 6 15:47:30 2022 +0900
+
+    Activity -> Fragment
+
+[33mcommit c9882d27882dfef8847baa0f839cf2b6d8fbc65e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Sep 6 14:26:54 2022 +0900
+
+    Bluetooth_Activity
+    -> BluetoothFragment
+
+[33mcommit 4843bf18f8ce0bcbef7fa0bb1a4fc4a9d5754acf[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 5 18:13:29 2022 +0900
+
+    dfasdfasdf
+
+[33mcommit da583432d0180e027fecfdac77d11dd5b1103ddd[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 5 16:26:58 2022 +0900
+
+    Bluetooth 연결
+
+[33mcommit 83aaac962a4582221338dcf9f511f2ec0ce5f45a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Sep 5 16:26:15 2022 +0900
+
+    Bluetooth 연결까지 완료
+
+[33mcommit fdbf87560c07c027e78b88728c3885a0e8aa1196[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Mon Sep 5 15:01:59 2022 +0900
+
+    Update README.md
+
+[33mcommit 84d4011bfe7d328e3c3b785e00c4425750d79c07[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 2 13:38:51 2022 +0900
+
+    test1111
+
+[33mcommit 0eccba6c7c326f17a79d82b59b97b0db1c3ba04d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Sep 2 08:55:21 2022 +0900
+
+    연결기능해야함
+
+[33mcommit 85ce8f3964172cbc320767d60f84d0256e9d80ae[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 31 17:54:02 2022 +0900
+
+    연결기능
+
+[33mcommit 653f3d7c3b843bd7e76e3f6deab03ee8ac52a5c2[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 31 16:30:05 2022 +0900
+
+    최신
+
+[33mcommit 06f67652bc6b525a098197368ad144960592347f[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 31 15:26:54 2022 +0900
+
+    근처기기 권한 바꿈
+
+[33mcommit 570ccc87cc527b47e23ce2dafab2825bf5fd7d92[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 31 15:15:35 2022 +0900
+
+    list로 CustomAdapter 바꿈
+
+[33mcommit c3f78eab6691fbe17757e82fdbc04803d6e905cc[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 18:04:41 2022 +0900
+
+    뻐킹스태틱
+
+[33mcommit 3e6bbf933042f120da13ce01fff9b316d18a9043[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 14:02:20 2022 +0900
+
+    클린코드
+
+[33mcommit e753530889a51e8ad771c4bcba66e54b7dc230a3[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 13:13:49 2022 +0900
+
+    클린코드
+
+[33mcommit 35e8d67c3641aa0a30e10d47c42bc04fb46c27be[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 11:29:32 2022 +0900
+
+    클린코드
+
+[33mcommit 016d187d5d1d64c3f0b25f2e8ae956860da4d094[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 11:20:03 2022 +0900
+
+    클린코드
+
+[33mcommit 8956757b117ddaf674eff9dd658dc28e61bc2d1a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 11:17:03 2022 +0900
+
+    클린코드
+
+[33mcommit 01a36a63add2a737a44bf2d4af6f7dbf401a140e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 30 11:09:17 2022 +0900
+
+    리사이클러 버튼동작
+
+[33mcommit f3586d1b67cd48ae51a383daf32f90628c909062[m
+Merge: 75901e5 c95128a
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Aug 29 17:47:50 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 75901e52a1666676d0941a6108b7ab4390eb8658[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Aug 29 17:47:43 2022 +0900
+
+    scan done
+
+[33mcommit c95128ada0f414ea22f9fdb3be176e07a38cb8da[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Mon Aug 29 14:51:56 2022 +0900
+
+    Create README.md
+
+[33mcommit bee5f191cb5cb0af8039788cee717e0bbb72aa23[m
+Merge: 94c156f 2ee9312
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Aug 29 10:38:47 2022 +0900
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 94c156ff2982edcad69af81e019855623f0d1f21[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Mon Aug 29 10:37:04 2022 +0900
+
+    clean
+
+[33mcommit 2ee9312ece201f9c843a59cc9a398ff731d12577[m
+Author: jay_choi <dkwkrhrh07@naver.com>
+Date:   Sat Aug 27 11:43:24 2022 +0900
+
+    layout 수정
+
+[33mcommit 82b6822f2b631d385fc50164ad85ddc5a24ad3b8[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Aug 26 18:12:29 2022 +0900
+
+    listview -> RecyclerView로 변경
+
+[33mcommit 4f1c8f278bc4e2e9c478921e8ce7b26367e7d0c3[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Aug 26 16:53:20 2022 +0900
+
+    listview -> RecyclerView로 변경
+
+[33mcommit 6ff2843b4aa9b51a04c95f765712f6702701e16e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 25 17:35:43 2022 +0900
+
+    connect 수정
+
+[33mcommit 744f5ccc31288a42e1be2166a29a49a3e95eee8c[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 17:47:35 2022 +0900
+
+    bluetooth_connect page
+
+[33mcommit 30fd8e91aae16ad2ff45af13ebc814211239200e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 16:09:36 2022 +0900
+
+    bluetooth_connect page
+
+[33mcommit b955bd92d7795c76f26c3a15c9996b0cd3d513a4[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 14:25:02 2022 +0900
+
+    2:24
+
+[33mcommit 68b9cdb197b170c15ca440fa68a1c4653b585030[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 14:01:16 2022 +0900
+
+    focus
+
+[33mcommit 839222edb9aca074ac1370be9f31ac1ed269acd0[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 11:21:37 2022 +0900
+
+    Remark좀 함
+
+[33mcommit 75bccee9cc12ce77811921c009736c570d91d5a2[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Wed Aug 24 11:05:19 2022 +0900
+
+    start
+
+[33mcommit a9039b0795e11f7fb1a020ff314e9cd3416110bd[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Tue Aug 23 17:46:17 2022 +0900
+
+    start
+
+[33mcommit d129c8419fb45f37b9ac238afcd0e40924eea1e2[m
+Author: AIMA0719 <77438297+AIMA0719@users.noreply.github.com>
+Date:   Fri Aug 19 21:07:21 2022 +0900
+
+    umm
+
+[33mcommit 88df5c54eaa13ecf15fdec06897ac807fb6b681e[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Aug 19 15:30:10 2022 +0900
+
+    bluetooth1
+
+[33mcommit 29ccfe2119420a561a0e79887056d5fe86e42667[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Fri Aug 19 15:09:47 2022 +0900
+
+    bluetooth
+
+[33mcommit 54c31dd7452a8b91a5e8ebb1ca6b79c051fdce95[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 18:12:11 2022 +0900
+
+    bluetooth
+
+[33mcommit d7c388691a47081984a882ea0b6bf9ef1c450f4d[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 17:26:11 2022 +0900
+
+    location permission check add
+
+[33mcommit 99251b7ec33f286cae4fef314ac9f4a817885f5a[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 16:49:47 2022 +0900
+
+    hard..
+
+[33mcommit fe6ed842cb129c451c48cbb65448f22adf267f48[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 15:00:55 2022 +0900
+
+    add location permission check
+
+[33mcommit aedcbbebd4a03a78f20db6e206949792aa7baeca[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 14:08:55 2022 +0900
+
+    second
+
+[33mcommit 847e8484cf1d385c784e3b89890006532b267e92[m
+Author: Infocar <dkwkrhrh07@naver.com>
+Date:   Thu Aug 18 14:06:35 2022 +0900
+
+    se
