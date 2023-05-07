@@ -59,7 +59,6 @@ public class AtCommandFragment extends Fragment {
         MainActivity.screenflag = 1;
 
         At_commands.add(new AtCommandFragmentAdapter.PIDS("AT Command","Description"));
-        At_commands.add(new AtCommandFragmentAdapter.PIDS("언제 명령어를","전부 다 넣냐"));
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true ) { //백버튼
             @Override

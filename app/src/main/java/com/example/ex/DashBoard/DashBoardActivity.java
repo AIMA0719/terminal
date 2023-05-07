@@ -259,6 +259,6 @@ public class DashBoardActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    } // 뒤로가기 버튼 만들고 누르면 작동하는 함수
+    }
 
 }

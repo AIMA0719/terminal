@@ -78,24 +78,16 @@ public class MainActivity extends AppCompatActivity {
     public static int screenflag = 0; // Activity,Fragment 별 screen flag 구분위해 만들었는데 아직 쓸모없다
     public static final int BT_CONNECTING_STATUS = 1;
     public String show_data = "";
-
-    //Debug : 6897BB
-    //Info : 6A8759
-    //Warn : BBB529
-    //Error : FF6B68
-    //Assert : 9876AA
-
     long backKeyPressedTime = 0; // 백버튼 변수
 
     @RequiresApi(api = Build.VERSION_CODES.S)
-    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak"})
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n", "HandlerLeak", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.e(TAG, "메인 엑티비티에 들어옴" );
 
-        list_item = findViewById(R.id.text_view);
+        list_item = findViewById(R.id.text_view1);
         editText = findViewById(R.id.command_write);
         btAdd = findViewById(R.id.send_message);
         btReset = findViewById(R.id.clear_message);
@@ -111,11 +103,11 @@ public class MainActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); //  화면 특정방향 고정
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //BluetoothAdapter 인스턴스를 얻는다
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); //BluetoothAdapter 인스턴스 get
 
         // -------- 툴바 관려된 설정
         Toolbar toolbar = findViewById(R.id.toolbar); //툴바 아이디 가져오기
-        setSupportActionBar(toolbar); //툴바 소환
+        setSupportActionBar(toolbar); //툴바
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false); // title 가시 여부
         getSupportActionBar().setDisplayHomeAsUpEnabled(false); // 타이틀 왼쪽 3단 메뉴 버튼일단 false 로
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24); // 버튼 아이콘 변경
@@ -721,7 +713,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "설정에서 권한을 허용 해주세요. ", Toast.LENGTH_SHORT).show();// 권한 허용 해줘
         }
         super.onRequestPermissionsResult(requestCode, permissions, grandResults);
-    }// -------- 앱 시작하면 권한이 있는지 없는지 체크하는 메소드 ( 현재 위치권한 확인 체크된다)
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -730,7 +722,7 @@ public class MainActivity extends AppCompatActivity {
         menuInflater.inflate(R.menu.menu, menu);
 
         return super.onCreateOptionsMenu(menu);
-    } // -------- Toolbar 에 menu.xml을 inflate 함 =  메뉴에있는 UI 들 객체화해서 쓸 수 있게한다? 로 이해함
+    }
 
     @SuppressLint({"NonConstantResourceId", "NotifyDataSetChanged"})
     @Override
@@ -886,7 +878,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         if (screenflag == 1) { // BluetoothFragment 일 때
             super.onBackPressed();
         }
@@ -894,14 +885,10 @@ public class MainActivity extends AppCompatActivity {
             // 1000 milliseconds = 1.0 seconds
 
             if (System.currentTimeMillis() > backKeyPressedTime + 1000) {
-                // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
-                // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지났으면 Toast 출력
                 backKeyPressedTime = System.currentTimeMillis();
                 Toast.makeText(this, "한 번 더 누르시면 종료됩니다.", Toast.LENGTH_LONG).show();
                 return;
             }
-            // 마지막으로 뒤로 가기 버튼을 눌렀던 시간에 2.5초를 더해 현재 시간과 비교 후
-            // 마지막으로 뒤로 가기 버튼을 눌렀던 시간이 2.5초가 지나지 않았으면 종료
             if (System.currentTimeMillis() <= backKeyPressedTime + 1000) {
                 finish();
                 Log.e(TAG, "어플 종료!");

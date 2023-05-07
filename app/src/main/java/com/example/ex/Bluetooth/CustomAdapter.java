@@ -23,7 +23,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         this.items = items;
     }
 
-    //-------------------------------------------------------- 리사이클러뷰 아이템 클릭동작 구현 위한 작업 -> 이건 뷰홀더안에 만드는게아니라 외부 엑티비티 혹은 프래그먼트에서 동학하기위해 인터페이스만든거
+
 
     public interface OnItemClickListener{ //온 아이템 리스너 인터페이스 선언
         void onItemClicked(int position,View view);
@@ -71,7 +71,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) { // 뷰홀더안에 내용으로 position에 해당하는 데이터로 교체
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
         Customer item = items.get(position);
 
         holder.textView.setText(item.getName());

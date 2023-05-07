@@ -146,7 +146,7 @@ public class MyDialogFragment extends DialogFragment {
 
         });
 
-        setCancelable(false); // 유저가 화면 밖 검은 곳 터치하면 취소되게 하는거 방지용용
+        setCancelable(false); // 유저가 화면 밖 검은 곳 터치하면 취소되게 하는거 방지
 
         return view;
     }

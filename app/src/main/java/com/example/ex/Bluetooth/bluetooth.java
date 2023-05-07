@@ -138,21 +138,21 @@ public class bluetooth extends AppCompatActivity {
             }
         }
 
-        listView_pairing.setAdapter(adapter); //리사이클러뷰에 어댑터 설정
+        listView_pairing.setAdapter(adapter);
 
-        bluetooth_on.setOnClickListener(v -> { // 블루투스 on 클릭 이벤트
-            if (mBluetoothAdapter != null) { //블루투스 지원안하면.. 근데 그럴일은 요즘 없지않나
+        bluetooth_on.setOnClickListener(v -> {
+            if (mBluetoothAdapter != null) {
                 if (!mBluetoothAdapter.isEnabled()) {
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) { // 정신병 걸릴뻔 했다 샤오미는 랑 z플립 반대로 작동해서 이것도 버젼대로 해야함 P sdk 이하면 퍼미션 없이 작동하고 이상이면 퍼미션 필요
-                        Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //OFF도 똑같은 방식으로 sdk에 따라 나눠야함
-                        startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                        Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                        startActivityForResult(blue, REQUEST_ENABLE_BT);
                         bluetooth_status.setText("블루투스 연결 상태입니다.");
                     } else {
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                             Toast.makeText(this, "권한이 없습니다.", Toast.LENGTH_SHORT).show();
                         } else {
                             Intent blue = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                            startActivityForResult(blue, REQUEST_ENABLE_BT);  //이거 고쳐야함 일단 패스
+                            startActivityForResult(blue, REQUEST_ENABLE_BT);
                             bluetooth_status.setText("블루투스 연결 상태입니다.");
                         }
                     }
@@ -227,7 +227,7 @@ public class bluetooth extends AppCompatActivity {
 //                    }
 //                }
 //            }
-//        }; // 핸들러...
+//        };
 
         adapter.setOnItemClickListener((position, view) -> {
 
